@@ -3,6 +3,20 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+
+function LogoIcon() {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      className="h-8 w-8 text-primary"
+      fill="currentColor"
+      aria-hidden
+    >
+      <path d="M6 18c0-6 4-12 10-12 2 0 4 .5 5.5 1.5C21 6 22 5 24 5c1 0 2 .3 2.5 1-3 1-5 3-6 5.5 2-.5 4 0 5.5 1.5C28 15 28 18 26 20c-2 2.5-5 4-9 4.5-1 .2-2 .3-3 .3-4 0-7-2-8-4.5C5 19 5 18.5 6 18z" />
+    </svg>
+  );
+}
 
 export function SiteNav() {
   const t = useTranslations("Nav");
@@ -10,18 +24,43 @@ export function SiteNav() {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <header className="border-b border-black/10 dark:border-white/10">
-      <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold">
-          Reptile Concept
+    <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
+        <Link href="/" className="flex items-center gap-2">
+          <LogoIcon />
+          <span className="text-lg font-semibold text-primary">Reptile Concept</span>
         </Link>
-        <div className="flex gap-6 text-sm font-medium">
-          <Link href="/">{t("home")}</Link>
-          <Link href="/animals">{t("animals")}</Link>
-          <Link href="/boutique">{t("boutique")}</Link>
-          <Link href="/cart">
+
+        <div className="hidden items-center gap-6 text-sm font-medium md:flex">
+          <Link href="/" className="text-foreground hover:text-primary">
+            {t("home")}
+          </Link>
+          <Link href="/animals" className="text-foreground hover:text-primary">
+            {t("animals")}
+          </Link>
+          <Link href="/boutique" className="text-foreground hover:text-primary">
+            {t("boutique")}
+          </Link>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <LocaleSwitcher />
+          <Link
+            href="/cart"
+            className="relative flex items-center gap-1.5 rounded-full bg-accent-light px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent/20"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 6h15l-1.5 9h-12z" />
+              <circle cx="9" cy="20" r="1" />
+              <circle cx="18" cy="20" r="1" />
+              <path d="M6 6L5 3H2" />
+            </svg>
             {t("cart")}
-            {itemCount > 0 ? ` (${itemCount})` : ""}
+            {itemCount > 0 ? (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs text-white">
+                {itemCount}
+              </span>
+            ) : null}
           </Link>
         </div>
       </nav>

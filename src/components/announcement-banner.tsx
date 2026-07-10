@@ -9,7 +9,7 @@ export async function AnnouncementBanner() {
   const message = locale === "en" ? announcement.messageEn : announcement.messageFr;
 
   return (
-    <div className="bg-amber-100 px-6 py-2 text-center text-sm text-amber-900 dark:bg-amber-900/40 dark:text-amber-100">
+    <div className="bg-accent px-6 py-2.5 text-center text-sm font-medium text-white">
       {message}
     </div>
   );

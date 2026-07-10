@@ -1,18 +1,53 @@
 {
   "Home": {
     "title": "Reptile Concept",
-    "tagline": "Reptiles, terrariums et accessoires — Lachine, QC",
+    "tagline": "Reptiles, terrariums et accessoires — élevage responsable à Lachine, QC",
     "availableAnimals": "Animaux disponibles",
     "viewAllAnimals": "Voir tous les animaux",
+    "viewAllProducts": "Voir toute la boutique",
     "shopAccessories": "Voir la boutique",
     "noAnimals": "Aucun animal disponible pour le moment.",
-    "priceLabel": "Prix"
+    "priceLabel": "Prix",
+    "available": "Disponible",
+    "inStock": "En stock",
+    "outOfStock": "Rupture de stock",
+    "ctaAnimals": "Voir les animaux",
+    "ctaShop": "Boutique d'accessoires",
+    "categories": "Nos catégories",
+    "category_reptiles": "Reptiles",
+    "category_terrariums": "Terrariums",
+    "category_substrates": "Substrats",
+    "category_food": "Nourriture",
+    "popularProducts": "Produits populaires",
+    "whyUs": "Pourquoi nous choisir",
+    "why_breeding_title": "Élevage responsable",
+    "why_breeding_body": "Tous nos animaux sont nés en captivité, en bonne santé et bien socialisés.",
+    "why_advice_title": "Conseils personnalisés",
+    "why_advice_body": "Notre équipe vous guide pour choisir le bon reptile et aménager son habitat.",
+    "why_shipping_title": "Livraison sécurisée",
+    "why_shipping_body": "Expédition partout au Québec avec contrôle météo et garantie à l'arrivée.",
+    "ctaTitle": "Prêt à accueillir votre prochain compagnon?",
+    "ctaBody": "Parcourez notre sélection de reptiles et d'accessoires pour créer l'habitat parfait.",
+    "animalsSubtitle": "Découvrez nos reptiles disponibles, élevés avec soin à Lachine."
   },
   "Nav": {
     "animals": "Animaux",
     "boutique": "Boutique",
     "home": "Accueil",
     "cart": "Panier"
+  },
+  "Footer": {
+    "tagline": "Votre boutique spécialisée en reptiles à Lachine, Québec.",
+    "visit": "Nous visiter",
+    "address": "Lachine, QC — sur rendez-vous",
+    "hours": "Lun–Sam 10h–18h",
+    "contact": "Contact",
+    "phone": "(514) 555-0199",
+    "links": "Liens rapides",
+    "animals": "Animaux disponibles",
+    "boutique": "Boutique",
+    "cart": "Panier",
+    "rights": "Tous droits réservés"
   },
   "Animal": {
     "backToList": "Retour aux animaux",
@@ -27,8 +62,10 @@
   },
   "Boutique": {
     "title": "Boutique",
+    "subtitle": "Terrariums, substrats, décoration et nourriture pour vos reptiles.",
     "inStock": "En stock",
-    "outOfStock": "Rupture de stock"
+    "outOfStock": "Rupture de stock",
+    "noProducts": "Aucun produit disponible pour le moment."
   },
   "Cart": {
     "title": "Panier",

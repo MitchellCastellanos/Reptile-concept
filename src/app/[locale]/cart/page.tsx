@@ -10,10 +10,14 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-12">
-        <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-        <p className="text-zinc-600 dark:text-zinc-400">{t("empty")}</p>
-        <Link href="/animals" className="w-fit underline">
+      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center gap-6 px-6 py-16 text-center">
+        <p className="text-5xl">🛒</p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted">{t("empty")}</p>
+        <Link
+          href="/animals"
+          className="rounded-full bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary-light"
+        >
           {t("continueShopping")}
         </Link>
       </main>
@@ -22,17 +26,17 @@ export default function CartPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-6 px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
 
       <ul className="flex flex-col gap-4">
         {items.map((item) => (
           <li
             key={`${item.type}-${item.id}`}
-            className="flex items-center justify-between gap-4 rounded-lg border border-black/10 p-4 dark:border-white/10"
+            className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm"
           >
             <div>
-              <p className="font-medium">{item.name}</p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="font-semibold">{item.name}</p>
+              <p className="text-sm text-muted">
                 {item.priceCAD} $ CAD {item.type === "product" ? `× ${item.quantity}` : ""}
               </p>
             </div>
@@ -44,13 +48,13 @@ export default function CartPage() {
                   max={item.maxQuantity}
                   value={item.quantity}
                   onChange={(e) => setProductQuantity(item.id, Number(e.target.value))}
-                  className="w-16 rounded border border-black/20 px-2 py-1 text-sm dark:border-white/20 dark:bg-black"
+                  className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-sm"
                 />
               ) : null}
               <button
                 type="button"
                 onClick={() => removeItem(item.type, item.id)}
-                className="text-sm text-red-600 underline dark:text-red-400"
+                className="text-sm text-red-600 hover:underline"
               >
                 {t("remove")}
               </button>
@@ -59,14 +63,14 @@ export default function CartPage() {
         ))}
       </ul>
 
-      <div className="flex items-center justify-between border-t border-black/10 pt-4 dark:border-white/10">
+      <div className="flex items-center justify-between border-t border-border pt-4">
         <span className="font-medium">{t("total")}</span>
-        <span className="text-lg font-semibold">{totalCAD.toFixed(2)} $ CAD</span>
+        <span className="text-lg font-bold text-primary">{totalCAD.toFixed(2)} $ CAD</span>
       </div>
 
       <Link
         href="/checkout"
-        className="w-fit rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background"
+        className="w-fit rounded-full bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary-light"
       >
         {t("checkout")}
       </Link>

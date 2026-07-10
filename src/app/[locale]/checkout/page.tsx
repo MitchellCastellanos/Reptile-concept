@@ -17,9 +17,9 @@ export default function CheckoutPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
+      <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
 
-      <section className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
         <ul className="flex flex-col gap-1 text-sm">
           {items.map((item) => (
             <li key={`${item.type}-${item.id}`}>
@@ -41,7 +41,7 @@ export default function CheckoutPage() {
           <input
             name="fullName"
             required
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
@@ -50,14 +50,14 @@ export default function CheckoutPage() {
             type="email"
             name="email"
             required
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
           {t("phone")}
           <input
             name="phone"
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
@@ -65,7 +65,7 @@ export default function CheckoutPage() {
           <input
             name="street"
             required
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
         <div className="grid grid-cols-3 gap-4">
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
             <input
               name="city"
               required
-              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              className="rounded-lg border border-border bg-background px-3 py-2"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -83,7 +83,7 @@ export default function CheckoutPage() {
               name="province"
               required
               defaultValue="QC"
-              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              className="rounded-lg border border-border bg-background px-3 py-2"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -91,7 +91,7 @@ export default function CheckoutPage() {
             <input
               name="postalCode"
               required
-              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              className="rounded-lg border border-border bg-background px-3 py-2"
             />
           </label>
         </div>
@@ -104,7 +104,7 @@ export default function CheckoutPage() {
 
         <button
           type="submit"
-          className="w-fit rounded-full bg-foreground px-5 py-3 text-sm font-medium text-background"
+          className="w-fit rounded-full bg-primary px-5 py-3 text-sm font-medium text-white hover:bg-primary-light"
         >
           {t("placeOrder")}
         </button>

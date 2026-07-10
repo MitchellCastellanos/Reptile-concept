@@ -1,33 +1,34 @@
-import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
+import { AnimalCard } from "@/components/animal-card";
 import { getAvailableAnimals } from "@/lib/queries";
 
 export default async function AnimalsPage() {
   const t = await getTranslations("Home");
+  const locale = await getLocale();
   const animals = await getAvailableAnimals();
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-12">
-      <h1 className="text-3xl font-semibold tracking-tight">{t("availableAnimals")}</h1>
+    <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-12">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("availableAnimals")}</h1>
+        <p className="mt-2 text-muted">{t("animalsSubtitle")}</p>
+      </div>
 
       {animals.length === 0 ? (
-        <p className="text-zinc-600 dark:text-zinc-400">{t("noAnimals")}</p>
+        <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
+          <p className="text-4xl">🦎</p>
+          <p className="mt-4 text-muted">{t("noAnimals")}</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {animals.map((animal) => (
-            <Link
+            <AnimalCard
               key={animal.id}
-              href={`/animals/${animal.id}`}
-              className="rounded-lg border border-black/10 p-4 transition hover:border-black/30 dark:border-white/10 dark:hover:border-white/30"
-            >
-              <p className="text-xs uppercase tracking-wide text-zinc-500">
-                {animal.species.commonNameFr} / {animal.species.commonNameEn}
-              </p>
-              <p className="mt-1 font-medium">{animal.morph}</p>
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                {t("priceLabel")}: {Number(animal.priceCAD)} $ CAD
-              </p>
-            </Link>
+              animal={animal}
+              locale={locale}
+              priceLabel={t("priceLabel")}
+              availableLabel={t("available")}
+            />
           ))}
         </div>
       )}

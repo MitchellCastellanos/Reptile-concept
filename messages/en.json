@@ -1,18 +1,53 @@
 {
   "Home": {
     "title": "Reptile Concept",
-    "tagline": "Reptiles, terrariums and supplies — Lachine, QC",
+    "tagline": "Reptiles, terrariums and supplies — responsible breeding in Lachine, QC",
     "availableAnimals": "Available animals",
     "viewAllAnimals": "View all animals",
+    "viewAllProducts": "View full shop",
     "shopAccessories": "Shop accessories",
     "noAnimals": "No animals available right now.",
-    "priceLabel": "Price"
+    "priceLabel": "Price",
+    "available": "Available",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "ctaAnimals": "Browse animals",
+    "ctaShop": "Shop supplies",
+    "categories": "Our categories",
+    "category_reptiles": "Reptiles",
+    "category_terrariums": "Terrariums",
+    "category_substrates": "Substrates",
+    "category_food": "Food",
+    "popularProducts": "Popular products",
+    "whyUs": "Why choose us",
+    "why_breeding_title": "Responsible breeding",
+    "why_breeding_body": "All our animals are captive bred, healthy, and well socialized.",
+    "why_advice_title": "Expert advice",
+    "why_advice_body": "Our team helps you pick the right reptile and set up the perfect habitat.",
+    "why_shipping_title": "Safe shipping",
+    "why_shipping_body": "We ship across Quebec with weather checks and a live arrival guarantee.",
+    "ctaTitle": "Ready for your next companion?",
+    "ctaBody": "Browse our selection of reptiles and supplies to build the perfect habitat.",
+    "animalsSubtitle": "Discover our available reptiles, carefully bred in Lachine."
   },
   "Nav": {
     "animals": "Animals",
     "boutique": "Shop",
     "home": "Home",
     "cart": "Cart"
+  },
+  "Footer": {
+    "tagline": "Your specialty reptile shop in Lachine, Quebec.",
+    "visit": "Visit us",
+    "address": "Lachine, QC — by appointment",
+    "hours": "Mon–Sat 10am–6pm",
+    "contact": "Contact",
+    "phone": "(514) 555-0199",
+    "links": "Quick links",
+    "animals": "Available animals",
+    "boutique": "Shop",
+    "cart": "Cart",
+    "rights": "All rights reserved"
   },
   "Animal": {
     "backToList": "Back to animals",
@@ -27,8 +62,10 @@
   },
   "Boutique": {
     "title": "Shop",
+    "subtitle": "Terrariums, substrates, décor and food for your reptiles.",
     "inStock": "In stock",
-    "outOfStock": "Out of stock"
+    "outOfStock": "Out of stock",
+    "noProducts": "No products available right now."
   },
   "Cart": {
     "title": "Cart",

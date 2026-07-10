@@ -5,6 +5,7 @@ import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { SiteNav } from "@/components/site-nav";
+import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
@@ -46,12 +47,13 @@ export default async function RootLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col bg-background text-foreground">
         <NextIntlClientProvider>
           <CartProvider>
             <AnnouncementBanner />
             <SiteNav />
             {children}
+            <SiteFooter />
           </CartProvider>
         </NextIntlClientProvider>
       </body>
