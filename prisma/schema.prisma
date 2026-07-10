@@ -67,6 +67,12 @@ enum AdminRole {
   staff
 }
 
+enum ExperienceLevel {
+  beginner
+  intermediate
+  advanced
+}
+
 enum AuditAction {
   create
   update
@@ -74,38 +80,58 @@ enum AuditAction {
 }
 
 model Species {
-  id             String   @id @default(uuid())
-  commonNameFr   String
-  commonNameEn   String
-  scientificName String
-  careSheetUrl   String?
-  animals        Animal[]
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String           @id @default(uuid())
+  commonNameFr     String
+  commonNameEn     String
+  scientificName   String
+  careSheetUrl     String?
+  experienceLevel  ExperienceLevel?
+  descriptionFr    String?
+  descriptionEn    String?
+  adultSizeFr      String?
+  adultSizeEn      String?
+  lifespanFr       String?
+  lifespanEn       String?
+  temperamentFr    String?
+  temperamentEn    String?
+  dietFr           String?
+  dietEn           String?
+  humidity         String?
+  tempDay          String?
+  tempNight        String?
+  uvbNeeds         String?
+  enclosureMinSize String?
+  substrate        String?
+  feedingFrequency String?
+  handlingFr       String?
+  handlingEn       String?
+  animals          Animal[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model Animal {
-  id             String       @id @default(uuid())
-  species        Species      @relation(fields: [speciesId], references: [id])
-  speciesId      String
-  morph          String
-  sex            AnimalSex    @default(unknown)
-  birthDate      DateTime?
-  weightGrams    Float?
-  priceCAD       Decimal
-  status         AnimalStatus @default(available)
-  descriptionFr  String
-  descriptionEn  String
-  dam            Animal?      @relation("Parentage_Dam", fields: [damId], references: [id])
-  damId          String?
-  sire           Animal?      @relation("Parentage_Sire", fields: [sireId], references: [id])
-  sireId         String?
-  damOffspring   Animal[]     @relation("Parentage_Dam")
-  sireOffspring  Animal[]     @relation("Parentage_Sire")
-  media          Media[]
-  orderItems     OrderItem[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id            String       @id @default(uuid())
+  species       Species      @relation(fields: [speciesId], references: [id])
+  speciesId     String
+  morph         String
+  sex           AnimalSex    @default(unknown)
+  birthDate     DateTime?
+  weightGrams   Float?
+  priceCAD      Decimal
+  status        AnimalStatus @default(available)
+  descriptionFr String
+  descriptionEn String
+  dam           Animal?      @relation("Parentage_Dam", fields: [damId], references: [id])
+  damId         String?
+  sire          Animal?      @relation("Parentage_Sire", fields: [sireId], references: [id])
+  sireId        String?
+  damOffspring  Animal[]     @relation("Parentage_Dam")
+  sireOffspring Animal[]     @relation("Parentage_Sire")
+  media         Media[]
+  orderItems    OrderItem[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 model Media {
@@ -118,21 +144,21 @@ model Media {
 }
 
 model Product {
-  id               String          @id @default(uuid())
-  sku              String          @unique
-  category         ProductCategory
-  nameFr           String
-  nameEn           String
-  descriptionFr    String?
-  descriptionEn    String?
-  priceCAD         Decimal
-  stockQty         Int             @default(0)
-  requiresColdChain Boolean        @default(false)
-  weightKg         Float?
-  bundleItems      BundleItem[]
-  orderItems       OrderItem[]
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id                String          @id @default(uuid())
+  sku               String          @unique
+  category          ProductCategory
+  nameFr            String
+  nameEn            String
+  descriptionFr     String?
+  descriptionEn     String?
+  priceCAD          Decimal
+  stockQty          Int             @default(0)
+  requiresColdChain Boolean         @default(false)
+  weightKg          Float?
+  bundleItems       BundleItem[]
+  orderItems        OrderItem[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 }
 
 model Bundle {
@@ -156,46 +182,46 @@ model BundleItem {
 }
 
 model Customer {
-  id             String    @id @default(uuid())
-  fullName       String
-  email          String    @unique
-  phone          String?
-  preferredLang  Locale    @default(fr)
-  ageVerified    Boolean   @default(false)
-  internalNotes  String?
-  addresses      Address[]
-  orders         Order[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id            String    @id @default(uuid())
+  fullName      String
+  email         String    @unique
+  phone         String?
+  preferredLang Locale    @default(fr)
+  ageVerified   Boolean   @default(false)
+  internalNotes String?
+  addresses     Address[]
+  orders        Order[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Address {
-  id         String     @id @default(uuid())
-  customer   Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  id         String   @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   customerId String
   street     String
   city       String
   province   String
   postalCode String
-  country    String     @default("CA")
+  country    String   @default("CA")
   orders     Order[]
 }
 
 model Order {
-  id                       String      @id @default(uuid())
-  customer                 Customer    @relation(fields: [customerId], references: [id])
-  customerId               String
-  status                   OrderStatus @default(pending_payment)
-  shippingAddress          Address     @relation(fields: [shippingAddressId], references: [id])
-  shippingAddressId        String
+  id                        String      @id @default(uuid())
+  customer                  Customer    @relation(fields: [customerId], references: [id])
+  customerId                String
+  status                    OrderStatus @default(pending_payment)
+  shippingAddress           Address     @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId         String
   healthGuaranteeAcceptedAt DateTime?
-  carrier                  String?
-  trackingNumber           String?
-  shippedAt                DateTime?
-  items                    OrderItem[]
-  payments                 Payment[]
-  createdAt                DateTime    @default(now())
-  updatedAt                DateTime    @updatedAt
+  carrier                   String?
+  trackingNumber            String?
+  shippedAt                 DateTime?
+  items                     OrderItem[]
+  payments                  Payment[]
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
 }
 
 model OrderItem {
@@ -243,13 +269,13 @@ model AuditLog {
 }
 
 model Announcement {
-  id              String    @id @default(uuid())
-  messageFr       String
-  messageEn       String
-  startsAt        DateTime  @default(now())
-  endsAt          DateTime?
-  active          Boolean   @default(true)
-  createdBy       AdminUser @relation(fields: [createdByAdminId], references: [id])
+  id               String    @id @default(uuid())
+  messageFr        String
+  messageEn        String
+  startsAt         DateTime  @default(now())
+  endsAt           DateTime?
+  active           Boolean   @default(true)
+  createdBy        AdminUser @relation(fields: [createdByAdminId], references: [id])
   createdByAdminId String
-  createdAt       DateTime  @default(now())
+  createdAt        DateTime  @default(now())
 }
