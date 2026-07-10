@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { SiteNav } from "@/components/site-nav";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -47,9 +48,11 @@ export default async function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <NextIntlClientProvider>
-          <AnnouncementBanner />
-          <SiteNav />
-          {children}
+          <CartProvider>
+            <AnnouncementBanner />
+            <SiteNav />
+            {children}
+          </CartProvider>
         </NextIntlClientProvider>
       </body>
     </html>

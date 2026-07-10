@@ -2,6 +2,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { getAnimalById } from "@/lib/queries";
+import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
 
 export default async function AnimalDetailPage({
   params,
@@ -41,6 +42,14 @@ export default async function AnimalDetailPage({
       </p>
 
       <p className="whitespace-pre-line text-zinc-700 dark:text-zinc-300">{description}</p>
+
+      {animal.status === "available" ? (
+        <AddAnimalToCartButton
+          id={animal.id}
+          name={`${speciesName} — ${animal.morph}`}
+          priceCAD={Number(animal.priceCAD)}
+        />
+      ) : null}
     </main>
   );
 }

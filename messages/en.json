@@ -11,7 +11,8 @@
   "Nav": {
     "animals": "Animals",
     "boutique": "Shop",
-    "home": "Home"
+    "home": "Home",
+    "cart": "Cart"
   },
   "Animal": {
     "backToList": "Back to animals",
@@ -28,5 +29,30 @@
     "title": "Shop",
     "inStock": "In stock",
     "outOfStock": "Out of stock"
+  },
+  "Cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "View available animals",
+    "remove": "Remove",
+    "total": "Total",
+    "checkout": "Go to checkout",
+    "reserve": "Reserve this animal",
+    "addToCart": "Add to cart"
+  },
+  "Checkout": {
+    "title": "Checkout",
+    "total": "Total",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "street": "Street address",
+    "city": "City",
+    "province": "Province",
+    "postalCode": "Postal code",
+    "healthGuarantee": "I accept the Live Arrival Guarantee policy and understand an unboxing video will be required for any claim.",
+    "placeOrder": "Place order",
+    "confirmationTitle": "Thank you for your order!",
+    "confirmationBody": "Your order has been recorded under number",
+    "nextSteps": "Our team will confirm payment and check weather conditions before shipping. You'll receive an email as soon as your order ships."
   }
 }

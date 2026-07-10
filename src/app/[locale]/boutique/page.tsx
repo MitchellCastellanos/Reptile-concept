@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { getProducts } from "@/lib/queries";
+import { AddProductToCartButton } from "@/components/add-to-cart-button";
 
 export default async function BoutiquePage() {
   const t = await getTranslations("Boutique");
@@ -28,6 +29,12 @@ export default async function BoutiquePage() {
               <p className="mt-1 text-xs text-zinc-500">
                 {product.stockQty > 0 ? t("inStock") : t("outOfStock")}
               </p>
+              <AddProductToCartButton
+                id={product.id}
+                name={name}
+                priceCAD={Number(product.priceCAD)}
+                stockQty={product.stockQty}
+              />
             </div>
           );
         })}
