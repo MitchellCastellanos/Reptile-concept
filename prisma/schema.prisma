@@ -1,0 +1,255 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Locale {
+  fr
+  en
+}
+
+enum AnimalSex {
+  male
+  female
+  unknown
+}
+
+enum AnimalStatus {
+  available
+  reserved
+  sold
+  on_hold
+  not_for_sale
+}
+
+enum MediaType {
+  photo
+  video
+}
+
+enum ProductCategory {
+  terrarium
+  substrate
+  decor
+  food_live
+  food_frozen
+  food_packaged
+}
+
+enum OrderStatus {
+  pending_payment
+  paid
+  preparing
+  weather_hold
+  ready_to_ship
+  shipped
+  delivered
+  cancelled
+  refunded
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+  refunded
+}
+
+enum AdminRole {
+  owner
+  staff
+}
+
+enum AuditAction {
+  create
+  update
+  delete
+}
+
+model Species {
+  id             String   @id @default(uuid())
+  commonNameFr   String
+  commonNameEn   String
+  scientificName String
+  careSheetUrl   String?
+  animals        Animal[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Animal {
+  id             String       @id @default(uuid())
+  species        Species      @relation(fields: [speciesId], references: [id])
+  speciesId      String
+  morph          String
+  sex            AnimalSex    @default(unknown)
+  birthDate      DateTime?
+  weightGrams    Float?
+  priceCAD       Decimal
+  status         AnimalStatus @default(available)
+  descriptionFr  String
+  descriptionEn  String
+  dam            Animal?      @relation("Parentage_Dam", fields: [damId], references: [id])
+  damId          String?
+  sire           Animal?      @relation("Parentage_Sire", fields: [sireId], references: [id])
+  sireId         String?
+  damOffspring   Animal[]     @relation("Parentage_Dam")
+  sireOffspring  Animal[]     @relation("Parentage_Sire")
+  media          Media[]
+  orderItems     OrderItem[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Media {
+  id        String    @id @default(uuid())
+  animal    Animal    @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  animalId  String
+  type      MediaType
+  url       String
+  sortOrder Int       @default(0)
+}
+
+model Product {
+  id               String          @id @default(uuid())
+  sku              String          @unique
+  category         ProductCategory
+  nameFr           String
+  nameEn           String
+  descriptionFr    String?
+  descriptionEn    String?
+  priceCAD         Decimal
+  stockQty         Int             @default(0)
+  requiresColdChain Boolean        @default(false)
+  weightKg         Float?
+  bundleItems      BundleItem[]
+  orderItems       OrderItem[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Bundle {
+  id             String       @id @default(uuid())
+  nameFr         String
+  nameEn         String
+  bundlePriceCAD Decimal
+  active         Boolean      @default(true)
+  items          BundleItem[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model BundleItem {
+  id        String  @id @default(uuid())
+  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  bundleId  String
+  product   Product @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int     @default(1)
+}
+
+model Customer {
+  id             String    @id @default(uuid())
+  fullName       String
+  email          String    @unique
+  phone          String?
+  preferredLang  Locale    @default(fr)
+  ageVerified    Boolean   @default(false)
+  internalNotes  String?
+  addresses      Address[]
+  orders         Order[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Address {
+  id         String     @id @default(uuid())
+  customer   Customer   @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  street     String
+  city       String
+  province   String
+  postalCode String
+  country    String     @default("CA")
+  orders     Order[]
+}
+
+model Order {
+  id                       String      @id @default(uuid())
+  customer                 Customer    @relation(fields: [customerId], references: [id])
+  customerId               String
+  status                   OrderStatus @default(pending_payment)
+  shippingAddress          Address     @relation(fields: [shippingAddressId], references: [id])
+  shippingAddressId        String
+  healthGuaranteeAcceptedAt DateTime?
+  carrier                  String?
+  trackingNumber           String?
+  shippedAt                DateTime?
+  items                    OrderItem[]
+  payments                 Payment[]
+  createdAt                DateTime    @default(now())
+  updatedAt                DateTime    @updatedAt
+}
+
+model OrderItem {
+  id             String   @id @default(uuid())
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId        String
+  animal         Animal?  @relation(fields: [animalId], references: [id])
+  animalId       String?
+  product        Product? @relation(fields: [productId], references: [id])
+  productId      String?
+  quantity       Int      @default(1)
+  priceAtSaleCAD Decimal
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     String
+  amountCAD   Decimal
+  provider    String
+  providerRef String?
+  status      PaymentStatus @default(pending)
+  paidAt      DateTime?
+  createdAt   DateTime      @default(now())
+}
+
+model AdminUser {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String
+  role          AdminRole      @default(staff)
+  auditLogs     AuditLog[]
+  announcements Announcement[]
+  createdAt     DateTime       @default(now())
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  adminUser   AdminUser   @relation(fields: [adminUserId], references: [id])
+  adminUserId String
+  entity      String
+  entityId    String
+  action      AuditAction
+  createdAt   DateTime    @default(now())
+}
+
+model Announcement {
+  id              String    @id @default(uuid())
+  messageFr       String
+  messageEn       String
+  startsAt        DateTime  @default(now())
+  endsAt          DateTime?
+  active          Boolean   @default(true)
+  createdBy       AdminUser @relation(fields: [createdByAdminId], references: [id])
+  createdByAdminId String
+  createdAt       DateTime  @default(now())
+}
