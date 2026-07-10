@@ -1,0 +1,32 @@
+{
+  "Home": {
+    "title": "Reptile Concept",
+    "tagline": "Reptiles, terrariums and supplies — Lachine, QC",
+    "availableAnimals": "Available animals",
+    "viewAllAnimals": "View all animals",
+    "shopAccessories": "Shop accessories",
+    "noAnimals": "No animals available right now.",
+    "priceLabel": "Price"
+  },
+  "Nav": {
+    "animals": "Animals",
+    "boutique": "Shop",
+    "home": "Home"
+  },
+  "Animal": {
+    "backToList": "Back to animals",
+    "status_available": "Available",
+    "status_reserved": "Reserved",
+    "status_sold": "Sold",
+    "status_on_hold": "On hold",
+    "status_not_for_sale": "Not for sale",
+    "sex_male": "Male",
+    "sex_female": "Female",
+    "sex_unknown": "Unknown sex"
+  },
+  "Boutique": {
+    "title": "Shop",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock"
+  }
+}
