@@ -30,3 +30,11 @@ export function getActiveAnnouncement() {
     orderBy: { startsAt: "desc" },
   });
 }
+
+export function getStoreSettings() {
+  return prisma.storeSettings.upsert({
+    where: { id: 1 },
+    update: {},
+    create: { id: 1 },
+  });
+}

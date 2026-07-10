@@ -72,7 +72,7 @@ export default async function AdminOrderDetailPage({
             <select
               name="status"
               defaultValue={order.status}
-              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              className="admin-input"
             >
               {STATUS_OPTIONS.map((status) => (
                 <option key={status} value={status}>
@@ -86,7 +86,7 @@ export default async function AdminOrderDetailPage({
             <input
               name="carrier"
               defaultValue={order.carrier ?? ""}
-              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              className="admin-input"
             />
           </label>
           <label className="flex flex-col gap-1 text-sm">
@@ -94,7 +94,7 @@ export default async function AdminOrderDetailPage({
             <input
               name="trackingNumber"
               defaultValue={order.trackingNumber ?? ""}
-              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              className="admin-input"
             />
           </label>
           <button

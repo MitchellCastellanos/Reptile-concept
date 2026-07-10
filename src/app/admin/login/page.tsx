@@ -16,7 +16,7 @@ export default function AdminLoginPage() {
             name="email"
             type="email"
             required
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="admin-input"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
             name="password"
             type="password"
             required
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="admin-input"
           />
         </label>
         {state?.error ? (

@@ -26,7 +26,7 @@ export function AnimalForm({
           name="speciesId"
           defaultValue={animal?.speciesId}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         >
           {species.map((s) => (
             <option key={s.id} value={s.id}>
@@ -42,7 +42,7 @@ export function AnimalForm({
           name="morph"
           defaultValue={animal?.morph}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -51,7 +51,7 @@ export function AnimalForm({
         <select
           name="sex"
           defaultValue={animal?.sex ?? "unknown"}
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         >
           {SEX_OPTIONS.map((sex) => (
             <option key={sex} value={sex}>
@@ -69,7 +69,7 @@ export function AnimalForm({
           name="priceCAD"
           defaultValue={animal ? Number(animal.priceCAD) : undefined}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -78,7 +78,7 @@ export function AnimalForm({
         <select
           name="status"
           defaultValue={animal?.status ?? "available"}
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         >
           {STATUS_OPTIONS.map((status) => (
             <option key={status} value={status}>
@@ -95,7 +95,7 @@ export function AnimalForm({
           defaultValue={animal?.descriptionFr}
           required
           rows={3}
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -106,7 +106,7 @@ export function AnimalForm({
           defaultValue={animal?.descriptionEn}
           required
           rows={3}
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 

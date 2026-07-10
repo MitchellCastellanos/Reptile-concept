@@ -32,3 +32,31 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
+
+/*
+ * Admin form fields always render with a light, legible appearance,
+ * regardless of the visitor's OS dark-mode setting: with only `dark:bg-black`
+ * set (no matching `dark:text-*`) the text used to inherit the dark
+ * `--foreground` color, making it nearly unreadable, and browser autofill
+ * (Chrome's dark navy/blue autofill highlight) made it worse.
+ */
+.admin-input {
+  border-radius: 0.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0.75rem;
+  background: #ffffff;
+  color: var(--foreground);
+}
+
+.admin-input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.admin-input:-webkit-autofill,
+.admin-input:-webkit-autofill:hover,
+.admin-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset;
+  -webkit-text-fill-color: var(--foreground);
+  caret-color: var(--foreground);
+}

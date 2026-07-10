@@ -253,3 +253,20 @@ model Announcement {
   createdByAdminId String
   createdAt       DateTime  @default(now())
 }
+
+// Singleton row (id always 1) holding editable store contact info / hours
+// shown in the public site footer.
+model StoreSettings {
+  id        Int      @id @default(1)
+  phone     String   @default("")
+  addressFr String   @default("")
+  addressEn String   @default("")
+  hoursMon  String   @default("Fermé / Closed")
+  hoursTue  String   @default("Fermé / Closed")
+  hoursWed  String   @default("Fermé / Closed")
+  hoursThu  String   @default("Fermé / Closed")
+  hoursFri  String   @default("Fermé / Closed")
+  hoursSat  String   @default("Fermé / Closed")
+  hoursSun  String   @default("Fermé / Closed")
+  updatedAt DateTime @updatedAt
+}

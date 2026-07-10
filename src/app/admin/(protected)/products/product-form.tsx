@@ -24,7 +24,7 @@ export function ProductForm({
           name="sku"
           defaultValue={product?.sku}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -33,7 +33,7 @@ export function ProductForm({
         <select
           name="category"
           defaultValue={product?.category ?? "terrarium"}
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         >
           {CATEGORY_OPTIONS.map((category) => (
             <option key={category} value={category}>
@@ -49,7 +49,7 @@ export function ProductForm({
           name="nameFr"
           defaultValue={product?.nameFr}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -59,7 +59,7 @@ export function ProductForm({
           name="nameEn"
           defaultValue={product?.nameEn}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -71,7 +71,7 @@ export function ProductForm({
           name="priceCAD"
           defaultValue={product ? Number(product.priceCAD) : undefined}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 
@@ -82,7 +82,7 @@ export function ProductForm({
           name="stockQty"
           defaultValue={product?.stockQty ?? 0}
           required
-          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          className="admin-input"
         />
       </label>
 

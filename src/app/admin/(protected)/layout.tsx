@@ -34,6 +34,9 @@ export default async function ProtectedAdminLayout({
             <Link href="/admin/announcements" className="text-sm">
               Annonces
             </Link>
+            <Link href="/admin/settings" className="text-sm">
+              Paramètres
+            </Link>
           </div>
           <div className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
             <span>{admin.email}</span>

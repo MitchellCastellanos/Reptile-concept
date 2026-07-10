@@ -50,7 +50,7 @@ export default async function AdminCustomerDetailPage({
             name="internalNotes"
             defaultValue={customer.internalNotes ?? ""}
             rows={4}
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="admin-input"
           />
           <button
             type="submit"

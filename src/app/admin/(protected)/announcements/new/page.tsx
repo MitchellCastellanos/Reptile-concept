@@ -11,7 +11,7 @@ export default function NewAnnouncementPage() {
             name="messageFr"
             required
             rows={2}
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="admin-input"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
@@ -20,7 +20,7 @@ export default function NewAnnouncementPage() {
             name="messageEn"
             required
             rows={2}
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="admin-input"
           />
         </label>
         <label className="flex flex-col gap-1 text-sm">
@@ -28,7 +28,7 @@ export default function NewAnnouncementPage() {
           <input
             type="datetime-local"
             name="endsAt"
-            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            className="admin-input"
           />
         </label>
         <button
