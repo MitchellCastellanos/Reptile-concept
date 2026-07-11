@@ -19,6 +19,9 @@ export default async function ProtectedAdminLayout({
             <Link href="/admin" className="font-semibold">
               Admin
             </Link>
+            <Link href="/admin/species" className="text-sm">
+              Espèces
+            </Link>
             <Link href="/admin/animals" className="text-sm">
               Animaux
             </Link>
