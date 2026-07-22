@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AnimalCard } from "@/components/animal-card";
 import { getAvailableAnimals } from "@/lib/queries";
@@ -15,8 +16,8 @@ export default async function AnimalsPage() {
       </div>
 
       {animals.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
-          <p className="text-4xl">🦎</p>
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card p-12 text-center">
+          <Image src="/images/animal-placeholder.png" alt="" width={160} height={120} className="h-28 w-auto rounded-lg" />
           <p className="mt-4 text-muted">{t("noAnimals")}</p>
         </div>
       ) : (
