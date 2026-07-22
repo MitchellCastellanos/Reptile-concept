@@ -21,8 +21,18 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://reptile-concept.vercel.app"),
   title: "Reptile Concept",
   description: "Reptiles, terrariums et accessoires — Lachine, QC",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
+  openGraph: {
+    title: "Reptile Concept",
+    description: "Reptiles, terrariums et accessoires — Lachine, QC",
+    images: ["/og-image.jpg"],
+  },
 };
 
 export function generateStaticParams() {

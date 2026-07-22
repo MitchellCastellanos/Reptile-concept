@@ -4,13 +4,12 @@ import { Link } from "@/i18n/navigation";
 import { AnimalCard } from "@/components/animal-card";
 import { ProductCard } from "@/components/product-card";
 import { getAvailableAnimals, getProducts } from "@/lib/queries";
-import { heroImageUrl } from "@/lib/images";
 
 const categoryIcons = [
-  { key: "reptiles" as const, href: "/animals", emoji: "🦎" },
-  { key: "terrariums" as const, href: "/boutique", emoji: "🏠" },
-  { key: "substrates" as const, href: "/boutique", emoji: "🌿" },
-  { key: "food" as const, href: "/boutique", emoji: "🦗" },
+  { key: "reptiles" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
+  { key: "terrariums" as const, href: "/boutique", image: "/images/icons/category-terrariums.png" },
+  { key: "substrates" as const, href: "/boutique", image: "/images/icons/category-substrates.png" },
+  { key: "food" as const, href: "/boutique", image: "/images/icons/category-food.png" },
 ];
 
 const whyUsKeys = ["breeding", "advice", "shipping"] as const;
@@ -27,7 +26,7 @@ export default async function Home() {
     <>
       <section className="relative flex min-h-[420px] items-center overflow-hidden">
         <Image
-          src={heroImageUrl}
+          src="/images/hero.jpg"
           alt="Reptile Concept"
           fill
           priority
@@ -64,13 +63,15 @@ export default async function Home() {
         <section>
           <h2 className="text-center text-2xl font-semibold text-foreground">{t("categories")}</h2>
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {categoryIcons.map(({ key, href, emoji }) => (
+            {categoryIcons.map(({ key, href, image }) => (
               <Link
                 key={key}
                 href={href}
                 className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
               >
-                <span className="text-3xl">{emoji}</span>
+                <span className="relative h-16 w-16 overflow-hidden rounded-xl">
+                  <Image src={image} alt="" fill className="object-cover" />
+                </span>
                 <span className="text-sm font-semibold text-foreground">{t(`category_${key}`)}</span>
               </Link>
             ))}

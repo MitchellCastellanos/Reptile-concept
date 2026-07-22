@@ -1,22 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { LocaleSwitcher } from "@/components/locale-switcher";
-
-function LogoIcon() {
-  return (
-    <svg
-      viewBox="0 0 32 32"
-      className="h-8 w-8 text-primary"
-      fill="currentColor"
-      aria-hidden
-    >
-      <path d="M6 18c0-6 4-12 10-12 2 0 4 .5 5.5 1.5C21 6 22 5 24 5c1 0 2 .3 2.5 1-3 1-5 3-6 5.5 2-.5 4 0 5.5 1.5C28 15 28 18 26 20c-2 2.5-5 4-9 4.5-1 .2-2 .3-3 .3-4 0-7-2-8-4.5C5 19 5 18.5 6 18z" />
-    </svg>
-  );
-}
 
 export function SiteNav() {
   const t = useTranslations("Nav");
@@ -27,7 +15,7 @@ export function SiteNav() {
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
         <Link href="/" className="flex items-center gap-2">
-          <LogoIcon />
+          <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8" priority />
           <span className="text-lg font-semibold text-primary">Reptile Concept</span>
         </Link>
 

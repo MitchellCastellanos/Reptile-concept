@@ -18,8 +18,6 @@ const categoryImages: Record<string, string> = {
   food_packaged: `${UNSPLASH}/photo-1583337130417-3346a1be90dd?w=600&h=450&fit=crop`,
 };
 
-export const heroImageUrl = `${UNSPLASH}/photo-1548767797-d9ccf83f7e25?w=1400&h=700&fit=crop`;
-
 export function getAnimalImageUrl(
   speciesId: string,
   media?: { url: string }[],
