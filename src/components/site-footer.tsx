@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
@@ -8,7 +9,12 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t border-border bg-primary text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-3">
-          <p className="text-lg font-semibold">Reptile Concept</p>
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white p-1">
+              <Image src="/icon.png" alt="" width={20} height={20} className="h-full w-full" />
+            </span>
+            <p className="text-lg font-semibold">Reptile Concept</p>
+          </div>
           <p className="text-sm text-white/80">{t("tagline")}</p>
         </div>
 
