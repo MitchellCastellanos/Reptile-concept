@@ -18,12 +18,14 @@ const categoryImages: Record<string, string> = {
   food_packaged: `${UNSPLASH}/photo-1583337130417-3346a1be90dd?w=600&h=450&fit=crop`,
 };
 
+export const animalPlaceholderImage = "/images/animal-placeholder.png";
+
 export function getAnimalImageUrl(
   speciesId: string,
   media?: { url: string }[],
 ): string {
   if (media?.[0]?.url) return media[0].url;
-  return speciesImages[speciesId] ?? `${UNSPLASH}/photo-1534188756822-dbf28bef2dad?w=600&h=450&fit=crop`;
+  return speciesImages[speciesId] ?? animalPlaceholderImage;
 }
 
 export function getProductImageUrl(category: string): string {

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -11,7 +12,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center gap-6 px-6 py-16 text-center">
-        <p className="text-5xl">🛒</p>
+        <Image src="/images/empty-cart.png" alt="" width={200} height={200} className="h-48 w-48" />
         <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
         <p className="text-muted">{t("empty")}</p>
         <Link

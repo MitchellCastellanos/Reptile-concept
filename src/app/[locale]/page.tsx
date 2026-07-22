@@ -12,7 +12,11 @@ const categoryIcons = [
   { key: "food" as const, href: "/boutique", image: "/images/icons/category-food.png" },
 ];
 
-const whyUsKeys = ["breeding", "advice", "shipping"] as const;
+const whyUsItems = [
+  { key: "breeding" as const, image: "/images/icons/why-breeding.png" },
+  { key: "advice" as const, image: "/images/icons/why-advice.png" },
+  { key: "shipping" as const, image: "/images/icons/why-shipping.png" },
+];
 
 export default async function Home() {
   const t = await getTranslations("Home");
@@ -128,11 +132,11 @@ export default async function Home() {
         <section className="rounded-3xl bg-accent-light px-8 py-12">
           <h2 className="text-center text-2xl font-semibold">{t("whyUs")}</h2>
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
-            {whyUsKeys.map((key) => (
+            {whyUsItems.map(({ key, image }) => (
               <div key={key} className="flex flex-col items-center gap-3 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-2xl text-white">
-                  {key === "breeding" ? "🐍" : key === "advice" ? "💬" : "📦"}
-                </div>
+                <span className="relative h-16 w-16 overflow-hidden rounded-full">
+                  <Image src={image} alt="" fill className="object-cover" />
+                </span>
                 <h3 className="font-semibold">{t(`why_${key}_title`)}</h3>
                 <p className="text-sm text-muted">{t(`why_${key}_body`)}</p>
               </div>
