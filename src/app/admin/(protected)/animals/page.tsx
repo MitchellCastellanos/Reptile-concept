@@ -1,10 +1,11 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { deleteAnimalAction } from "./actions";
 
 export default async function AdminAnimalsPage() {
   const animals = await prisma.animal.findMany({
-    include: { species: true },
+    include: { species: true, media: { orderBy: { sortOrder: "asc" } } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -23,6 +24,7 @@ export default async function AdminAnimalsPage() {
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-black/10 text-left dark:border-white/10">
+            <th className="py-2">Photo</th>
             <th className="py-2">Espèce</th>
             <th className="py-2">Morph</th>
             <th className="py-2">Prix</th>
@@ -33,6 +35,21 @@ export default async function AdminAnimalsPage() {
         <tbody>
           {animals.map((animal) => (
             <tr key={animal.id} className="border-b border-black/5 dark:border-white/5">
+              <td className="py-2">
+                {animal.media[0]?.url ? (
+                  <Image
+                    src={animal.media[0].url}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded object-cover"
+                  />
+                ) : (
+                  <span className="flex h-12 w-12 items-center justify-center rounded bg-black/5 text-xs text-zinc-500 dark:bg-white/5">
+                    —
+                  </span>
+                )}
+              </td>
               <td className="py-2">{animal.species.commonNameFr}</td>
               <td className="py-2">{animal.morph}</td>
               <td className="py-2">{Number(animal.priceCAD)} $</td>

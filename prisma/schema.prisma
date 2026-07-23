@@ -151,6 +151,7 @@ model Product {
   nameEn            String
   descriptionFr     String?
   descriptionEn     String?
+  imageUrl          String?
   priceCAD          Decimal
   stockQty          Int             @default(0)
   requiresColdChain Boolean         @default(false)

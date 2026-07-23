@@ -7,6 +7,7 @@ type ProductCardProduct = {
   category: string;
   nameFr: string;
   nameEn: string;
+  imageUrl?: string | null;
   priceCAD: { toString(): string } | number;
   stockQty: number;
 };
@@ -23,7 +24,7 @@ export function ProductCard({
   outOfStockLabel: string;
 }) {
   const name = locale === "en" ? product.nameEn : product.nameFr;
-  const imageUrl = getProductImageUrl(product.category);
+  const imageUrl = product.imageUrl || getProductImageUrl(product.category);
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md">

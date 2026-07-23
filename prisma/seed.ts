@@ -1,11 +1,10 @@
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db";
-import { getAnimalImageUrl } from "../src/lib/images";
 
 const DEV_ADMIN_PASSWORD = "changeme123";
 
-async function seedMedia(animalId: string, speciesId: string) {
-  const url = getAnimalImageUrl(speciesId);
+async function seedMedia(animalId: string) {
+  const url = `/images/animals/${animalId}.jpg`;
   await prisma.media.upsert({
     where: { id: `seed-media-${animalId}` },
     update: { url },
@@ -171,7 +170,7 @@ async function main() {
         status: "available",
       },
     });
-    await seedMedia(animal.id, animal.speciesId);
+    await seedMedia(animal.id);
   }
 
   const products = [
@@ -258,10 +257,11 @@ async function main() {
   ];
 
   for (const product of products) {
+    const imageUrl = `/images/products/${product.sku}.jpg`;
     await prisma.product.upsert({
       where: { sku: product.sku },
-      update: {},
-      create: product,
+      update: { imageUrl },
+      create: { ...product, imageUrl },
     });
   }
 

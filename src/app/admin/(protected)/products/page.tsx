@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { deleteProductAction } from "./actions";
@@ -20,6 +21,7 @@ export default async function AdminProductsPage() {
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-black/10 text-left dark:border-white/10">
+            <th className="py-2">Photo</th>
             <th className="py-2">SKU</th>
             <th className="py-2">Nom</th>
             <th className="py-2">Catégorie</th>
@@ -31,6 +33,21 @@ export default async function AdminProductsPage() {
         <tbody>
           {products.map((product) => (
             <tr key={product.id} className="border-b border-black/5 dark:border-white/5">
+              <td className="py-2">
+                {product.imageUrl ? (
+                  <Image
+                    src={product.imageUrl}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="h-12 w-12 rounded object-cover"
+                  />
+                ) : (
+                  <span className="flex h-12 w-12 items-center justify-center rounded bg-black/5 text-xs text-zinc-500 dark:bg-white/5">
+                    —
+                  </span>
+                )}
+              </td>
               <td className="py-2">{product.sku}</td>
               <td className="py-2">{product.nameFr}</td>
               <td className="py-2">{product.category}</td>
