@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { Product } from "@/generated/prisma/client";
 
 const CATEGORY_OPTIONS = [
@@ -16,8 +19,31 @@ export function ProductForm({
   product?: Product;
   action: (formData: FormData) => void;
 }) {
+  const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
+
   return (
     <form action={action} className="flex max-w-lg flex-col gap-4">
+      <label className="flex flex-col gap-1 text-sm">
+        Photo (URL ou chemin, ex. /images/products/SKU.jpg)
+        <input
+          name="imageUrl"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="/images/products/TERRA-40G.jpg"
+          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+        />
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={imageUrl}
+            alt=""
+            className="mt-2 h-32 w-32 rounded object-cover"
+            onError={(e) => (e.currentTarget.style.display = "none")}
+            onLoad={(e) => (e.currentTarget.style.display = "block")}
+          />
+        ) : null}
+      </label>
+
       <label className="flex flex-col gap-1 text-sm">
         SKU
         <input

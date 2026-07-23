@@ -23,12 +23,33 @@ function readAnimalForm(formData: FormData) {
   };
 }
 
+async function savePrimaryPhoto(animalId: string, formData: FormData) {
+  const photoUrl = String(formData.get("photoUrl") ?? "").trim();
+  const existing = await prisma.media.findFirst({
+    where: { animalId },
+    orderBy: { sortOrder: "asc" },
+  });
+
+  if (photoUrl) {
+    if (existing) {
+      await prisma.media.update({ where: { id: existing.id }, data: { url: photoUrl } });
+    } else {
+      await prisma.media.create({
+        data: { animalId, type: "photo", url: photoUrl, sortOrder: 0 },
+      });
+    }
+  } else if (existing) {
+    await prisma.media.delete({ where: { id: existing.id } });
+  }
+}
+
 export async function createAnimalAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
   const data = readAnimalForm(formData);
   const animal = await prisma.animal.create({ data });
+  await savePrimaryPhoto(animal.id, formData);
   await recordAudit(admin.id, "Animal", animal.id, "create");
 
   revalidatePath("/admin/animals");
@@ -41,6 +62,7 @@ export async function updateAnimalAction(id: string, formData: FormData) {
 
   const data = readAnimalForm(formData);
   await prisma.animal.update({ where: { id }, data });
+  await savePrimaryPhoto(id, formData);
   await recordAudit(admin.id, "Animal", id, "update");
 
   revalidatePath("/admin/animals");

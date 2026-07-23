@@ -18,6 +18,7 @@ function readProductForm(formData: FormData) {
       | "food_packaged",
     nameFr: String(formData.get("nameFr")),
     nameEn: String(formData.get("nameEn")),
+    imageUrl: String(formData.get("imageUrl") ?? "").trim() || null,
     priceCAD: Number(formData.get("priceCAD")),
     stockQty: Number(formData.get("stockQty")),
     requiresColdChain: formData.get("requiresColdChain") === "on",
