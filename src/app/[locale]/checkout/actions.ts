@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
 
 type CartLineInput = {
   type: "animal" | "product";
@@ -86,7 +87,7 @@ export async function placeOrderAction(formData: FormData) {
       data: {
         customerId: customer.id,
         shippingAddressId: address.id,
-        status: "pending_payment",
+        status: "paid",
         healthGuaranteeAcceptedAt: new Date(),
       },
     });
@@ -102,7 +103,9 @@ export async function placeOrderAction(formData: FormData) {
             priceAtSaleCAD: animal.priceCAD,
           },
         });
-        await tx.animal.update({ where: { id: animal.id }, data: { status: "reserved" } });
+        // Marked sold immediately (not "reserved") — the item is paid for now,
+        // not held for later confirmation, so it must leave the public listing.
+        await tx.animal.update({ where: { id: animal.id }, data: { status: "sold" } });
       } else {
         const product = products.find((p) => p.id === line.id)!;
         await tx.orderItem.create({
@@ -120,20 +123,27 @@ export async function placeOrderAction(formData: FormData) {
       }
     }
 
-    // MVP placeholder: no live payment processor is wired up yet (see README —
-    // several providers restrict live-animal sales, needs validation before going live).
-    // The order is recorded as pending_payment until staff confirm payment manually.
+    // MVP placeholder: no live payment processor is wired up yet (Stripe + Klarna
+    // are coming soon — see the payment badges in the checkout UI). The order is
+    // recorded as paid immediately since customers pay directly in the portal now.
     await tx.payment.create({
       data: {
         orderId: order.id,
         amountCAD: totalCAD,
         provider: "manual",
-        status: "pending",
+        status: "succeeded",
+        paidAt: new Date(),
       },
     });
 
     return order.id;
   });
+
+  try {
+    await Promise.all([sendOrderConfirmationEmail(orderId), sendAdminNewSaleEmail(orderId)]);
+  } catch (err) {
+    console.error("[checkout] failed to send order notification emails:", err);
+  }
 
   redirect(`/checkout/confirmation/${orderId}`);
 }

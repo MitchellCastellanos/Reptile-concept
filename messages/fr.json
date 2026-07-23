@@ -24,8 +24,8 @@
     "why_breeding_body": "Tous nos animaux sont nés en captivité, en bonne santé et bien socialisés.",
     "why_advice_title": "Conseils personnalisés",
     "why_advice_body": "Notre équipe vous guide pour choisir le bon reptile et aménager son habitat.",
-    "why_shipping_title": "Livraison sécurisée",
-    "why_shipping_body": "Expédition partout au Québec avec contrôle météo et garantie à l'arrivée.",
+    "why_shipping_title": "Retrait en boutique simple",
+    "why_shipping_body": "Payez en ligne et venez récupérer votre commande à notre boutique de Lachine.",
     "ctaTitle": "Prêt à accueillir votre prochain compagnon?",
     "ctaBody": "Parcourez notre sélection de reptiles et d'accessoires pour créer l'habitat parfait.",
     "animalsSubtitle": "Découvrez nos reptiles disponibles, élevés avec soin à Lachine."
@@ -34,7 +34,8 @@
     "animals": "Animaux",
     "boutique": "Boutique",
     "home": "Accueil",
-    "cart": "Panier"
+    "cart": "Panier",
+    "reviews": "Avis clients"
   },
   "Footer": {
     "tagline": "Votre boutique spécialisée en reptiles à Lachine, Québec.",
@@ -47,6 +48,7 @@
     "animals": "Animaux disponibles",
     "boutique": "Boutique",
     "cart": "Panier",
+    "reviews": "Avis clients",
     "rights": "Tous droits réservés"
   },
   "Animal": {
@@ -74,11 +76,11 @@
     "remove": "Retirer",
     "total": "Total",
     "checkout": "Passer à la caisse",
-    "reserve": "Réserver cet animal",
+    "reserve": "Acheter maintenant",
     "addToCart": "Ajouter au panier"
   },
   "Checkout": {
-    "title": "Finaliser la commande",
+    "title": "Paiement",
     "total": "Total",
     "fullName": "Nom complet",
     "phone": "Téléphone",
@@ -86,10 +88,26 @@
     "city": "Ville",
     "province": "Province",
     "postalCode": "Code postal",
-    "healthGuarantee": "J'accepte la politique de garantie de santé à l'arrivée (Live Arrival Guarantee) et comprends qu'une vidéo de déballage sera requise pour toute réclamation.",
-    "placeOrder": "Confirmer la commande",
-    "confirmationTitle": "Merci pour votre commande!",
-    "confirmationBody": "Votre commande a été enregistrée sous le numéro",
-    "nextSteps": "Notre équipe va confirmer le paiement et vérifier les conditions météo avant l'envoi. Vous recevrez un courriel dès que votre commande sera expédiée."
+    "healthGuarantee": "J'accepte la politique de garantie de santé et les conditions de vente de Reptile Concept.",
+    "placeOrder": "Payer maintenant",
+    "confirmationTitle": "Merci pour votre achat!",
+    "confirmationBody": "Votre paiement a été reçu pour la commande",
+    "nextSteps": "Notre équipe prépare votre commande. Vous recevrez un courriel à chaque étape, puis un dernier dès qu'elle sera prête à être récupérée en boutique."
+  },
+  "Payments": {
+    "stripeSoon": "Paiement par carte (Stripe) — bientôt disponible",
+    "klarnaSoon": "Payez en 4 versements avec Klarna — bientôt disponible"
+  },
+  "Reviews": {
+    "title": "Avis de nos clients",
+    "subtitle": "Ce que nos clients pensent de leur expérience chez Reptile Concept.",
+    "empty": "Aucun avis publié pour le moment.",
+    "formTitle": "Laisser un avis",
+    "formInvalid": "Ce lien d'avis n'est pas valide ou a expiré.",
+    "alreadySubmitted": "Vous avez déjà laissé un avis pour cette commande. Merci!",
+    "ratingLabel": "Note",
+    "commentLabel": "Votre commentaire",
+    "submit": "Envoyer",
+    "thankYou": "Merci pour votre avis!"
   }
 }

@@ -1,13 +1,15 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
+import { PaymentBadges } from "@/components/payment-badges";
 import { placeOrderAction } from "./actions";
 
 export default function CheckoutPage() {
   const { items, totalCAD } = useCart();
   const t = useTranslations("Checkout");
+  const locale = useLocale();
   const router = useRouter();
 
   if (items.length === 0) {
@@ -32,6 +34,8 @@ export default function CheckoutPage() {
           {t("total")}: {totalCAD.toFixed(2)} $ CAD
         </p>
       </section>
+
+      <PaymentBadges />
 
       <form action={placeOrderAction} className="flex flex-col gap-4">
         <input type="hidden" name="cartJson" value={JSON.stringify(items)} />
@@ -95,7 +99,7 @@ export default function CheckoutPage() {
             />
           </label>
         </div>
-        <input type="hidden" name="preferredLang" value="fr" />
+        <input type="hidden" name="preferredLang" value={locale} />
 
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" name="healthGuaranteeAccepted" required className="mt-1" />
