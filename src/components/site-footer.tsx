@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { PaymentBadges } from "@/components/payment-badges";
 
 export async function SiteFooter() {
   const t = await getTranslations("Footer");
@@ -43,7 +44,14 @@ export async function SiteFooter() {
           <Link href="/cart" className="text-white/80 hover:text-white">
             {t("cart")}
           </Link>
+          <Link href="/reviews" className="text-white/80 hover:text-white">
+            {t("reviews")}
+          </Link>
         </div>
+      </div>
+
+      <div className="border-t border-white/20 px-6 py-6">
+        <PaymentBadges variant="onDark" className="mx-auto w-fit" />
       </div>
 
       <div className="border-t border-white/20 px-6 py-4 text-center text-xs text-white/60">

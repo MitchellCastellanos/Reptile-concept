@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
+import { PaymentBadges } from "@/components/payment-badges";
 
 export default function CartPage() {
   const { items, removeItem, setProductQuantity, totalCAD } = useCart();
@@ -75,6 +76,8 @@ export default function CartPage() {
       >
         {t("checkout")}
       </Link>
+
+      <PaymentBadges />
     </main>
   );
 }

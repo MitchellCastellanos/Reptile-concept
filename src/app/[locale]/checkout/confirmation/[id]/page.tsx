@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
+import { PaymentBadges } from "@/components/payment-badges";
 import { ClearCartOnMount } from "./clear-cart-on-mount";
 
 export default async function CheckoutConfirmationPage({
@@ -35,6 +36,8 @@ export default async function CheckoutConfirmationPage({
       </ul>
 
       <p className="text-sm text-zinc-600 dark:text-zinc-400">{t("nextSteps")}</p>
+
+      <PaymentBadges />
     </main>
   );
 }

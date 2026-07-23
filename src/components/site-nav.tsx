@@ -29,6 +29,9 @@ export function SiteNav() {
           <Link href="/boutique" className="text-foreground hover:text-primary">
             {t("boutique")}
           </Link>
+          <Link href="/reviews" className="text-foreground hover:text-primary">
+            {t("reviews")}
+          </Link>
         </div>
 
         <div className="flex items-center gap-3">

@@ -24,8 +24,8 @@
     "why_breeding_body": "All our animals are captive bred, healthy, and well socialized.",
     "why_advice_title": "Expert advice",
     "why_advice_body": "Our team helps you pick the right reptile and set up the perfect habitat.",
-    "why_shipping_title": "Safe shipping",
-    "why_shipping_body": "We ship across Quebec with weather checks and a live arrival guarantee.",
+    "why_shipping_title": "Easy in-store pickup",
+    "why_shipping_body": "Pay online and swing by our Lachine location to pick up your order.",
     "ctaTitle": "Ready for your next companion?",
     "ctaBody": "Browse our selection of reptiles and supplies to build the perfect habitat.",
     "animalsSubtitle": "Discover our available reptiles, carefully bred in Lachine."
@@ -34,7 +34,8 @@
     "animals": "Animals",
     "boutique": "Shop",
     "home": "Home",
-    "cart": "Cart"
+    "cart": "Cart",
+    "reviews": "Reviews"
   },
   "Footer": {
     "tagline": "Your specialty reptile shop in Lachine, Quebec.",
@@ -47,6 +48,7 @@
     "animals": "Available animals",
     "boutique": "Shop",
     "cart": "Cart",
+    "reviews": "Reviews",
     "rights": "All rights reserved"
   },
   "Animal": {
@@ -74,11 +76,11 @@
     "remove": "Remove",
     "total": "Total",
     "checkout": "Go to checkout",
-    "reserve": "Reserve this animal",
+    "reserve": "Buy now",
     "addToCart": "Add to cart"
   },
   "Checkout": {
-    "title": "Checkout",
+    "title": "Payment",
     "total": "Total",
     "fullName": "Full name",
     "phone": "Phone",
@@ -86,10 +88,26 @@
     "city": "City",
     "province": "Province",
     "postalCode": "Postal code",
-    "healthGuarantee": "I accept the Live Arrival Guarantee policy and understand an unboxing video will be required for any claim.",
-    "placeOrder": "Place order",
-    "confirmationTitle": "Thank you for your order!",
-    "confirmationBody": "Your order has been recorded under number",
-    "nextSteps": "Our team will confirm payment and check weather conditions before shipping. You'll receive an email as soon as your order ships."
+    "healthGuarantee": "I accept Reptile Concept's health guarantee policy and terms of sale.",
+    "placeOrder": "Pay now",
+    "confirmationTitle": "Thank you for your purchase!",
+    "confirmationBody": "Your payment has been received for order",
+    "nextSteps": "Our team is preparing your order. You'll get an email at every step, and a final one as soon as it's ready for pickup at our shop."
+  },
+  "Payments": {
+    "stripeSoon": "Card payments (Stripe) — coming soon",
+    "klarnaSoon": "Pay in 4 with Klarna — coming soon"
+  },
+  "Reviews": {
+    "title": "Customer reviews",
+    "subtitle": "What our customers think about their experience at Reptile Concept.",
+    "empty": "No reviews published yet.",
+    "formTitle": "Leave a review",
+    "formInvalid": "This review link is invalid or has expired.",
+    "alreadySubmitted": "You've already left a review for this order. Thank you!",
+    "ratingLabel": "Rating",
+    "commentLabel": "Your comment",
+    "submit": "Submit",
+    "thankYou": "Thanks for your review!"
   }
 }

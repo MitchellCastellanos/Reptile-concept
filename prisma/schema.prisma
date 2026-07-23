@@ -44,13 +44,10 @@ enum ProductCategory {
 }
 
 enum OrderStatus {
-  pending_payment
   paid
   preparing
-  weather_hold
-  ready_to_ship
-  shipped
-  delivered
+  ready_for_pickup
+  picked_up
   cancelled
   refunded
 }
@@ -60,6 +57,12 @@ enum PaymentStatus {
   succeeded
   failed
   refunded
+}
+
+enum FinancialRecordType {
+  sale
+  refund
+  cancellation_fee
 }
 
 enum AdminRole {
@@ -192,6 +195,7 @@ model Customer {
   internalNotes String?
   addresses     Address[]
   orders        Order[]
+  reviews       Review[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -209,20 +213,26 @@ model Address {
 }
 
 model Order {
-  id                        String      @id @default(uuid())
-  customer                  Customer    @relation(fields: [customerId], references: [id])
+  id                        String            @id @default(uuid())
+  customer                  Customer          @relation(fields: [customerId], references: [id])
   customerId                String
-  status                    OrderStatus @default(pending_payment)
-  shippingAddress           Address     @relation(fields: [shippingAddressId], references: [id])
+  status                    OrderStatus       @default(paid)
+  shippingAddress           Address           @relation(fields: [shippingAddressId], references: [id])
   shippingAddressId         String
   healthGuaranteeAcceptedAt DateTime?
-  carrier                   String?
-  trackingNumber            String?
-  shippedAt                 DateTime?
+  preparingAt               DateTime?
+  readyForPickupAt          DateTime?
+  pickupDeadlineAt          DateTime?
+  pickedUpAt                DateTime?
+  cancelledAt               DateTime?
+  cancellationFeeCAD        Decimal?
+  refundAmountCAD           Decimal?
   items                     OrderItem[]
   payments                  Payment[]
-  createdAt                 DateTime    @default(now())
-  updatedAt                 DateTime    @updatedAt
+  financialRecords          FinancialRecord[]
+  review                    Review?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
 }
 
 model OrderItem {
@@ -279,4 +289,38 @@ model Announcement {
   createdBy        AdminUser @relation(fields: [createdByAdminId], references: [id])
   createdByAdminId String
   createdAt        DateTime  @default(now())
+}
+
+// Revenue/refund ledger. Sale entries are booked once an order is marked
+// ready for pickup (the point staff confirm the items are set aside and the
+// sale is final); refund/fee entries are booked on cancellation.
+model FinancialRecord {
+  id        String              @id @default(uuid())
+  order     Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  type      FinancialRecordType
+  amountCAD Decimal
+  note      String?
+  createdAt DateTime            @default(now())
+}
+
+model Review {
+  id         String   @id @default(uuid())
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId    String   @unique
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String
+  rating     Int
+  comment    String
+  published  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// Singleton row (id is always "singleton") holding admin-editable store policy.
+model StoreSettings {
+  id                         String   @id @default("singleton")
+  pickupDeadlineBusinessDays Int      @default(4)
+  cancellationFeePercent     Decimal  @default(15)
+  adminNotificationEmail     String?
+  updatedAt                  DateTime @updatedAt
 }

@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { getAnimalById } from "@/lib/queries";
 import { getAnimalImageUrl } from "@/lib/images";
 import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
+import { PaymentBadges } from "@/components/payment-badges";
 
 export default async function AnimalDetailPage({
   params,
@@ -63,11 +64,14 @@ export default async function AnimalDetailPage({
           <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
 
           {animal.status === "available" ? (
-            <AddAnimalToCartButton
-              id={animal.id}
-              name={`${speciesName} — ${animal.morph}`}
-              priceCAD={Number(animal.priceCAD)}
-            />
+            <>
+              <AddAnimalToCartButton
+                id={animal.id}
+                name={`${speciesName} — ${animal.morph}`}
+                priceCAD={Number(animal.priceCAD)}
+              />
+              <PaymentBadges />
+            </>
           ) : null}
         </div>
       </div>

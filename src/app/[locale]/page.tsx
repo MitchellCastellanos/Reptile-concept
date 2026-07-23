@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AnimalCard } from "@/components/animal-card";
 import { ProductCard } from "@/components/product-card";
+import { PaymentBadges } from "@/components/payment-badges";
 import { getAvailableAnimals, getProducts } from "@/lib/queries";
 
 const categoryIcons = [
@@ -60,6 +61,7 @@ export default async function Home() {
               {t("ctaShop")}
             </Link>
           </div>
+          <PaymentBadges variant="onDark" className="mt-8" />
         </div>
       </section>
 
