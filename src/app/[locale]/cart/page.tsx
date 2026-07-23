@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { PaymentBadges } from "@/components/payment-badges";
+import { KlarnaInstallments } from "@/components/klarna-installments";
 
 export default function CartPage() {
   const { items, removeItem, setProductQuantity, totalCAD } = useCart();
@@ -67,7 +68,10 @@ export default function CartPage() {
 
       <div className="flex items-center justify-between border-t border-border pt-4">
         <span className="font-medium">{t("total")}</span>
-        <span className="text-lg font-bold text-primary">{totalCAD.toFixed(2)} $ CAD</span>
+        <div className="text-right">
+          <span className="text-lg font-bold text-primary">{totalCAD.toFixed(2)} $ CAD</span>
+          <KlarnaInstallments priceCAD={totalCAD} className="mt-1 justify-end" />
+        </div>
       </div>
 
       <Link

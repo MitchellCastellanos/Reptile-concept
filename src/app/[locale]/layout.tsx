@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBanner } from "@/components/announcement-banner";
+import { BnplBanner } from "@/components/bnpl-banner";
 import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
 
@@ -60,6 +61,7 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <NextIntlClientProvider>
           <CartProvider>
+            <BnplBanner />
             <AnnouncementBanner />
             <SiteNav />
             {children}

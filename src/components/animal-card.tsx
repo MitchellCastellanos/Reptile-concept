@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { getAnimalImageUrl } from "@/lib/images";
+import { KlarnaInstallments } from "@/components/klarna-installments";
 
 type AnimalCardAnimal = {
   id: string;
@@ -50,6 +51,7 @@ export function AnimalCard({
         <p className="mt-auto pt-2 text-sm font-medium text-primary">
           {priceLabel}: {Number(animal.priceCAD)} $ CAD
         </p>
+        <KlarnaInstallments priceCAD={Number(animal.priceCAD)} />
       </div>
     </Link>
   );

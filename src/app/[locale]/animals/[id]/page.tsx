@@ -6,6 +6,7 @@ import { getAnimalById } from "@/lib/queries";
 import { getAnimalImageUrl } from "@/lib/images";
 import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
+import { KlarnaInstallments } from "@/components/klarna-installments";
 
 export default async function AnimalDetailPage({
   params,
@@ -57,9 +58,12 @@ export default async function AnimalDetailPage({
             </span>
           </div>
 
-          <p className="text-2xl font-bold text-primary">
-            {home("priceLabel")}: {Number(animal.priceCAD)} $ CAD
-          </p>
+          <div>
+            <p className="text-2xl font-bold text-primary">
+              {home("priceLabel")}: {Number(animal.priceCAD)} $ CAD
+            </p>
+            <KlarnaInstallments priceCAD={Number(animal.priceCAD)} className="mt-1" />
+          </div>
 
           <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
 

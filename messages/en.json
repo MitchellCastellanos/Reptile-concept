@@ -95,8 +95,10 @@
     "nextSteps": "Our team is preparing your order. You'll get an email at every step, and a final one as soon as it's ready for pickup at our shop."
   },
   "Payments": {
-    "stripeSoon": "Card payments (Stripe) — coming soon",
-    "klarnaSoon": "Pay in 4 with Klarna — coming soon"
+    "securePayment": "Secure card payment",
+    "klarnaPromo": "Pay in 4 interest-free installments",
+    "klarnaInstallments": "or 4 payments of {amount} $ with",
+    "bannerText": "Buy now, pay later — 4 interest-free payments with"
   },
   "Reviews": {
     "title": "Customer reviews",

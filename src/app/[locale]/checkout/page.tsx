@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { PaymentBadges } from "@/components/payment-badges";
+import { KlarnaInstallments } from "@/components/klarna-installments";
 import { placeOrderAction } from "./actions";
 
 export default function CheckoutPage() {
@@ -33,6 +34,7 @@ export default function CheckoutPage() {
         <p className="mt-2 font-medium">
           {t("total")}: {totalCAD.toFixed(2)} $ CAD
         </p>
+        <KlarnaInstallments priceCAD={totalCAD} className="mt-1" />
       </section>
 
       <PaymentBadges />

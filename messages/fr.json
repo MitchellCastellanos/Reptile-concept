@@ -95,8 +95,10 @@
     "nextSteps": "Notre équipe prépare votre commande. Vous recevrez un courriel à chaque étape, puis un dernier dès qu'elle sera prête à être récupérée en boutique."
   },
   "Payments": {
-    "stripeSoon": "Paiement par carte (Stripe) — bientôt disponible",
-    "klarnaSoon": "Payez en 4 versements avec Klarna — bientôt disponible"
+    "securePayment": "Paiement sécurisé par carte",
+    "klarnaPromo": "Payez en 4 versements sans intérêt",
+    "klarnaInstallments": "ou 4 versements de {amount} $ avec",
+    "bannerText": "Achetez maintenant, payez plus tard — 4 versements sans intérêt avec"
   },
   "Reviews": {
     "title": "Avis de nos clients",

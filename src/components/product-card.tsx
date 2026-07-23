@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getProductImageUrl } from "@/lib/images";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
+import { KlarnaInstallments } from "@/components/klarna-installments";
 
 type ProductCardProduct = {
   id: string;
@@ -43,6 +44,7 @@ export function ProductCard({
         </p>
         <p className="font-semibold text-foreground">{name}</p>
         <p className="text-sm font-medium text-primary">{Number(product.priceCAD)} $ CAD</p>
+        <KlarnaInstallments priceCAD={Number(product.priceCAD)} />
         <p className="text-xs text-muted">
           {product.stockQty > 0 ? inStockLabel : outOfStockLabel}
         </p>
