@@ -25,6 +25,7 @@ type CartContextValue = {
     id: string,
     name: string,
     priceCAD: number,
+    quantity: number,
     maxQuantity: number,
   ) => void;
   setProductQuantity: (id: string, quantity: number) => void;
@@ -63,17 +64,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const addProduct = useCallback(
-    (id: string, name: string, priceCAD: number, maxQuantity: number) => {
+    (id: string, name: string, priceCAD: number, quantity: number, maxQuantity: number) => {
       setItems((prev) => {
         const existing = prev.find((item) => item.type === "product" && item.id === id);
         if (existing) {
           return prev.map((item) =>
             item.type === "product" && item.id === id
-              ? { ...item, quantity: Math.min(item.quantity + 1, maxQuantity) }
+              ? { ...item, quantity: Math.min(item.quantity + quantity, maxQuantity) }
               : item,
           );
         }
-        return [...prev, { type: "product", id, name, priceCAD, quantity: 1, maxQuantity }];
+        return [
+          ...prev,
+          { type: "product", id, name, priceCAD, quantity: Math.min(quantity, maxQuantity), maxQuantity },
+        ];
       });
     },
     [],

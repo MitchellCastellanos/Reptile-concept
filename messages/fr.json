@@ -67,7 +67,8 @@
     "subtitle": "Terrariums, substrats, décoration et nourriture pour vos reptiles.",
     "inStock": "En stock",
     "outOfStock": "Rupture de stock",
-    "noProducts": "Aucun produit disponible pour le moment."
+    "noProducts": "Aucun produit disponible pour le moment.",
+    "backToList": "Retour à la boutique"
   },
   "Cart": {
     "title": "Panier",

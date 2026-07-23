@@ -67,7 +67,8 @@
     "subtitle": "Terrariums, substrates, décor and food for your reptiles.",
     "inStock": "In stock",
     "outOfStock": "Out of stock",
-    "noProducts": "No products available right now."
+    "noProducts": "No products available right now.",
+    "backToList": "Back to shop"
   },
   "Cart": {
     "title": "Cart",

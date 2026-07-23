@@ -19,6 +19,10 @@ export function getProducts() {
   return prisma.product.findMany({ orderBy: { createdAt: "desc" } });
 }
 
+export function getProductById(id: string) {
+  return prisma.product.findUnique({ where: { id } });
+}
+
 export function getActiveAnnouncement() {
   const now = new Date();
   return prisma.announcement.findFirst({

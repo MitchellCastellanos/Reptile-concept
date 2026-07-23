@@ -68,7 +68,7 @@ export default function CartPage() {
 
       <div className="flex items-center justify-between border-t border-border pt-4">
         <span className="font-medium">{t("total")}</span>
-        <div className="text-right">
+        <div className="flex flex-col items-end text-right">
           <span className="text-lg font-bold text-primary">{totalCAD.toFixed(2)} $ CAD</span>
           <KlarnaInstallments priceCAD={totalCAD} className="mt-1 justify-end" />
         </div>

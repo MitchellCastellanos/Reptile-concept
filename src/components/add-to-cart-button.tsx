@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -49,12 +50,50 @@ export function AddProductToCartButton({
 }) {
   const { addProduct } = useCart();
   const t = useTranslations("Cart");
+  const [quantity, setQuantity] = useState(1);
 
   if (stockQty <= 0) return null;
 
   return (
-    <button type="button" onClick={() => addProduct(id, name, priceCAD, stockQty)} className={btnSecondary}>
-      {t("addToCart")}
-    </button>
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center rounded-full border border-border">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setQuantity((q) => Math.max(1, q - 1));
+          }}
+          disabled={quantity <= 1}
+          aria-label="-"
+          className="px-3 py-1.5 text-sm font-medium text-foreground disabled:opacity-30"
+        >
+          −
+        </button>
+        <span className="w-6 text-center text-sm font-medium tabular-nums">{quantity}</span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            setQuantity((q) => Math.min(stockQty, q + 1));
+          }}
+          disabled={quantity >= stockQty}
+          aria-label="+"
+          className="px-3 py-1.5 text-sm font-medium text-foreground disabled:opacity-30"
+        >
+          +
+        </button>
+      </div>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          addProduct(id, name, priceCAD, quantity, stockQty);
+          setQuantity(1);
+        }}
+        className={btnSecondary}
+      >
+        {t("addToCart")}
+      </button>
+    </div>
   );
 }
