@@ -1,10 +1,15 @@
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PaymentBadges } from "@/components/payment-badges";
+import { getStoreSettings } from "@/lib/settings";
 
 export async function SiteFooter() {
   const t = await getTranslations("Footer");
+  const locale = await getLocale();
+  const settings = await getStoreSettings();
+  const address = locale === "en" ? settings.addressEn : settings.addressFr;
+  const hours = locale === "en" ? settings.hoursEn : settings.hoursFr;
 
   return (
     <footer className="mt-auto border-t border-border bg-primary text-white">
@@ -21,16 +26,16 @@ export async function SiteFooter() {
 
         <div className="flex flex-col gap-2 text-sm">
           <p className="font-semibold">{t("visit")}</p>
-          <p className="text-white/80">{t("address")}</p>
-          <p className="text-white/80">{t("hours")}</p>
+          <p className="text-white/80">{address}</p>
+          <p className="text-white/80">{hours}</p>
         </div>
 
         <div className="flex flex-col gap-2 text-sm">
           <p className="font-semibold">{t("contact")}</p>
-          <a href="mailto:contact@reptileconcept.ca" className="text-white/80 hover:text-white">
-            contact@reptileconcept.ca
+          <a href={`mailto:${settings.contactEmail}`} className="text-white/80 hover:text-white">
+            {settings.contactEmail}
           </a>
-          <p className="text-white/80">{t("phone")}</p>
+          <p className="text-white/80">{settings.contactPhone}</p>
         </div>
 
         <div className="flex flex-col gap-2 text-sm">

@@ -80,6 +80,7 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - Bandeau d'annonces modifiable par l'équipe elle-même
 - **Suivi de performance** : tableau de bord intégré (visites du site, historique 7/30 jours, comparatif dans le temps, pages les plus consultées) — aucun abonnement d'analytique tiers requis
 - **Campagnes courriel** : rédaction d'un message bilingue (français/anglais) envoyé à toute la liste de clients, avec journal des envois et brouillons réutilisables ou à renvoyer
+- **Coordonnées de l'entreprise modifiables** (courriel de contact, téléphone, adresse et horaires en français et en anglais) — mises à jour automatiquement partout où elles apparaissent : pied de page du site, reçus, et courriels envoyés aux clients
 - Registre des actions de l'équipe (qui a modifié quoi)
 
 **Courriels automatiques**
@@ -130,3 +131,4 @@ GABAN Solutions — Montréal, QC — gabansolutions.ca — 514-258-0648
 | 2026-07-25 | Las 7 features planeadas quedaron implementadas y se movieron a "Ce qui est déjà en place". Se fijó el precio final: 6 000 $ CAD + taxes, soporte incluido sin costo salvo cambios grandes/sustanciales (nuevas features), sin frais mensuales de GABAN Solutions. |
 | 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (configurables desde el admin) en checkout en línea y ventas en magasin, con desglose en cada recibo/confirmación, y reçus de vente en magasin imprimibles/enviables por correo. |
 | 2026-07-25 | Se agregó botón de cuenta de cliente visible en todo momento en el sitio, botón de wishlist directamente en cada tarjeta del catálogo (no solo en la ficha), y control +/- de cantidad al registrar una vente en magasin. Se reorganizó la navegación del admin en un menú lateral agrupado por categoría, se hizo el admin responsive (mobile/tablette), y se corrigió un bug de contraste de colores en los campos de formulario del admin. |
+| 2026-07-25 | Se agregó la posibilidad de editar desde el admin el courriel de contacto público, teléfono, dirección y horarios (FR/EN) — antes estaban fijos en el código. Ahora se reflejan automáticamente en el pied de page del sitio, los reçus de vente en magasin, y todos los courriels transaccionales. |

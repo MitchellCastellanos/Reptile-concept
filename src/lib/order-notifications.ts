@@ -13,6 +13,7 @@ import { getStoreSettings } from "@/lib/settings";
 import { createReviewToken } from "@/lib/review-token";
 import { getSiteUrl } from "@/lib/site-url";
 import { resolveOrderAmounts } from "@/lib/orders";
+import { getStoreContactInfo } from "@/lib/store-info";
 
 async function loadOrder(orderId: string) {
   return prisma.order.findUniqueOrThrow({
@@ -56,23 +57,23 @@ async function resolveAdminEmail() {
 }
 
 export async function sendOrderConfirmationEmail(orderId: string) {
-  const order = await loadOrder(orderId);
-  const { subject, html } = orderConfirmationEmail(order.customer.preferredLang, toEmailData(order));
+  const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
+  const { subject, html } = orderConfirmationEmail(order.customer.preferredLang, toEmailData(order), storeInfo);
   await sendEmail({ to: order.customer.email, subject, html });
 }
 
 export async function sendAdminNewSaleEmail(orderId: string) {
   const adminEmail = await resolveAdminEmail();
   if (!adminEmail) return;
-  const order = await loadOrder(orderId);
+  const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
   const url = `${getSiteUrl()}/admin/orders/${orderId}`;
-  const { subject, html } = adminNewSaleEmail(toEmailData(order), url);
+  const { subject, html } = adminNewSaleEmail(toEmailData(order), url, storeInfo);
   await sendEmail({ to: adminEmail, subject, html });
 }
 
 export async function sendOrderPreparingEmail(orderId: string) {
-  const order = await loadOrder(orderId);
-  const { subject, html } = orderPreparingEmail(order.customer.preferredLang, toEmailData(order));
+  const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
+  const { subject, html } = orderPreparingEmail(order.customer.preferredLang, toEmailData(order), storeInfo);
   await sendEmail({ to: order.customer.email, subject, html });
 }
 
@@ -81,22 +82,23 @@ export async function sendOrderReadyForPickupEmail(
   deadline: Date,
   cancellationFeePercent: number,
 ) {
-  const order = await loadOrder(orderId);
+  const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
   const { subject, html } = orderReadyForPickupEmail(
     order.customer.preferredLang,
     toEmailData(order),
     deadline,
     cancellationFeePercent,
+    storeInfo,
   );
   await sendEmail({ to: order.customer.email, subject, html });
 }
 
 export async function sendOrderPickedUpEmail(orderId: string) {
-  const order = await loadOrder(orderId);
+  const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
   const locale = order.customer.preferredLang;
   const token = createReviewToken(orderId);
   const reviewUrl = `${getSiteUrl()}/${locale}/reviews/new/${orderId}?token=${token}`;
-  const { subject, html } = orderPickedUpEmail(locale, toEmailData(order), reviewUrl);
+  const { subject, html } = orderPickedUpEmail(locale, toEmailData(order), reviewUrl, storeInfo);
   await sendEmail({ to: order.customer.email, subject, html });
 }
 
@@ -105,12 +107,13 @@ export async function sendOrderExpiredEmail(
   refundAmountCAD: number,
   feeAmountCAD: number,
 ) {
-  const order = await loadOrder(orderId);
+  const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
   const { subject, html } = orderExpiredEmail(
     order.customer.preferredLang,
     toEmailData(order),
     refundAmountCAD,
     feeAmountCAD,
+    storeInfo,
   );
   await sendEmail({ to: order.customer.email, subject, html });
 }

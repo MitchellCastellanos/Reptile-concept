@@ -427,6 +427,15 @@ model StoreSettings {
   qstNumber                  String?
   gstRatePercent             Decimal  @default(5)
   qstRatePercent             Decimal  @default(9.975)
+  // Public-facing store info shown to customers (footer, receipts,
+  // transactional emails) — editable from the admin, bilingual where the
+  // content itself is language-specific (address/hours).
+  contactEmail               String   @default("contact@reptileconcept.ca")
+  contactPhone               String   @default("(514) 555-0199")
+  addressFr                  String   @default("Lachine, QC — sur rendez-vous")
+  addressEn                  String   @default("Lachine, QC — by appointment")
+  hoursFr                    String   @default("Lun–Sam 10h–18h")
+  hoursEn                    String   @default("Mon–Sat 10am–6pm")
   updatedAt                  DateTime @updatedAt
 }
 

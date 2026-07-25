@@ -8,7 +8,7 @@ export default async function AdminSettingsPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Réglages</h1>
 
-      <form action={updateSettingsAction} className="flex max-w-md flex-col gap-4">
+      <form action={updateSettingsAction} className="flex max-w-2xl flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
           Délai de retrait (jours ouvrables)
           <input
@@ -54,6 +54,71 @@ export default async function AdminSettingsPage() {
             Laissez vide pour utiliser le courriel du premier compte administrateur (propriétaire).
           </span>
         </label>
+
+        <fieldset className="flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/10">
+          <legend className="px-1 text-sm font-medium">Coordonnées (affichées aux clients)</legend>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            Ces informations apparaissent dans le pied de page du site, sur les reçus, et dans les
+            courriels envoyés aux clients.
+          </p>
+          <label className="flex flex-col gap-1 text-sm">
+            Courriel de contact public
+            <input
+              type="email"
+              name="contactEmail"
+              required
+              defaultValue={settings.contactEmail}
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Téléphone
+            <input
+              name="contactPhone"
+              required
+              defaultValue={settings.contactPhone}
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm">
+              Adresse (français)
+              <input
+                name="addressFr"
+                required
+                defaultValue={settings.addressFr}
+                className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Adresse (anglais)
+              <input
+                name="addressEn"
+                required
+                defaultValue={settings.addressEn}
+                className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Horaires (français)
+              <input
+                name="hoursFr"
+                required
+                defaultValue={settings.hoursFr}
+                className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              Horaires (anglais)
+              <input
+                name="hoursEn"
+                required
+                defaultValue={settings.hoursEn}
+                className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+              />
+            </label>
+          </div>
+        </fieldset>
 
         <fieldset className="flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/10">
           <legend className="px-1 text-sm font-medium">Taxes</legend>

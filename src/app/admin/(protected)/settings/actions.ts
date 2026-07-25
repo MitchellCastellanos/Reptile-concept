@@ -17,6 +17,16 @@ export async function updateSettingsAction(formData: FormData) {
   const qstNumber = String(formData.get("qstNumber") ?? "").trim();
   const gstRatePercent = Number(formData.get("gstRatePercent"));
   const qstRatePercent = Number(formData.get("qstRatePercent"));
+  const contactEmail = String(formData.get("contactEmail") ?? "").trim();
+  const contactPhone = String(formData.get("contactPhone") ?? "").trim();
+  const addressFr = String(formData.get("addressFr") ?? "").trim();
+  const addressEn = String(formData.get("addressEn") ?? "").trim();
+  const hoursFr = String(formData.get("hoursFr") ?? "").trim();
+  const hoursEn = String(formData.get("hoursEn") ?? "").trim();
+
+  if (!contactEmail || !contactPhone || !addressFr || !addressEn || !hoursFr || !hoursEn) {
+    throw new Error("Les coordonnées (courriel, téléphone, adresse et horaires en français et anglais) sont requises.");
+  }
 
   if (!Number.isFinite(pickupDeadlineBusinessDays) || pickupDeadlineBusinessDays < 1) {
     throw new Error("Le délai de retrait doit être d'au moins 1 jour ouvrable.");
@@ -39,8 +49,15 @@ export async function updateSettingsAction(formData: FormData) {
     qstNumber: qstNumber || null,
     gstRatePercent,
     qstRatePercent,
+    contactEmail,
+    contactPhone,
+    addressFr,
+    addressEn,
+    hoursFr,
+    hoursEn,
   });
   await recordAudit(admin.id, "StoreSettings", "singleton", "update");
 
   revalidatePath("/admin/settings");
+  revalidatePath("/", "layout");
 }
