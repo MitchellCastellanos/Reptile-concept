@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
+import { getStoreSettings } from "@/lib/settings";
+import { computeTax } from "@/lib/tax";
 
 type CartLineInput = {
   type: "animal" | "product";
@@ -63,7 +65,7 @@ export async function placeOrderAction(formData: FormData) {
     }
   }
 
-  const totalCAD = cart.reduce((sum, line) => {
+  const subtotalCAD = cart.reduce((sum, line) => {
     if (line.type === "animal") {
       const animal = animals.find((a) => a.id === line.id)!;
       return sum + Number(animal.priceCAD);
@@ -71,6 +73,12 @@ export async function placeOrderAction(formData: FormData) {
     const product = products.find((p) => p.id === line.id)!;
     return sum + Number(product.priceCAD) * line.quantity;
   }, 0);
+
+  const settings = await getStoreSettings();
+  const { gstAmountCAD, qstAmountCAD, totalCAD } = computeTax(subtotalCAD, {
+    gstRatePercent: Number(settings.gstRatePercent),
+    qstRatePercent: Number(settings.qstRatePercent),
+  });
 
   const orderId = await prisma.$transaction(async (tx) => {
     const customer = await tx.customer.upsert({
@@ -89,6 +97,10 @@ export async function placeOrderAction(formData: FormData) {
         shippingAddressId: address.id,
         status: "paid",
         healthGuaranteeAcceptedAt: new Date(),
+        subtotalCAD,
+        gstAmountCAD,
+        qstAmountCAD,
+        totalCAD,
       },
     });
 

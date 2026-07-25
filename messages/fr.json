@@ -83,6 +83,9 @@
   },
   "Checkout": {
     "title": "Paiement",
+    "subtotal": "Sous-total",
+    "gst": "TPS",
+    "qst": "TVQ",
     "total": "Total",
     "fullName": "Nom complet",
     "phone": "Téléphone",

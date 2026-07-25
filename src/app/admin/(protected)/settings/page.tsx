@@ -55,6 +55,56 @@ export default async function AdminSettingsPage() {
           </span>
         </label>
 
+        <fieldset className="flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/10">
+          <legend className="px-1 text-sm font-medium">Taxes</legend>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400">
+            Ces numéros et taux sont utilisés pour calculer et détailler les taxes sur chaque
+            commande en ligne, vente en magasin, et reçu.
+          </p>
+          <label className="flex flex-col gap-1 text-sm">
+            Numéro d&apos;inscription TPS (Canada)
+            <input
+              name="gstNumber"
+              defaultValue={settings.gstNumber ?? ""}
+              placeholder="123456789 RT0001"
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Taux de TPS (%)
+            <input
+              type="number"
+              name="gstRatePercent"
+              min={0}
+              max={100}
+              step="0.001"
+              defaultValue={Number(settings.gstRatePercent)}
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Numéro d&apos;inscription TVQ (Québec)
+            <input
+              name="qstNumber"
+              defaultValue={settings.qstNumber ?? ""}
+              placeholder="1234567890 TQ0001"
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Taux de TVQ (%)
+            <input
+              type="number"
+              name="qstRatePercent"
+              min={0}
+              max={100}
+              step="0.001"
+              defaultValue={Number(settings.qstRatePercent)}
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+        </fieldset>
+
         <button
           type="submit"
           className="w-fit rounded bg-foreground px-4 py-2 text-sm font-medium text-background"

@@ -83,6 +83,9 @@
   },
   "Checkout": {
     "title": "Payment",
+    "subtotal": "Subtotal",
+    "gst": "GST",
+    "qst": "QST",
     "total": "Total",
     "fullName": "Full name",
     "phone": "Phone",

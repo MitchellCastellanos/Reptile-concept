@@ -261,6 +261,13 @@ model Order {
   status                    OrderStatus       @default(paid)
   shippingAddress           Address           @relation(fields: [shippingAddressId], references: [id])
   shippingAddressId         String
+  // Tax breakdown snapshotted at checkout time (rates may change later, but
+  // receipts must keep reflecting what was actually charged). Null on orders
+  // placed before tax support existed.
+  subtotalCAD               Decimal?
+  gstAmountCAD              Decimal?
+  qstAmountCAD              Decimal?
+  totalCAD                  Decimal?
   healthGuaranteeAcceptedAt DateTime?
   preparingAt               DateTime?
   readyForPickupAt          DateTime?
@@ -350,6 +357,10 @@ model FinancialRecord {
   channel       FinancialChannel    @default(online)
   paymentMethod PosPaymentMethod?
   amountCAD     Decimal
+  // Populated on "sale" records so the finance ledger can show the tax
+  // breakdown, not just the tax-inclusive amountCAD total.
+  gstAmountCAD  Decimal?
+  qstAmountCAD  Decimal?
   note          String?
   createdAt     DateTime            @default(now())
 }
@@ -362,8 +373,16 @@ model PosSale {
   id                  String            @id @default(uuid())
   paymentMethod       PosPaymentMethod
   status              PosSaleStatus     @default(completed)
+  // amountCAD is the tax-inclusive grand total (what's charged/collected);
+  // the breakdown below is what the printed/emailed receipt itemizes.
+  subtotalCAD         Decimal?
+  gstAmountCAD        Decimal?
+  qstAmountCAD        Decimal?
   amountCAD           Decimal
   cloverTransactionId String?
+  // Optional — only needed if staff want to email a receipt to the customer.
+  customerName        String?
+  customerEmail       String?
   items               PosSaleItem[]
   financialRecords    FinancialRecord[]
   createdByAdminId    String
@@ -401,6 +420,13 @@ model StoreSettings {
   pickupDeadlineBusinessDays Int      @default(4)
   cancellationFeePercent     Decimal  @default(15)
   adminNotificationEmail     String?
+  // Canadian federal (TPS/GST) and Quebec provincial (TVQ/QST) tax
+  // registration numbers and rates, applied to every online order and
+  // in-store sale and itemized on every receipt.
+  gstNumber                  String?
+  qstNumber                  String?
+  gstRatePercent             Decimal  @default(5)
+  qstRatePercent             Decimal  @default(9.975)
   updatedAt                  DateTime @updatedAt
 }
 

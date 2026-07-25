@@ -12,6 +12,9 @@ export type OrderEmailData = {
   orderId: string;
   customerName: string;
   items: OrderEmailItem[];
+  subtotalCAD: number;
+  gstAmountCAD: number;
+  qstAmountCAD: number;
   totalCAD: number;
 };
 
@@ -41,6 +44,30 @@ function itemsTable(items: OrderEmailItem[], locale: Locale) {
       </thead>
       <tbody>${rows}</tbody>
     </table>`;
+}
+
+function taxSummary(order: OrderEmailData, locale: Locale) {
+  if (order.gstAmountCAD <= 0 && order.qstAmountCAD <= 0) {
+    return `<p style="font-weight:600;margin-top:12px;">${locale === "en" ? "Total" : "Total"}: ${order.totalCAD.toFixed(2)} $ CAD</p>`;
+  }
+  const rows: [string, number][] = [
+    [locale === "en" ? "Subtotal" : "Sous-total", order.subtotalCAD],
+    [locale === "en" ? "GST" : "TPS", order.gstAmountCAD],
+    [locale === "en" ? "QST" : "TVQ", order.qstAmountCAD],
+  ];
+  const lines = rows
+    .map(
+      ([label, amount]) =>
+        `<tr><td style="padding:2px 0;color:#6b7280;">${label}</td><td style="padding:2px 0;text-align:right;color:#6b7280;">${amount.toFixed(2)} $</td></tr>`,
+    )
+    .join("");
+  return `
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">
+      <tbody>${lines}</tbody>
+    </table>
+    <p style="font-weight:600;margin-top:8px;border-top:1px solid #e5e1db;padding-top:8px;">
+      ${locale === "en" ? "Total" : "Total"}: ${order.totalCAD.toFixed(2)} $ CAD
+    </p>`;
 }
 
 function shell(locale: Locale, title: string, bodyHtml: string) {
@@ -76,12 +103,12 @@ export function orderConfirmationEmail(locale: Locale, order: OrderEmailData) {
       ? `<p>Hi ${order.customerName},</p>
          <p>Thanks for your purchase! We've received your payment for order ${orderRef(order.orderId)}.</p>
          ${itemsTable(order.items, locale)}
-         <p style="font-weight:600;margin-top:12px;">Total: ${order.totalCAD.toFixed(2)} $ CAD</p>
+         ${taxSummary(order, locale)}
          <p>Our team will start preparing your order shortly — you'll get an email as soon as it's ready for pickup.</p>`
       : `<p>Bonjour ${order.customerName},</p>
          <p>Merci pour votre achat! Nous avons bien reçu votre paiement pour la commande ${orderRef(order.orderId)}.</p>
          ${itemsTable(order.items, locale)}
-         <p style="font-weight:600;margin-top:12px;">Total : ${order.totalCAD.toFixed(2)} $ CAD</p>
+         ${taxSummary(order, locale)}
          <p>Notre équipe va commencer à préparer votre commande sous peu — vous recevrez un courriel dès qu'elle sera prête à être récupérée.</p>`;
 
   return { subject, html: shell(locale, subject, body) };
@@ -92,7 +119,7 @@ export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string) 
   const body = `
     <p>Nouvelle commande payée de ${order.customerName}.</p>
     ${itemsTable(order.items, "fr")}
-    <p style="font-weight:600;margin-top:12px;">Total : ${order.totalCAD.toFixed(2)} $ CAD</p>
+    ${taxSummary(order, "fr")}
     <p>Cliquez sur « Préparation » dans le panel admin pour commencer.</p>
     <p><a href="${adminOrderUrl}" style="color:#2d5a3d;font-weight:600;">Voir la commande</a></p>`;
   return { subject, html: shell("fr", subject, body) };
@@ -173,6 +200,41 @@ export function orderPickedUpEmail(locale: Locale, order: OrderEmailData, review
          <p><a href="${reviewUrl}" style="display:inline-block;background:#2d5a3d;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:600;">Laisser un avis</a></p>`;
 
   return { subject, html: shell(locale, subject, body) };
+}
+
+type PosReceiptData = {
+  saleId: string;
+  createdAt: Date;
+  paymentMethod: string;
+  items: OrderEmailItem[];
+  subtotalCAD: number;
+  gstAmountCAD: number;
+  qstAmountCAD: number;
+  totalCAD: number;
+  gstNumber: string | null;
+  qstNumber: string | null;
+};
+
+export function posReceiptEmail(sale: PosReceiptData) {
+  const ref = `#${sale.saleId.slice(0, 8)}`;
+  const dateStr = sale.createdAt.toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" });
+  const methodLabel = sale.paymentMethod === "card" ? "Carte" : "Comptant";
+  const subject = `Reçu ${ref} — ${sale.totalCAD.toFixed(2)} $ CAD — Reptile Concept`;
+
+  const body = `
+    <p>Merci pour votre achat chez Reptile Concept!</p>
+    <p style="color:#6b7280;font-size:13px;">Reçu ${ref} — ${dateStr} — Paiement : ${methodLabel}</p>
+    ${itemsTable(sale.items, "fr")}
+    <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">
+      <tbody>
+        <tr><td style="padding:2px 0;color:#6b7280;">Sous-total</td><td style="padding:2px 0;text-align:right;color:#6b7280;">${sale.subtotalCAD.toFixed(2)} $</td></tr>
+        <tr><td style="padding:2px 0;color:#6b7280;">TPS${sale.gstNumber ? ` (${sale.gstNumber})` : ""}</td><td style="padding:2px 0;text-align:right;color:#6b7280;">${sale.gstAmountCAD.toFixed(2)} $</td></tr>
+        <tr><td style="padding:2px 0;color:#6b7280;">TVQ${sale.qstNumber ? ` (${sale.qstNumber})` : ""}</td><td style="padding:2px 0;text-align:right;color:#6b7280;">${sale.qstAmountCAD.toFixed(2)} $</td></tr>
+      </tbody>
+    </table>
+    <p style="font-weight:600;margin-top:8px;border-top:1px solid #e5e1db;padding-top:8px;">Total : ${sale.totalCAD.toFixed(2)} $ CAD</p>`;
+
+  return { subject, html: shell("fr", subject, body) };
 }
 
 export function orderExpiredEmail(

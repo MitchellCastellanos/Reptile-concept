@@ -12,6 +12,10 @@ export async function updateStoreSettings(data: {
   pickupDeadlineBusinessDays?: number;
   cancellationFeePercent?: number;
   adminNotificationEmail?: string | null;
+  gstNumber?: string | null;
+  qstNumber?: string | null;
+  gstRatePercent?: number;
+  qstRatePercent?: number;
 }) {
   return prisma.storeSettings.upsert({
     where: { id: "singleton" },

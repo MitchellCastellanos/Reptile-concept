@@ -13,7 +13,7 @@ export default async function ProtectedAdminLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-black/10 dark:border-white/10">
+      <header className="no-print border-b border-black/10 dark:border-white/10">
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-6">
             <Link href="/admin" className="font-semibold">

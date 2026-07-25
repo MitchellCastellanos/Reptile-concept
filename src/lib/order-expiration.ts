@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
-import { restoreOrderInventory, calcOrderTotalCAD } from "@/lib/orders";
+import { restoreOrderInventory, resolveOrderAmounts } from "@/lib/orders";
 import { sendOrderExpiredEmail } from "@/lib/order-notifications";
 
 // Orders past their pickup deadline are auto-cancelled and refunded (minus the
@@ -30,7 +30,7 @@ export async function expireOrder(orderId: string) {
 
     await restoreOrderInventory(tx, orderId);
 
-    const totalCAD = calcOrderTotalCAD(order.items);
+    const { totalCAD } = resolveOrderAmounts(order);
     const feeAmount = Number(((totalCAD * feePercent) / 100).toFixed(2));
     const refundAmount = Number((totalCAD - feeAmount).toFixed(2));
 

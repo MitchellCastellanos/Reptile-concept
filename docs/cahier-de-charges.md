@@ -40,6 +40,7 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 - Boutique d'accessoires avec fiche produit détaillée et sélecteur de quantité
 - Panier d'achat
 - Passage à la caisse avec paiement direct dans le portail
+- Calcul et détail des taxes TPS/TVQ sur chaque commande (sous-total, TPS, TVQ, total), numéros d'inscription et taux configurables depuis l'admin
 - Retrait en magasin comme mode de livraison, avec suivi du cycle de la commande (payée, en préparation, prête pour retrait, récupérée)
 - Délai de retrait et frais d'annulation configurables par l'équipe, avec expiration automatique des commandes non récupérées
 - Vitrine des options de paiement (badges, paiement différé) affichée sur le site
@@ -83,7 +84,8 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 - Enregistrement des ventes en personne directement depuis le panneau admin
 - Vente comptant : retrait automatique de l'inventaire, ajout à la petite caisse, écriture comptable correspondante
 - Vente par carte : transaction envoyée au terminal Clover existant, avec attente de la réponse avant de finaliser la vente
-- Module de finances unifié (commandes en ligne et ventes en magasin) avec filtres (par mois, par statut, par canal, par méthode de paiement)
+- Module de finances unifié (commandes en ligne et ventes en magasin) avec filtres (par mois, par statut, par canal, par méthode de paiement) et détail des taxes perçues
+- Reçu de vente en magasin imprimable et envoyable par courriel, avec détail des taxes
 
 ### Section 8 — Transfert des données actuelles
 - Import en bloc des clients existants depuis QuickBooks *(réalisé — voir aussi section 6)*
@@ -117,3 +119,4 @@ Invitation à tout fournisseur consulté d'inclure dans sa soumission : la main-
 |---|---|
 | 2026-07-25 | Documento vivo creado. Marca como "réalisé" el flujo de pago directo + retiro en tienda, ledger financiero, reseñas, y emails transaccionales (codificados, falta proveedor real). Agrega 6 nuevas secciones "à développer": comptes clients, inventario centralizado + POS, migración de datos, medios (upload de fotos), monitoreo de performance, marketing por correo. |
 | 2026-07-25 | Secciones 6, 7, 9, 10 y 11 marcadas como "réalisé" (comptes clients, inventario centralizado + POS con Clover, upload de fotos, monitoreo de performance, campañas de email). La sección 8 se dividió: import de clientes QuickBooks ya está hecho, solo queda pendiente el import de inventario desde Excel. |
+| 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (Sección 2 y 7) configurables desde el admin, aplicadas en checkout en línea y ventas en magasin, con reçus de vente en magasin imprimibles/enviables por correo. |

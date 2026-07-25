@@ -12,6 +12,7 @@ import {
 import { getStoreSettings } from "@/lib/settings";
 import { createReviewToken } from "@/lib/review-token";
 import { getSiteUrl } from "@/lib/site-url";
+import { resolveOrderAmounts } from "@/lib/orders";
 
 async function loadOrder(orderId: string) {
   return prisma.order.findUniqueOrThrow({
@@ -26,6 +27,7 @@ async function loadOrder(orderId: string) {
 type OrderWithRelations = Awaited<ReturnType<typeof loadOrder>>;
 
 function toEmailData(order: OrderWithRelations): OrderEmailData {
+  const amounts = resolveOrderAmounts(order);
   return {
     orderId: order.id,
     customerName: order.customer.fullName,
@@ -36,10 +38,10 @@ function toEmailData(order: OrderWithRelations): OrderEmailData {
       quantity: item.quantity,
       priceCAD: Number(item.priceAtSaleCAD),
     })),
-    totalCAD: order.items.reduce(
-      (sum, item) => sum + Number(item.priceAtSaleCAD) * item.quantity,
-      0,
-    ),
+    subtotalCAD: amounts.subtotalCAD,
+    gstAmountCAD: amounts.gstAmountCAD,
+    qstAmountCAD: amounts.qstAmountCAD,
+    totalCAD: amounts.totalCAD,
   };
 }
 

@@ -6,6 +6,10 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { chargeCloverTerminal } from "@/lib/clover";
+import { getStoreSettings } from "@/lib/settings";
+import { computeTax } from "@/lib/tax";
+import { sendEmail } from "@/lib/email";
+import { posReceiptEmail } from "@/lib/email-templates";
 
 type SaleLineInput = {
   type: "animal" | "product";
@@ -13,7 +17,7 @@ type SaleLineInput = {
   quantity: number;
 };
 
-export type PosSaleResult = { error?: string; success?: boolean };
+export type PosSaleResult = { error?: string; success?: boolean; posSaleId?: string };
 
 export async function recordPosSaleAction(
   _prevState: PosSaleResult | undefined,
@@ -24,6 +28,8 @@ export async function recordPosSaleAction(
 
   const cartJson = String(formData.get("cartJson") ?? "[]");
   const paymentMethod = String(formData.get("paymentMethod") ?? "cash") as "cash" | "card";
+  const customerName = String(formData.get("customerName") ?? "").trim();
+  const customerEmail = String(formData.get("customerEmail") ?? "").trim().toLowerCase();
   const cart: SaleLineInput[] = JSON.parse(cartJson);
 
   if (cart.length === 0) {
@@ -55,13 +61,19 @@ export async function recordPosSaleAction(
     }
   }
 
-  const amountCAD = cart.reduce((sum, line) => {
+  const subtotalCAD = cart.reduce((sum, line) => {
     if (line.type === "animal") {
       return sum + Number(animals.find((a) => a.id === line.id)!.priceCAD);
     }
     const product = products.find((p) => p.id === line.id)!;
     return sum + Number(product.priceCAD) * line.quantity;
   }, 0);
+
+  const settings = await getStoreSettings();
+  const { gstAmountCAD, qstAmountCAD, totalCAD: amountCAD } = computeTax(subtotalCAD, {
+    gstRatePercent: Number(settings.gstRatePercent),
+    qstRatePercent: Number(settings.qstRatePercent),
+  });
 
   let cloverTransactionId: string | undefined;
   if (paymentMethod === "card") {
@@ -74,6 +86,9 @@ export async function recordPosSaleAction(
         data: {
           paymentMethod: "card",
           status: "failed",
+          subtotalCAD,
+          gstAmountCAD,
+          qstAmountCAD,
           amountCAD,
           createdByAdminId: admin.id,
         },
@@ -83,13 +98,18 @@ export async function recordPosSaleAction(
     cloverTransactionId = result.transactionId;
   }
 
-  await prisma.$transaction(async (tx) => {
+  const saleId = await prisma.$transaction(async (tx) => {
     const sale = await tx.posSale.create({
       data: {
         paymentMethod,
         status: "completed",
+        subtotalCAD,
+        gstAmountCAD,
+        qstAmountCAD,
         amountCAD,
         cloverTransactionId,
+        customerName: customerName || null,
+        customerEmail: customerEmail || null,
         createdByAdminId: admin.id,
       },
     });
@@ -125,16 +145,70 @@ export async function recordPosSaleAction(
         channel: "in_store",
         paymentMethod,
         amountCAD,
+        gstAmountCAD,
+        qstAmountCAD,
         note: "Vente en magasin",
       },
     });
+
+    return sale.id;
   });
 
-  await recordAudit(admin.id, "PosSale", admin.id, "create");
+  await recordAudit(admin.id, "PosSale", saleId, "create");
   revalidatePath("/admin/pos");
   revalidatePath("/admin/finance");
   revalidatePath("/animals");
   revalidatePath("/boutique");
+
+  return { success: true, posSaleId: saleId };
+}
+
+export type SendReceiptResult = { error?: string; success?: boolean };
+
+export async function sendPosReceiptEmailAction(
+  posSaleId: string,
+  _prevState: SendReceiptResult | undefined,
+  formData: FormData,
+): Promise<SendReceiptResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!email) {
+    return { error: "Un courriel est requis pour envoyer le reçu." };
+  }
+
+  const sale = await prisma.posSale.findUnique({
+    where: { id: posSaleId },
+    include: {
+      items: { include: { animal: { include: { species: true } }, product: true } },
+    },
+  });
+  if (!sale) {
+    return { error: "Vente introuvable." };
+  }
+
+  const settings = await getStoreSettings();
+  const { subject, html } = posReceiptEmail({
+    saleId: sale.id,
+    createdAt: sale.createdAt,
+    paymentMethod: sale.paymentMethod,
+    items: sale.items.map((item) => ({
+      name: item.animal
+        ? `${item.animal.species.commonNameFr} — ${item.animal.morph}`
+        : (item.product?.nameFr ?? ""),
+      quantity: item.quantity,
+      priceCAD: Number(item.priceAtSaleCAD),
+    })),
+    subtotalCAD: Number(sale.subtotalCAD ?? 0),
+    gstAmountCAD: Number(sale.gstAmountCAD ?? 0),
+    qstAmountCAD: Number(sale.qstAmountCAD ?? 0),
+    totalCAD: Number(sale.amountCAD),
+    gstNumber: settings.gstNumber,
+    qstNumber: settings.qstNumber,
+  });
+
+  await sendEmail({ to: email, subject, html });
 
   return { success: true };
 }
