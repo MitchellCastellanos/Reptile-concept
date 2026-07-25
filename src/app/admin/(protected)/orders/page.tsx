@@ -23,7 +23,8 @@ export default async function AdminOrdersPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Commandes</h1>
 
-      <table className="w-full border-collapse text-sm">
+      <div className="overflow-x-auto">
+<table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-black/10 text-left dark:border-white/10">
             <th className="py-2">Client</th>
@@ -59,6 +60,7 @@ export default async function AdminOrdersPage() {
           })}
         </tbody>
       </table>
+</div>
     </div>
   );
 }

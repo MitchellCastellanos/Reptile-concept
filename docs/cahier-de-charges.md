@@ -49,6 +49,7 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 - Page d'erreur et messages personnalisés
 
 ### Section 3 — Panneau d'administration *(réalisé)*
+- Navigation en menu latéral regroupée par catégorie (catalogue, ventes, clients, site), entièrement adaptée aux mobiles et tablettes (menu déroulant sur petit écran, tableaux défilables)
 - Connexion sécurisée pour l'équipe
 - Gestion des animaux (ajouter/modifier/supprimer, avec photos)
 - Gestion des espèces (fiches de soins, informations d'élevage)
@@ -74,7 +75,7 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 ### Section 6 — Comptes clients *(réalisé)*
 - Création de compte, connexion, mot de passe
 - Espace client avec historique des commandes et statut de chacune
-- Liste de souhaits (wishlist) pour animaux et produits
+- Liste de souhaits (wishlist) pour animaux et produits, accessible directement depuis chaque fiche du catalogue en plus de l'espace client
 - Ajout manuel d'un client depuis le panneau admin
 - Import en bloc des clients existants à partir d'un export QuickBooks (fichier CSV)
 
@@ -120,3 +121,4 @@ Invitation à tout fournisseur consulté d'inclure dans sa soumission : la main-
 | 2026-07-25 | Documento vivo creado. Marca como "réalisé" el flujo de pago directo + retiro en tienda, ledger financiero, reseñas, y emails transaccionales (codificados, falta proveedor real). Agrega 6 nuevas secciones "à développer": comptes clients, inventario centralizado + POS, migración de datos, medios (upload de fotos), monitoreo de performance, marketing por correo. |
 | 2026-07-25 | Secciones 6, 7, 9, 10 y 11 marcadas como "réalisé" (comptes clients, inventario centralizado + POS con Clover, upload de fotos, monitoreo de performance, campañas de email). La sección 8 se dividió: import de clientes QuickBooks ya está hecho, solo queda pendiente el import de inventario desde Excel. |
 | 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (Sección 2 y 7) configurables desde el admin, aplicadas en checkout en línea y ventas en magasin, con reçus de vente en magasin imprimibles/enviables por correo. |
+| 2026-07-25 | Se agregó botón de cuenta visible en todo momento, wishlist en cada tarjeta del catálogo (Sección 2 y 6), y control +/- de cantidad en vente en magasin (Sección 7). Se reorganizó el panneau admin en menú lateral por categoría y se hizo responsive (Sección 3), corrigiendo también un bug de contraste en los campos de formulario. |

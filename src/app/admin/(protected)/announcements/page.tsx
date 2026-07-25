@@ -23,7 +23,8 @@ export default async function AdminAnnouncementsPage() {
         Un seul bandeau actif s&apos;affiche à la fois sur le site (le plus récent).
       </p>
 
-      <table className="w-full border-collapse text-sm">
+      <div className="overflow-x-auto">
+<table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-black/10 text-left dark:border-white/10">
             <th className="py-2">Message (FR)</th>
@@ -59,6 +60,7 @@ export default async function AdminAnnouncementsPage() {
           ))}
         </tbody>
       </table>
+</div>
     </div>
   );
 }
