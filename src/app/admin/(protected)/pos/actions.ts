@@ -10,6 +10,7 @@ import { getStoreSettings } from "@/lib/settings";
 import { computeTax } from "@/lib/tax";
 import { sendEmail } from "@/lib/email";
 import { posReceiptEmail } from "@/lib/email-templates";
+import { getStoreContactInfo } from "@/lib/store-info";
 
 type SaleLineInput = {
   type: "animal" | "product";
@@ -188,25 +189,28 @@ export async function sendPosReceiptEmailAction(
     return { error: "Vente introuvable." };
   }
 
-  const settings = await getStoreSettings();
-  const { subject, html } = posReceiptEmail({
-    saleId: sale.id,
-    createdAt: sale.createdAt,
-    paymentMethod: sale.paymentMethod,
-    items: sale.items.map((item) => ({
-      name: item.animal
-        ? `${item.animal.species.commonNameFr} — ${item.animal.morph}`
-        : (item.product?.nameFr ?? ""),
-      quantity: item.quantity,
-      priceCAD: Number(item.priceAtSaleCAD),
-    })),
-    subtotalCAD: Number(sale.subtotalCAD ?? 0),
-    gstAmountCAD: Number(sale.gstAmountCAD ?? 0),
-    qstAmountCAD: Number(sale.qstAmountCAD ?? 0),
-    totalCAD: Number(sale.amountCAD),
-    gstNumber: settings.gstNumber,
-    qstNumber: settings.qstNumber,
-  });
+  const [settings, storeInfo] = await Promise.all([getStoreSettings(), getStoreContactInfo()]);
+  const { subject, html } = posReceiptEmail(
+    {
+      saleId: sale.id,
+      createdAt: sale.createdAt,
+      paymentMethod: sale.paymentMethod,
+      items: sale.items.map((item) => ({
+        name: item.animal
+          ? `${item.animal.species.commonNameFr} — ${item.animal.morph}`
+          : (item.product?.nameFr ?? ""),
+        quantity: item.quantity,
+        priceCAD: Number(item.priceAtSaleCAD),
+      })),
+      subtotalCAD: Number(sale.subtotalCAD ?? 0),
+      gstAmountCAD: Number(sale.gstAmountCAD ?? 0),
+      qstAmountCAD: Number(sale.qstAmountCAD ?? 0),
+      totalCAD: Number(sale.amountCAD),
+      gstNumber: settings.gstNumber,
+      qstNumber: settings.qstNumber,
+    },
+    storeInfo,
+  );
 
   await sendEmail({ to: email, subject, html });
 

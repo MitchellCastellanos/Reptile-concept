@@ -60,6 +60,7 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 - Modération des avis clients
 - Historique et notes par client
 - Bandeau d'annonces modifiable par l'équipe
+- Coordonnées de l'entreprise modifiables (courriel de contact, téléphone, adresse et horaires en français et en anglais), reflétées automatiquement dans le pied de page, les reçus et les courriels envoyés aux clients
 - Registre des actions de l'équipe dans le panneau
 
 ### Section 4 — Courriels automatiques *(réalisé, en attente de connexion d'un fournisseur de courriel)*
@@ -122,3 +123,4 @@ Invitation à tout fournisseur consulté d'inclure dans sa soumission : la main-
 | 2026-07-25 | Secciones 6, 7, 9, 10 y 11 marcadas como "réalisé" (comptes clients, inventario centralizado + POS con Clover, upload de fotos, monitoreo de performance, campañas de email). La sección 8 se dividió: import de clientes QuickBooks ya está hecho, solo queda pendiente el import de inventario desde Excel. |
 | 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (Sección 2 y 7) configurables desde el admin, aplicadas en checkout en línea y ventas en magasin, con reçus de vente en magasin imprimibles/enviables por correo. |
 | 2026-07-25 | Se agregó botón de cuenta visible en todo momento, wishlist en cada tarjeta del catálogo (Sección 2 y 6), y control +/- de cantidad en vente en magasin (Sección 7). Se reorganizó el panneau admin en menú lateral por categoría y se hizo responsive (Sección 3), corrigiendo también un bug de contraste en los campos de formulario. |
+| 2026-07-25 | Se agregó a la Sección 3 la posibilidad de editar desde el admin el courriel de contacto público, teléfono, dirección y horarios (FR/EN), reflejados automáticamente en el sitio, los reçus y los courriels transaccionales. |

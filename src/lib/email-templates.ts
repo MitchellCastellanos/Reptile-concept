@@ -1,4 +1,4 @@
-import { STORE_INFO, CONTACT_EMAIL } from "@/lib/store-info";
+import type { StoreContactInfo } from "@/lib/store-info";
 
 type Locale = "fr" | "en";
 
@@ -70,8 +70,8 @@ function taxSummary(order: OrderEmailData, locale: Locale) {
     </p>`;
 }
 
-function shell(locale: Locale, title: string, bodyHtml: string) {
-  const info = STORE_INFO[locale];
+function shell(locale: Locale, title: string, bodyHtml: string, storeInfo: StoreContactInfo) {
+  const info = storeInfo[locale];
   return `<!doctype html>
 <html lang="${locale}">
   <body style="margin:0;padding:0;background:#faf8f5;font-family:-apple-system,Segoe UI,Helvetica,Arial,sans-serif;color:#1f2937;">
@@ -85,18 +85,18 @@ function shell(locale: Locale, title: string, bodyHtml: string) {
       </div>
       <div style="text-align:center;margin-top:24px;font-size:12px;color:#6b7280;">
         <p>${info.address} — ${info.hours}</p>
-        <p>${info.phone} · ${CONTACT_EMAIL}</p>
+        <p>${info.phone} · ${storeInfo.contactEmail}</p>
       </div>
     </div>
   </body>
 </html>`;
 }
 
-export function orderConfirmationEmail(locale: Locale, order: OrderEmailData) {
+export function orderConfirmationEmail(locale: Locale, order: OrderEmailData, storeInfo: StoreContactInfo) {
   const subject =
     locale === "en"
-      ? `Order confirmed ${orderRef(order.orderId)} — ${STORE_INFO.en.name}`
-      : `Commande confirmée ${orderRef(order.orderId)} — ${STORE_INFO.fr.name}`;
+      ? `Order confirmed ${orderRef(order.orderId)} — ${storeInfo.en.name}`
+      : `Commande confirmée ${orderRef(order.orderId)} — ${storeInfo.fr.name}`;
 
   const body =
     locale === "en"
@@ -111,10 +111,10 @@ export function orderConfirmationEmail(locale: Locale, order: OrderEmailData) {
          ${taxSummary(order, locale)}
          <p>Notre équipe va commencer à préparer votre commande sous peu — vous recevrez un courriel dès qu'elle sera prête à être récupérée.</p>`;
 
-  return { subject, html: shell(locale, subject, body) };
+  return { subject, html: shell(locale, subject, body, storeInfo) };
 }
 
-export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string) {
+export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string, storeInfo: StoreContactInfo) {
   const subject = `Nouvelle vente ${orderRef(order.orderId)} — ${order.totalCAD.toFixed(2)} $ CAD`;
   const body = `
     <p>Nouvelle commande payée de ${order.customerName}.</p>
@@ -122,10 +122,10 @@ export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string) 
     ${taxSummary(order, "fr")}
     <p>Cliquez sur « Préparation » dans le panel admin pour commencer.</p>
     <p><a href="${adminOrderUrl}" style="color:#2d5a3d;font-weight:600;">Voir la commande</a></p>`;
-  return { subject, html: shell("fr", subject, body) };
+  return { subject, html: shell("fr", subject, body, storeInfo) };
 }
 
-export function orderPreparingEmail(locale: Locale, order: OrderEmailData) {
+export function orderPreparingEmail(locale: Locale, order: OrderEmailData, storeInfo: StoreContactInfo) {
   const subject =
     locale === "en"
       ? `Your order ${orderRef(order.orderId)} is being prepared`
@@ -138,7 +138,7 @@ export function orderPreparingEmail(locale: Locale, order: OrderEmailData) {
       : `<p>Bonjour ${order.customerName},</p>
          <p>Bonne nouvelle — nous avons commencé à préparer votre commande ${orderRef(order.orderId)}. Restez à l'affût : nous vous avisons dès qu'elle sera prête à être récupérée.</p>`;
 
-  return { subject, html: shell(locale, subject, body) };
+  return { subject, html: shell(locale, subject, body, storeInfo) };
 }
 
 export function orderReadyForPickupEmail(
@@ -146,8 +146,9 @@ export function orderReadyForPickupEmail(
   order: OrderEmailData,
   deadline: Date,
   cancellationFeePercent: number,
+  storeInfo: StoreContactInfo,
 ) {
-  const info = STORE_INFO[locale];
+  const info = storeInfo[locale];
   const deadlineStr = deadline.toLocaleDateString(locale === "en" ? "en-CA" : "fr-CA", {
     weekday: "long",
     year: "numeric",
@@ -179,10 +180,15 @@ export function orderReadyForPickupEmail(
            sera automatiquement annulée et remboursée, moins des frais d'annulation de ${cancellationFeePercent}%.
          </p>`;
 
-  return { subject, html: shell(locale, subject, body) };
+  return { subject, html: shell(locale, subject, body, storeInfo) };
 }
 
-export function orderPickedUpEmail(locale: Locale, order: OrderEmailData, reviewUrl: string) {
+export function orderPickedUpEmail(
+  locale: Locale,
+  order: OrderEmailData,
+  reviewUrl: string,
+  storeInfo: StoreContactInfo,
+) {
   const subject =
     locale === "en"
       ? `Thanks for picking up order ${orderRef(order.orderId)}!`
@@ -199,7 +205,7 @@ export function orderPickedUpEmail(locale: Locale, order: OrderEmailData, review
          <p>Si vous avez un instant, nous aimerions connaître votre expérience :</p>
          <p><a href="${reviewUrl}" style="display:inline-block;background:#2d5a3d;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:600;">Laisser un avis</a></p>`;
 
-  return { subject, html: shell(locale, subject, body) };
+  return { subject, html: shell(locale, subject, body, storeInfo) };
 }
 
 type PosReceiptData = {
@@ -215,14 +221,14 @@ type PosReceiptData = {
   qstNumber: string | null;
 };
 
-export function posReceiptEmail(sale: PosReceiptData) {
+export function posReceiptEmail(sale: PosReceiptData, storeInfo: StoreContactInfo) {
   const ref = `#${sale.saleId.slice(0, 8)}`;
   const dateStr = sale.createdAt.toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" });
   const methodLabel = sale.paymentMethod === "card" ? "Carte" : "Comptant";
-  const subject = `Reçu ${ref} — ${sale.totalCAD.toFixed(2)} $ CAD — Reptile Concept`;
+  const subject = `Reçu ${ref} — ${sale.totalCAD.toFixed(2)} $ CAD — ${storeInfo.fr.name}`;
 
   const body = `
-    <p>Merci pour votre achat chez Reptile Concept!</p>
+    <p>Merci pour votre achat chez ${storeInfo.fr.name}!</p>
     <p style="color:#6b7280;font-size:13px;">Reçu ${ref} — ${dateStr} — Paiement : ${methodLabel}</p>
     ${itemsTable(sale.items, "fr")}
     <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;">
@@ -234,7 +240,7 @@ export function posReceiptEmail(sale: PosReceiptData) {
     </table>
     <p style="font-weight:600;margin-top:8px;border-top:1px solid #e5e1db;padding-top:8px;">Total : ${sale.totalCAD.toFixed(2)} $ CAD</p>`;
 
-  return { subject, html: shell("fr", subject, body) };
+  return { subject, html: shell("fr", subject, body, storeInfo) };
 }
 
 export function orderExpiredEmail(
@@ -242,6 +248,7 @@ export function orderExpiredEmail(
   order: OrderEmailData,
   refundAmountCAD: number,
   feeAmountCAD: number,
+  storeInfo: StoreContactInfo,
 ) {
   const subject =
     locale === "en"
@@ -260,5 +267,5 @@ export function orderExpiredEmail(
          ${feeAmountCAD.toFixed(2)} $ CAD ont été retenus). Si les articles vous intéressent toujours, n'hésitez pas à
          passer une nouvelle commande.</p>`;
 
-  return { subject, html: shell(locale, subject, body) };
+  return { subject, html: shell(locale, subject, body, storeInfo) };
 }

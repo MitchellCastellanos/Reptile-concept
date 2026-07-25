@@ -3,7 +3,6 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { getStoreSettings } from "@/lib/settings";
-import { STORE_INFO, CONTACT_EMAIL } from "@/lib/store-info";
 import { PrintButton } from "@/components/admin/print-button";
 import { ReceiptEmailForm } from "./receipt-email-form";
 
@@ -29,7 +28,6 @@ export default async function PosReceiptPage({ params }: { params: Promise<{ id:
   ]);
   if (!sale) notFound();
 
-  const info = STORE_INFO.fr;
   const subtotalCAD = Number(sale.subtotalCAD ?? 0);
   const gstAmountCAD = Number(sale.gstAmountCAD ?? 0);
   const qstAmountCAD = Number(sale.qstAmountCAD ?? 0);
@@ -46,10 +44,10 @@ export default async function PosReceiptPage({ params }: { params: Promise<{ id:
 
       <div className="mx-auto w-full max-w-md rounded-lg border border-black/10 p-6 text-sm dark:border-white/10">
         <div className="text-center">
-          <p className="text-lg font-semibold">{info.name}</p>
-          <p className="text-zinc-600 dark:text-zinc-400">{info.address}</p>
+          <p className="text-lg font-semibold">Reptile Concept</p>
+          <p className="text-zinc-600 dark:text-zinc-400">{settings.addressFr}</p>
           <p className="text-zinc-600 dark:text-zinc-400">
-            {info.phone} · {CONTACT_EMAIL}
+            {settings.contactPhone} · {settings.contactEmail}
           </p>
           {settings.gstNumber ? (
             <p className="mt-1 text-xs text-zinc-500">TPS : {settings.gstNumber}</p>
