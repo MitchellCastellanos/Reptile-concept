@@ -82,7 +82,8 @@ export default async function AdminPerformancePage() {
 
       <section>
         <h2 className="mb-3 text-lg font-medium">Pages les plus visitées (30 jours)</h2>
-        <table className="w-full max-w-lg border-collapse text-sm">
+        <div className="overflow-x-auto">
+<table className="w-full max-w-lg border-collapse text-sm">
           <tbody>
             {topPathsRaw.map((row) => (
               <tr key={row.path} className="border-b border-black/5 dark:border-white/5">
@@ -97,6 +98,7 @@ export default async function AdminPerformancePage() {
             ) : null}
           </tbody>
         </table>
+</div>
       </section>
 
       <p className="text-xs text-zinc-500">

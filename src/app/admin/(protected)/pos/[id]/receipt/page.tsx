@@ -69,7 +69,8 @@ export default async function PosReceiptPage({ params }: { params: Promise<{ id:
           {sale.customerName ? ` · Client : ${sale.customerName}` : ""}
         </p>
 
-        <table className="mt-4 w-full border-collapse text-sm">
+        <div className="overflow-x-auto">
+<table className="mt-4 w-full border-collapse text-sm">
           <thead>
             <tr className="border-b border-black/10 text-left dark:border-white/10">
               <th className="py-1">Article</th>
@@ -91,6 +92,7 @@ export default async function PosReceiptPage({ params }: { params: Promise<{ id:
             ))}
           </tbody>
         </table>
+</div>
 
         <div className="mt-4 flex flex-col gap-1 border-t border-black/10 pt-4 dark:border-white/10">
           <p className="flex justify-between text-zinc-600 dark:text-zinc-400">

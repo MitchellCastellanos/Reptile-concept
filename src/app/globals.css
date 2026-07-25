@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* This app only has one, light color palette designed — there is no real
+   dark theme. Scope the `dark:` variant to an opt-in `.dark` class (which
+   nothing ever adds) instead of the OS `prefers-color-scheme`, so a device
+   set to dark mode doesn't trigger stray `dark:` utility classes (e.g.
+   `dark:bg-black` with no matching text-color override) into unreadable
+   black-on-black/near-black form fields. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   color-scheme: light;
   --background: #faf8f5;

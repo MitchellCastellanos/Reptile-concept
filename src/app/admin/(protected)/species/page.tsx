@@ -20,7 +20,8 @@ export default async function AdminSpeciesPage() {
         </Link>
       </div>
 
-      <table className="w-full border-collapse text-sm">
+      <div className="overflow-x-auto">
+<table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-black/10 text-left dark:border-white/10">
             <th className="py-2">Nom scientifique</th>
@@ -58,6 +59,7 @@ export default async function AdminSpeciesPage() {
           ))}
         </tbody>
       </table>
+</div>
     </div>
   );
 }

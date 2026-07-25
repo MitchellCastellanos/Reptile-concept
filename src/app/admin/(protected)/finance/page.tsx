@@ -158,7 +158,8 @@ export default async function AdminFinancePage({
         </Link>
       </form>
 
-      <table className="w-full border-collapse text-sm">
+      <div className="overflow-x-auto">
+<table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-black/10 text-left dark:border-white/10">
             <th className="py-2">Date</th>
@@ -206,6 +207,7 @@ export default async function AdminFinancePage({
           ))}
         </tbody>
       </table>
+</div>
 
       {records.length === 0 ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">Aucun mouvement financier pour ces filtres.</p>

@@ -61,9 +61,10 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - Flux d'avis clients après un retrait (lien envoyé par courriel, modération avant publication, page publique d'avis)
 - Image de marque réelle intégrée partout (logo, couleurs, photos)
 - Page d'accueil, page d'erreur personnalisée, états vides illustrés
-- **Comptes clients** : création de compte, connexion, espace personnel avec historique des commandes et statut de chacune, liste de souhaits (wishlist) pour animaux et produits
+- **Comptes clients** : création de compte, connexion, espace personnel avec historique des commandes et statut de chacune, liste de souhaits (wishlist) pour animaux et produits, accessible en un clic depuis le menu et directement depuis chaque fiche du catalogue
 
 **Panneau d'administration**
+- **Navigation réorganisée en menu latéral**, regroupée par catégorie (catalogue, ventes, clients, site) pour rester claire malgré le nombre croissant de sections, et **entièrement adaptée aux mobiles/tablettes** (menu déroulant sur petit écran, tableaux défilables)
 - Connexion sécurisée pour l'équipe
 - Gestion des animaux (ajouter/modifier/supprimer, avec photos)
 - Gestion des espèces (fiches de soins)
@@ -128,3 +129,4 @@ GABAN Solutions — Montréal, QC — gabansolutions.ca — 514-258-0648
 | 2026-07-25 | Documento vivo creado. Refleja el pivote a pago directo + retiro en tienda, ledger financiero, reseñas, emails transaccionales codificados (pendiente de proveedor real), y las 7 features nuevas planeadas (cuentas de cliente, Clover como terminal de pago + POS diario, monitoreo de performance, upload de fotos, campañas de email). |
 | 2026-07-25 | Las 7 features planeadas quedaron implementadas y se movieron a "Ce qui est déjà en place". Se fijó el precio final: 6 000 $ CAD + taxes, soporte incluido sin costo salvo cambios grandes/sustanciales (nuevas features), sin frais mensuales de GABAN Solutions. |
 | 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (configurables desde el admin) en checkout en línea y ventas en magasin, con desglose en cada recibo/confirmación, y reçus de vente en magasin imprimibles/enviables por correo. |
+| 2026-07-25 | Se agregó botón de cuenta de cliente visible en todo momento en el sitio, botón de wishlist directamente en cada tarjeta del catálogo (no solo en la ficha), y control +/- de cantidad al registrar una vente en magasin. Se reorganizó la navegación del admin en un menú lateral agrupado por categoría, se hizo el admin responsive (mobile/tablette), y se corrigió un bug de contraste de colores en los campos de formulario del admin. |
