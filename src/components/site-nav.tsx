@@ -14,9 +14,11 @@ export function SiteNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8" priority />
-          <span className="text-lg font-semibold text-primary">Reptile Concept</span>
+        <Link href="/" className="flex min-w-0 shrink items-center gap-2">
+          <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
+          <span className="truncate whitespace-nowrap text-base font-semibold text-primary sm:text-lg">
+            Reptile Concept
+          </span>
         </Link>
 
         <div className="hidden items-center gap-6 text-sm font-medium md:flex">
@@ -34,11 +36,11 @@ export function SiteNav() {
           </Link>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           <LocaleSwitcher />
           <Link
             href="/account"
-            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent-light hover:text-primary"
+            className="flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent-light hover:text-primary sm:px-3"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="8" r="4" />
@@ -48,7 +50,7 @@ export function SiteNav() {
           </Link>
           <Link
             href="/cart"
-            className="relative flex items-center gap-1.5 rounded-full bg-accent-light px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent/20"
+            className="relative flex items-center gap-1.5 rounded-full bg-accent-light px-2 py-1.5 text-sm font-medium text-accent hover:bg-accent/20 sm:px-3"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M6 6h15l-1.5 9h-12z" />
@@ -56,7 +58,7 @@ export function SiteNav() {
               <circle cx="18" cy="20" r="1" />
               <path d="M6 6L5 3H2" />
             </svg>
-            {t("cart")}
+            <span className="hidden sm:inline">{t("cart")}</span>
             {itemCount > 0 ? (
               <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs text-white">
                 {itemCount}

@@ -47,7 +47,9 @@
     "boutique": "Shop",
     "cart": "Cart",
     "reviews": "Reviews",
-    "rights": "All rights reserved"
+    "rights": "All rights reserved",
+    "cardsAccepted": "Cards accepted:",
+    "staff": "Staff"
   },
   "Animal": {
     "backToList": "Back to animals",

@@ -47,7 +47,9 @@
     "boutique": "Boutique",
     "cart": "Panier",
     "reviews": "Avis clients",
-    "rights": "Tous droits réservés"
+    "rights": "Tous droits réservés",
+    "cardsAccepted": "Cartes acceptées :",
+    "staff": "Staff"
   },
   "Animal": {
     "backToList": "Retour aux animaux",

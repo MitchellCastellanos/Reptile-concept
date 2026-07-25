@@ -49,7 +49,7 @@ export default async function AdminPerformancePage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-semibold">Performance</h1>
+      <h1 className="text-2xl font-semibold">Performance du site</h1>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
