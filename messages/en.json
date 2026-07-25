@@ -35,7 +35,8 @@
     "boutique": "Shop",
     "home": "Home",
     "cart": "Cart",
-    "reviews": "Reviews"
+    "reviews": "Reviews",
+    "account": "Account"
   },
   "Footer": {
     "tagline": "Your specialty reptile shop in Lachine, Quebec.",
@@ -112,5 +113,29 @@
     "commentLabel": "Your comment",
     "submit": "Submit",
     "thankYou": "Thanks for your review!"
+  },
+  "Account": {
+    "title": "My account",
+    "loginTitle": "Log in",
+    "registerTitle": "Create an account",
+    "fullName": "Full name",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Log in",
+    "registerButton": "Create my account",
+    "noAccount": "No account yet?",
+    "createOne": "Create one",
+    "haveAccount": "Already have an account?",
+    "loginInstead": "Log in instead",
+    "logout": "Log out",
+    "myOrders": "My orders",
+    "myWishlist": "My wishlist",
+    "noOrders": "You don't have any orders yet.",
+    "noWishlist": "Your wishlist is empty.",
+    "addToWishlist": "Add to wishlist",
+    "removeFromWishlist": "Remove from wishlist",
+    "welcomeBack": "Welcome back",
+    "orderNumber": "Order",
+    "status": "Status"
   }
 }

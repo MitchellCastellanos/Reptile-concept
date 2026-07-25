@@ -31,14 +31,23 @@ export default async function ProtectedAdminLayout({
             <Link href="/admin/orders" className="text-sm">
               Commandes
             </Link>
+            <Link href="/admin/pos" className="text-sm">
+              Vente en magasin
+            </Link>
             <Link href="/admin/customers" className="text-sm">
               Clients
             </Link>
             <Link href="/admin/announcements" className="text-sm">
               Annonces
             </Link>
+            <Link href="/admin/campaigns" className="text-sm">
+              Campagnes
+            </Link>
             <Link href="/admin/finance" className="text-sm">
               Finances
+            </Link>
+            <Link href="/admin/performance" className="text-sm">
+              Performance
             </Link>
             <Link href="/admin/reviews" className="text-sm">
               Avis

@@ -8,6 +8,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BnplBanner } from "@/components/bnpl-banner";
+import { PageViewTracker } from "@/components/page-view-tracker";
 import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
 
@@ -61,6 +62,7 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <NextIntlClientProvider>
           <CartProvider>
+            <PageViewTracker />
             <BnplBanner />
             <AnnouncementBanner />
             <SiteNav />
