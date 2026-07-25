@@ -7,7 +7,7 @@ import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { getStoreSettings } from "@/lib/settings";
 import { addBusinessDays } from "@/lib/business-days";
-import { restoreOrderInventory, calcOrderTotalCAD } from "@/lib/orders";
+import { restoreOrderInventory, resolveOrderAmounts } from "@/lib/orders";
 import {
   sendOrderPreparingEmail,
   sendOrderReadyForPickupEmail,
@@ -59,12 +59,14 @@ export async function markReadyForPickupAction(orderId: string) {
 
     // The sale is booked (revenue recognized) at the point staff confirm the
     // order is finalized and set aside for the customer.
-    const totalCAD = calcOrderTotalCAD(order.items);
+    const { totalCAD, gstAmountCAD, qstAmountCAD } = resolveOrderAmounts(order);
     await tx.financialRecord.create({
       data: {
         orderId,
         type: "sale",
         amountCAD: totalCAD,
+        gstAmountCAD,
+        qstAmountCAD,
         note: "Vente confirmée — prête pour retrait",
       },
     });
@@ -114,7 +116,7 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
 
     await restoreOrderInventory(tx, orderId);
 
-    const totalCAD = calcOrderTotalCAD(order.items);
+    const { totalCAD } = resolveOrderAmounts(order);
     const settings = await getStoreSettings();
     const feePercent = applyFee ? Number(settings.cancellationFeePercent) : 0;
     const feeAmount = Number(((totalCAD * feePercent) / 100).toFixed(2));

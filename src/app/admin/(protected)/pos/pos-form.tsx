@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useActionState } from "react";
+import { computeTax } from "@/lib/tax";
 import { recordPosSaleAction } from "./actions";
 
 type AnimalOption = { id: string; label: string; priceCAD: number };
@@ -18,14 +20,22 @@ type SaleLine = {
 export function PosForm({
   animals,
   products,
+  gstRatePercent,
+  qstRatePercent,
 }: {
   animals: AnimalOption[];
   products: ProductOption[];
+  gstRatePercent: number;
+  qstRatePercent: number;
 }) {
   const [lines, setLines] = useState<SaleLine[]>([]);
   const [state, formAction, pending] = useActionState(recordPosSaleAction, undefined);
 
-  const total = useMemo(() => lines.reduce((sum, l) => sum + l.priceCAD * l.quantity, 0), [lines]);
+  const subtotal = useMemo(() => lines.reduce((sum, l) => sum + l.priceCAD * l.quantity, 0), [lines]);
+  const tax = useMemo(
+    () => computeTax(subtotal, { gstRatePercent, qstRatePercent }),
+    [subtotal, gstRatePercent, qstRatePercent],
+  );
 
   useEffect(() => {
     if (state?.success) setLines([]);
@@ -130,7 +140,21 @@ export function PosForm({
         <p className="text-sm text-zinc-500">Aucun article ajouté.</p>
       )}
 
-      <p className="text-lg font-semibold">Total : {total.toFixed(2)} $ CAD</p>
+      <div className="flex flex-col gap-1 text-sm">
+        <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+          <span>Sous-total</span>
+          <span>{tax.subtotalCAD.toFixed(2)} $</span>
+        </p>
+        <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+          <span>TPS ({gstRatePercent}%)</span>
+          <span>{tax.gstAmountCAD.toFixed(2)} $</span>
+        </p>
+        <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+          <span>TVQ ({qstRatePercent}%)</span>
+          <span>{tax.qstAmountCAD.toFixed(2)} $</span>
+        </p>
+        <p className="text-lg font-semibold">Total (+tax) : {tax.totalCAD.toFixed(2)} $ CAD</p>
+      </div>
 
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="cartJson" value={JSON.stringify(lines)} />
@@ -143,9 +167,34 @@ export function PosForm({
           </label>
         </fieldset>
 
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <label className="flex flex-col gap-1 text-sm">
+            Nom du client (optionnel, pour le reçu)
+            <input
+              name="customerName"
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm">
+            Courriel du client (optionnel, pour envoyer le reçu)
+            <input
+              type="email"
+              name="customerEmail"
+              className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+            />
+          </label>
+        </div>
+
         {state?.error ? <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p> : null}
         {state?.success ? (
-          <p className="text-sm text-green-700 dark:text-green-400">Vente enregistrée avec succès.</p>
+          <div className="flex flex-col gap-2 rounded border border-green-300 bg-green-50 p-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-200">
+            <p>Vente enregistrée avec succès.</p>
+            {state.posSaleId ? (
+              <Link href={`/admin/pos/${state.posSaleId}/receipt`} className="w-fit underline">
+                Voir / imprimer / envoyer le reçu
+              </Link>
+            ) : null}
+          </div>
         ) : null}
 
         <button

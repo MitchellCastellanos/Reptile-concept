@@ -13,6 +13,10 @@ export async function updateSettingsAction(formData: FormData) {
   const pickupDeadlineBusinessDays = Number(formData.get("pickupDeadlineBusinessDays"));
   const cancellationFeePercent = Number(formData.get("cancellationFeePercent"));
   const adminNotificationEmail = String(formData.get("adminNotificationEmail") ?? "").trim();
+  const gstNumber = String(formData.get("gstNumber") ?? "").trim();
+  const qstNumber = String(formData.get("qstNumber") ?? "").trim();
+  const gstRatePercent = Number(formData.get("gstRatePercent"));
+  const qstRatePercent = Number(formData.get("qstRatePercent"));
 
   if (!Number.isFinite(pickupDeadlineBusinessDays) || pickupDeadlineBusinessDays < 1) {
     throw new Error("Le délai de retrait doit être d'au moins 1 jour ouvrable.");
@@ -20,11 +24,21 @@ export async function updateSettingsAction(formData: FormData) {
   if (!Number.isFinite(cancellationFeePercent) || cancellationFeePercent < 0 || cancellationFeePercent > 100) {
     throw new Error("Les frais d'annulation doivent être entre 0 et 100%.");
   }
+  if (!Number.isFinite(gstRatePercent) || gstRatePercent < 0 || gstRatePercent > 100) {
+    throw new Error("Le taux de TPS doit être entre 0 et 100%.");
+  }
+  if (!Number.isFinite(qstRatePercent) || qstRatePercent < 0 || qstRatePercent > 100) {
+    throw new Error("Le taux de TVQ doit être entre 0 et 100%.");
+  }
 
   await updateStoreSettings({
     pickupDeadlineBusinessDays,
     cancellationFeePercent,
     adminNotificationEmail: adminNotificationEmail || null,
+    gstNumber: gstNumber || null,
+    qstNumber: qstNumber || null,
+    gstRatePercent,
+    qstRatePercent,
   });
   await recordAudit(admin.id, "StoreSettings", "singleton", "update");
 

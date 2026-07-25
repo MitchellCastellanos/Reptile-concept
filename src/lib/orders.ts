@@ -23,3 +23,22 @@ export function calcOrderTotalCAD(
 ) {
   return items.reduce((sum, item) => sum + Number(item.priceAtSaleCAD) * item.quantity, 0);
 }
+
+// Prefers the tax breakdown snapshotted on the order at checkout time; falls
+// back to a plain items subtotal (no tax) for orders placed before tax
+// support existed, so old orders still resolve to a sensible amount.
+export function resolveOrderAmounts(order: {
+  items: { priceAtSaleCAD: Prisma.Decimal | number; quantity: number }[];
+  subtotalCAD?: Prisma.Decimal | number | null;
+  gstAmountCAD?: Prisma.Decimal | number | null;
+  qstAmountCAD?: Prisma.Decimal | number | null;
+  totalCAD?: Prisma.Decimal | number | null;
+}) {
+  const itemsSubtotal = calcOrderTotalCAD(order.items);
+  return {
+    subtotalCAD: order.subtotalCAD != null ? Number(order.subtotalCAD) : itemsSubtotal,
+    gstAmountCAD: order.gstAmountCAD != null ? Number(order.gstAmountCAD) : 0,
+    qstAmountCAD: order.qstAmountCAD != null ? Number(order.qstAmountCAD) : 0,
+    totalCAD: order.totalCAD != null ? Number(order.totalCAD) : itemsSubtotal,
+  };
+}

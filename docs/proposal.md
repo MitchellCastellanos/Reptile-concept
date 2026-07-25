@@ -54,6 +54,7 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - Catalogue d'animaux avec fiche détaillée par animal (photos réelles, génétique, lignée, prix, disponibilité en temps réel)
 - Boutique d'accessoires avec fiche produit détaillée et sélecteur de quantité
 - Panier et **passage à la caisse avec paiement direct** — le client paie immédiatement dans le portail (ce n'est plus une simple réservation)
+- **Taxes TPS/TVQ calculées et détaillées** sur chaque commande (sous-total, TPS, TVQ, total), avec les numéros d'inscription et les taux configurables depuis l'admin
 - **Retrait en magasin** comme mode de livraison, avec suivi de commande : payée → en préparation → prête pour retrait → récupérée
 - Délai de retrait configurable (par défaut 4 jours ouvrables) et frais d'annulation configurable (par défaut 15 %) pour les commandes non récupérées à temps, avec expiration automatique
 - Vitrine "achetez maintenant, payez plus tard" et badges de paiement (Stripe/Klarna) déjà affichés sur le site — *à titre indicatif pour le moment, en attente de la connexion réelle des comptes marchands (voir section paiement ci-dessous)*
@@ -71,7 +72,8 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - **Téléversement direct de photos** : ajouter une photo depuis l'ordinateur (sélection de fichier), en plus de l'option par lien/URL
 - **Gestion des clients** : historique et notes par client (mini CRM), ajout manuel d'un client, et import en bloc des clients existants depuis un export QuickBooks (CSV)
 - **Vente en magasin (point de vente)** : la plateforme est la source unique de vérité de l'inventaire — chaque vente en personne est enregistrée depuis l'admin. Vente comptant : retrait automatique de l'inventaire et ajout à la petite caisse. Vente par carte : la transaction est envoyée au terminal Clover déjà utilisé en magasin, la vente ne se finalise qu'après la réponse (approuvée/refusée) du terminal
-- **Relevé financier unifié** (commandes en ligne et ventes en magasin) avec filtres par mois, par statut, par canal et par méthode de paiement, incluant le suivi de la petite caisse
+- **Relevé financier unifié** (commandes en ligne et ventes en magasin) avec filtres par mois, par statut, par canal et par méthode de paiement, incluant le suivi de la petite caisse et le détail des taxes perçues (TPS/TVQ)
+- **Reçus** pour chaque vente en magasin, imprimables et envoyables par courriel au client, avec le détail des taxes
 - Page de paramètres (délai de retrait, pourcentage de frais d'annulation, courriel de notification)
 - Modération des avis clients
 - Bandeau d'annonces modifiable par l'équipe elle-même
@@ -125,3 +127,4 @@ GABAN Solutions — Montréal, QC — gabansolutions.ca — 514-258-0648
 |---|---|
 | 2026-07-25 | Documento vivo creado. Refleja el pivote a pago directo + retiro en tienda, ledger financiero, reseñas, emails transaccionales codificados (pendiente de proveedor real), y las 7 features nuevas planeadas (cuentas de cliente, Clover como terminal de pago + POS diario, monitoreo de performance, upload de fotos, campañas de email). |
 | 2026-07-25 | Las 7 features planeadas quedaron implementadas y se movieron a "Ce qui est déjà en place". Se fijó el precio final: 6 000 $ CAD + taxes, soporte incluido sin costo salvo cambios grandes/sustanciales (nuevas features), sin frais mensuales de GABAN Solutions. |
+| 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (configurables desde el admin) en checkout en línea y ventas en magasin, con desglose en cada recibo/confirmación, y reçus de vente en magasin imprimibles/enviables por correo. |

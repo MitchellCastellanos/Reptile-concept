@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
+import { getStoreSettings } from "@/lib/settings";
 import { PosForm } from "./pos-form";
 
 export default async function AdminPosPage() {
+  const settings = await getStoreSettings();
   const [animals, products] = await Promise.all([
     prisma.animal.findMany({
       where: { status: "available" },
@@ -36,6 +38,8 @@ export default async function AdminPosPage() {
           priceCAD: Number(p.priceCAD),
           stockQty: p.stockQty,
         }))}
+        gstRatePercent={Number(settings.gstRatePercent)}
+        qstRatePercent={Number(settings.qstRatePercent)}
       />
     </div>
   );

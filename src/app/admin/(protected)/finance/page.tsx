@@ -57,9 +57,11 @@ export default async function AdminFinancePage({
       if (record.channel === "in_store" && record.paymentMethod === "cash" && record.type === "sale") {
         acc.pettyCash += amount;
       }
+      acc.gst += Number(record.gstAmountCAD ?? 0);
+      acc.qst += Number(record.qstAmountCAD ?? 0);
       return acc;
     },
-    { sales: 0, refunds: 0, fees: 0, pettyCash: 0 },
+    { sales: 0, refunds: 0, fees: 0, pettyCash: 0, gst: 0, qst: 0 },
   );
   const net = totals.sales - totals.refunds + totals.fees;
 
@@ -67,7 +69,7 @@ export default async function AdminFinancePage({
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Finances</h1>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
           <p className="text-2xl font-semibold">{totals.sales.toFixed(2)} $</p>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Ventes</p>
@@ -87,6 +89,14 @@ export default async function AdminFinancePage({
         <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
           <p className="text-2xl font-semibold">{totals.pettyCash.toFixed(2)} $</p>
           <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Petite caisse (comptant)</p>
+        </div>
+        <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+          <p className="text-2xl font-semibold">{totals.gst.toFixed(2)} $</p>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">TPS perçue</p>
+        </div>
+        <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+          <p className="text-2xl font-semibold">{totals.qst.toFixed(2)} $</p>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">TVQ perçue</p>
         </div>
       </div>
 
@@ -157,6 +167,8 @@ export default async function AdminFinancePage({
             <th className="py-2">Méthode</th>
             <th className="py-2">Référence</th>
             <th className="py-2">Note</th>
+            <th className="py-2 text-right">TPS</th>
+            <th className="py-2 text-right">TVQ</th>
             <th className="py-2 text-right">Montant</th>
           </tr>
         </thead>
@@ -183,6 +195,12 @@ export default async function AdminFinancePage({
                 )}
               </td>
               <td className="py-2 text-zinc-600 dark:text-zinc-400">{record.note}</td>
+              <td className="py-2 text-right text-zinc-600 dark:text-zinc-400">
+                {record.gstAmountCAD != null ? `${Number(record.gstAmountCAD).toFixed(2)} $` : "—"}
+              </td>
+              <td className="py-2 text-right text-zinc-600 dark:text-zinc-400">
+                {record.qstAmountCAD != null ? `${Number(record.qstAmountCAD).toFixed(2)} $` : "—"}
+              </td>
               <td className="py-2 text-right">{Number(record.amountCAD).toFixed(2)} $</td>
             </tr>
           ))}

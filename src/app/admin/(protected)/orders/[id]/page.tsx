@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { resolveOrderAmounts } from "@/lib/orders";
 import {
   markPreparingAction,
   markReadyForPickupAction,
@@ -55,7 +56,7 @@ export default async function AdminOrderDetailPage({
     order.pickupDeadlineAt !== null &&
     order.pickupDeadlineAt < new Date();
 
-  const total = order.items.reduce((sum, item) => sum + Number(item.priceAtSaleCAD) * item.quantity, 0);
+  const amounts = resolveOrderAmounts(order);
 
   const canCancel = !["picked_up", "cancelled", "refunded"].includes(order.status);
 
@@ -101,7 +102,24 @@ export default async function AdminOrderDetailPage({
             </li>
           ))}
         </ul>
-        <p className="mt-2 text-sm font-semibold">Total : {total.toFixed(2)} $ CAD</p>
+        <div className="mt-2 flex flex-col gap-1 text-sm">
+          <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+            <span>Sous-total</span>
+            <span>{amounts.subtotalCAD.toFixed(2)} $</span>
+          </p>
+          <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+            <span>TPS</span>
+            <span>{amounts.gstAmountCAD.toFixed(2)} $</span>
+          </p>
+          <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+            <span>TVQ</span>
+            <span>{amounts.qstAmountCAD.toFixed(2)} $</span>
+          </p>
+          <p className="flex justify-between font-semibold">
+            <span>Total</span>
+            <span>{amounts.totalCAD.toFixed(2)} $ CAD</span>
+          </p>
+        </div>
       </section>
 
       <section>
