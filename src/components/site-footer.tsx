@@ -8,6 +8,7 @@ import { getStoreSettings } from "@/lib/settings";
 
 export async function SiteFooter() {
   const t = await getTranslations("Footer");
+  const tLegal = await getTranslations("Legal");
   const locale = await getLocale();
   const settings = await getStoreSettings();
   const address = locale === "en" ? settings.addressEn : settings.addressFr;
@@ -71,9 +72,14 @@ export async function SiteFooter() {
         <span>
           © {new Date().getFullYear()} Reptile Concept — {t("rights")}
         </span>
-        <NextLink href="/admin/login" className="text-white/40 hover:text-white/70">
-          {t("staff")}
-        </NextLink>
+        <div className="flex items-center gap-4">
+          <Link href="/legal/cookies" className="text-white/40 hover:text-white/70">
+            {tLegal("cookiePolicyLink")}
+          </Link>
+          <NextLink href="/admin/login" className="text-white/40 hover:text-white/70">
+            {t("staff")}
+          </NextLink>
+        </div>
       </div>
     </footer>
   );

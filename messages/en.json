@@ -60,7 +60,8 @@
     "status_not_for_sale": "Not for sale",
     "sex_male": "Male",
     "sex_female": "Female",
-    "sex_unknown": "Unknown sex"
+    "sex_unknown": "Unknown sex",
+    "researchDisclaimer": "Before buying, please research this species' care requirements, adult size, lifespan and local laws so you can give it a suitable home."
   },
   "Boutique": {
     "title": "Shop",
@@ -139,5 +140,26 @@
     "welcomeBack": "Welcome back",
     "orderNumber": "Order",
     "status": "Status"
+  },
+  "Legal": {
+    "cookieBannerText": "We use cookies to keep our store running (cart, sign-in) and to understand how visitors use our site. See our cookie policy for details.",
+    "cookieBannerAccept": "Got it",
+    "cookieBannerLearnMore": "Learn more",
+    "cookiePolicyLink": "Cookie policy",
+    "cookiePolicyTitle": "Cookie policy",
+    "cookiePolicyIntro": "This page explains what cookies and similar technologies (such as local storage) we use on Reptile Concept and why.",
+    "cookiePolicyWhatTitle": "What are cookies?",
+    "cookiePolicyWhatBody": "Cookies are small text files stored on your device when you visit a website. They let a site remember information about your visit, like your preferences or the contents of your cart.",
+    "cookiePolicyWhyTitle": "How we use them",
+    "cookiePolicyEssentialTitle": "Essential",
+    "cookiePolicyEssentialBody": "Needed for core features to work: keeping you signed in to your account or the staff area, and remembering the items in your cart and wishlist.",
+    "cookiePolicyFunctionalTitle": "Functional",
+    "cookiePolicyFunctionalBody": "Remember preferences such as your chosen language (French or English).",
+    "cookiePolicyAnalyticsTitle": "Analytics",
+    "cookiePolicyAnalyticsBody": "Help us understand which pages are visited so we can improve the site. We don't sell this information.",
+    "cookiePolicyControlTitle": "Managing cookies",
+    "cookiePolicyControlBody": "Most browsers let you block or delete cookies in their settings. Note that blocking essential cookies may prevent parts of the site (like the cart or checkout) from working properly.",
+    "cookiePolicyContactTitle": "Questions?",
+    "cookiePolicyContactBody": "Contact us using the details in the footer if you have any questions about this policy."
   }
 }

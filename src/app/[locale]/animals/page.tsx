@@ -6,6 +6,7 @@ import { getCurrentCustomer } from "@/lib/customer-auth";
 
 export default async function AnimalsPage() {
   const t = await getTranslations("Home");
+  const tAnimal = await getTranslations("Animal");
   const locale = await getLocale();
   const animals = await getAvailableAnimals();
   const customer = await getCurrentCustomer();
@@ -17,6 +18,10 @@ export default async function AnimalsPage() {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">{t("availableAnimals")}</h1>
         <p className="mt-2 text-muted">{t("animalsSubtitle")}</p>
       </div>
+
+      <p className="rounded-xl border border-border bg-accent-light px-4 py-3 text-sm text-foreground/80">
+        {tAnimal("researchDisclaimer")}
+      </p>
 
       {animals.length === 0 ? (
         <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card p-12 text-center">

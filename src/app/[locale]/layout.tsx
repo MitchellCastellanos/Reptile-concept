@@ -8,6 +8,7 @@ import { SiteNav } from "@/components/site-nav";
 import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BnplBanner } from "@/components/bnpl-banner";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
@@ -68,6 +69,7 @@ export default async function RootLayout({
             <SiteNav />
             {children}
             <SiteFooter />
+            <CookieConsentBanner />
           </CartProvider>
         </NextIntlClientProvider>
       </body>

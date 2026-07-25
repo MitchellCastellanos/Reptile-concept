@@ -79,6 +79,10 @@ export default async function AnimalDetailPage({
 
           <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
 
+          <p className="rounded-xl border border-border bg-accent-light px-4 py-3 text-sm text-foreground/80">
+            {t("researchDisclaimer")}
+          </p>
+
           {animal.status === "available" ? (
             <>
               <AddAnimalToCartButton

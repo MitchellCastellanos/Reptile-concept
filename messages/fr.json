@@ -60,7 +60,8 @@
     "status_not_for_sale": "Non disponible à la vente",
     "sex_male": "Mâle",
     "sex_female": "Femelle",
-    "sex_unknown": "Sexe inconnu"
+    "sex_unknown": "Sexe inconnu",
+    "researchDisclaimer": "Avant d'acheter, renseignez-vous sur les besoins d'entretien, la taille adulte, l'espérance de vie et la réglementation locale de cette espèce afin de lui offrir un habitat adapté."
   },
   "Boutique": {
     "title": "Boutique",
@@ -139,5 +140,26 @@
     "welcomeBack": "Content de vous revoir",
     "orderNumber": "Commande",
     "status": "Statut"
+  },
+  "Legal": {
+    "cookieBannerText": "Nous utilisons des témoins (cookies) pour faire fonctionner notre boutique (panier, connexion) et pour comprendre comment nos visiteurs utilisent le site. Consultez notre politique de témoins pour en savoir plus.",
+    "cookieBannerAccept": "J'ai compris",
+    "cookieBannerLearnMore": "En savoir plus",
+    "cookiePolicyLink": "Politique de témoins",
+    "cookiePolicyTitle": "Politique de témoins (cookies)",
+    "cookiePolicyIntro": "Cette page explique quels témoins et technologies similaires (comme le stockage local) Reptile Concept utilise, et pourquoi.",
+    "cookiePolicyWhatTitle": "Que sont les témoins?",
+    "cookiePolicyWhatBody": "Les témoins sont de petits fichiers texte enregistrés sur votre appareil lorsque vous visitez un site web. Ils permettent au site de se souvenir d'informations sur votre visite, comme vos préférences ou le contenu de votre panier.",
+    "cookiePolicyWhyTitle": "Comment nous les utilisons",
+    "cookiePolicyEssentialTitle": "Essentiels",
+    "cookiePolicyEssentialBody": "Nécessaires au bon fonctionnement du site : garder votre session ouverte (compte client ou espace staff) et mémoriser le contenu de votre panier et de votre liste de souhaits.",
+    "cookiePolicyFunctionalTitle": "Fonctionnels",
+    "cookiePolicyFunctionalBody": "Mémorisent vos préférences, comme la langue choisie (français ou anglais).",
+    "cookiePolicyAnalyticsTitle": "Analytiques",
+    "cookiePolicyAnalyticsBody": "Nous aident à comprendre quelles pages sont visitées afin d'améliorer le site. Nous ne vendons pas ces informations.",
+    "cookiePolicyControlTitle": "Gérer les témoins",
+    "cookiePolicyControlBody": "La plupart des navigateurs permettent de bloquer ou de supprimer les témoins dans leurs paramètres. Notez que bloquer les témoins essentiels peut empêcher certaines parties du site (comme le panier ou le paiement) de fonctionner correctement.",
+    "cookiePolicyContactTitle": "Des questions?",
+    "cookiePolicyContactBody": "Contactez-nous avec les coordonnées indiquées dans le pied de page si vous avez des questions sur cette politique."
   }
 }
