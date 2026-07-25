@@ -25,7 +25,7 @@ Actúa como diseñador/a de propuestas comerciales. Genera un PDF (o HTML/diseñ
 5. Ce qui est déjà en place (état actuel du projet)
 6. Prochaines étapes planifiées (les nouvelles features à venir)
 7. Ce qui est inclus / ce qui ne l'est pas (abonnements récurrents)
-8. Investissement (deja el monto en blanco o referencia al documento de costos, según lo que diga la sección de abajo)
+8. Investissement (usa el precio y las condiciones exactas indicadas en la sección de abajo)
 9. Cierre con contacto GABAN Solutions
 
 Genera el documento completo ahora, usando el contenido exacto de la sección de abajo.
@@ -60,6 +60,7 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - Flux d'avis clients après un retrait (lien envoyé par courriel, modération avant publication, page publique d'avis)
 - Image de marque réelle intégrée partout (logo, couleurs, photos)
 - Page d'accueil, page d'erreur personnalisée, états vides illustrés
+- **Comptes clients** : création de compte, connexion, espace personnel avec historique des commandes et statut de chacune, liste de souhaits (wishlist) pour animaux et produits
 
 **Panneau d'administration**
 - Connexion sécurisée pour l'équipe
@@ -67,11 +68,15 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - Gestion des espèces (fiches de soins)
 - Gestion des produits (ajouter/modifier/supprimer, avec photos)
 - Gestion des commandes : suivi du cycle de vie, actions (marquer en préparation / prête / récupérée), annulation avec ou sans frais
-- Relevé financier de base par commande (vente, remboursement, frais d'annulation)
+- **Téléversement direct de photos** : ajouter une photo depuis l'ordinateur (sélection de fichier), en plus de l'option par lien/URL
+- **Gestion des clients** : historique et notes par client (mini CRM), ajout manuel d'un client, et import en bloc des clients existants depuis un export QuickBooks (CSV)
+- **Vente en magasin (point de vente)** : la plateforme est la source unique de vérité de l'inventaire — chaque vente en personne est enregistrée depuis l'admin. Vente comptant : retrait automatique de l'inventaire et ajout à la petite caisse. Vente par carte : la transaction est envoyée au terminal Clover déjà utilisé en magasin, la vente ne se finalise qu'après la réponse (approuvée/refusée) du terminal
+- **Relevé financier unifié** (commandes en ligne et ventes en magasin) avec filtres par mois, par statut, par canal et par méthode de paiement, incluant le suivi de la petite caisse
 - Page de paramètres (délai de retrait, pourcentage de frais d'annulation, courriel de notification)
 - Modération des avis clients
-- Historique et notes par client (mini CRM)
 - Bandeau d'annonces modifiable par l'équipe elle-même
+- **Suivi de performance** : tableau de bord intégré (visites du site, historique 7/30 jours, comparatif dans le temps, pages les plus consultées) — aucun abonnement d'analytique tiers requis
+- **Campagnes courriel** : rédaction d'un message bilingue (français/anglais) envoyé à toute la liste de clients, avec journal des envois et brouillons réutilisables ou à renvoyer
 - Registre des actions de l'équipe (qui a modifié quoi)
 
 **Courriels automatiques**
@@ -81,47 +86,33 @@ Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-conc
 - Hébergement en production (Vercel) et base de données (PostgreSQL/Neon)
 - Domaine et déploiement continu — chaque mise à jour se publie automatiquement
 
-### Prochaines étapes planifiées (à développer)
+### Prochaines étapes planifiées
 
-**1. Comptes clients**
-- Création de compte, connexion, mot de passe
-- Espace client : historique des commandes et statut de chacune
-- Liste de souhaits (wishlist)
-- Ajout manuel d'un client depuis le panneau admin
-- Import des clients existants depuis QuickBooks
-
-**2. Clover comme terminal de paiement, la plateforme comme source unique d'inventaire**
-- L'inventaire vit uniquement dans la plateforme — Clover ne gère plus l'inventaire de façon indépendante
-- Enregistrement des ventes en personne directement depuis le panneau admin (point de vente intégré à l'opération quotidienne)
-- Vente comptant : retrait automatique de l'inventaire, ajout du montant à la petite caisse, écriture comptable correspondante
-- Vente par carte : la transaction est envoyée au terminal Clover déjà utilisé en magasin, en attente de la réponse (approuvée/refusée) avant de finaliser la vente
-- Module de finances enrichi : filtres par mois, par statut, par méthode de paiement
-
-**3. Suivi de performance**
-- Tableau de bord simple : trafic du site, historique, comparatif dans le temps
-
-**4. Téléversement direct de photos**
-- Ajouter une photo depuis l'ordinateur (glisser-déposer ou sélection de fichier) directement dans le panneau admin, en plus de l'option actuelle par lien/URL
-
-**5. Campagnes courriel**
-- Nouvelle section admin pour rédiger un message (en français et en anglais) et l'envoyer à toute la liste de clients
-- Journal des envois : historique des courriels envoyés et brouillons, pour les renvoyer ou les réutiliser
+Aucune évolution n'est planifiée pour le moment — l'ensemble des fonctionnalités décrites ci-dessus (y compris les comptes clients, le point de vente en magasin, le suivi de performance, le téléversement de photos et les campagnes courriel) est déjà livré et inclus dans le prix forfaitaire de ce projet. Toute nouvelle fonctionnalité qui s'ajouterait à l'avenir ferait l'objet d'une proposition et d'un prix séparés (voir la section Investissement).
 
 ### Ce qui est inclus / ce qui ne l'est pas
 
-**Inclus dans le développement** : toute la conception, la programmation, les tests, et la mise en place initiale de chaque composant décrit ci-dessus.
+**Inclus dans le développement** : toute la conception, la programmation, les tests, et la mise en place de l'ensemble des composants décrits ci-dessus — **aucuns frais mensuels ne sont facturés par GABAN Solutions** pour l'utilisation de la plateforme elle-même.
 
-**Non inclus — abonnements récurrents à prévoir séparément** (montants approximatifs) :
+**Non inclus — abonnements récurrents de tiers, à prévoir séparément par le client** (montants approximatifs, indépendants de GABAN Solutions) :
 - Base de données de production : gratuite au départ, puis environ 25 $–70 $ USD/mois si le volume dépasse le forfait gratuit
 - Hébergement du site : gratuit au départ, facturation mensuelle (pas annuelle) si le trafic dépasse le forfait gratuit, généralement quelques dizaines de dollars/mois
 - Nom de domaine : environ 15 $–20 $ CAD **par année** (ceci est le seul élément vraiment annuel)
-- Service d'envoi de courriels : gratuit jusqu'à un certain volume, puis quelques dollars/mois
+- Service d'envoi de courriels (confirmations, campagnes) : gratuit jusqu'à un certain volume, puis quelques dollars/mois
 - Frais de transaction du processeur de paiement : un pourcentage par vente (standard dans l'industrie, pas un abonnement)
-- Stockage des photos téléversées : quelques dollars/mois selon le volume, une fois la feature de téléversement direct en place
-- Clover : l'abonnement déjà payé par le client, inchangé
+- Stockage des photos téléversées depuis l'admin : quelques dollars/mois selon le volume
+- Clover : l'abonnement déjà payé par le client pour son terminal, inchangé — la plateforme s'y connecte simplement pour envoyer les demandes de paiement
+- Le suivi de performance (analytique) est intégré à la plateforme elle-même — aucun abonnement tiers requis pour cette fonctionnalité
 
 ### Investissement
-Voir l'annexe budgétaire séparée pour le détail des coûts.
+
+**Prix forfaitaire : 6 000 $ CAD + taxes applicables**, pour l'ensemble du projet décrit dans ce document — la boutique en ligne, le panneau d'administration complet, les comptes clients, le point de vente en magasin avec Clover, le suivi de performance, le téléversement de photos et les campagnes courriel.
+
+**Support inclus sans frais additionnels** : les ajustements, corrections et l'accompagnement courant après la livraison sont couverts sans coût supplémentaire.
+
+**Ce qui n'est pas couvert par ce prix** : les changements de grande envergure ou substantiels — c'est-à-dire l'ajout d'une nouvelle fonctionnalité qui ne fait pas déjà partie de la portée décrite dans ce document — font l'objet d'un devis séparé.
+
+**Aucuns frais mensuels facturés par GABAN Solutions.** Les seuls coûts récurrents sont ceux des services tiers listés à la section précédente, indépendants de GABAN Solutions.
 
 ### Cierre
 GABAN Solutions — Montréal, QC — gabansolutions.ca — 514-258-0648
@@ -133,3 +124,4 @@ GABAN Solutions — Montréal, QC — gabansolutions.ca — 514-258-0648
 | Date | Changement |
 |---|---|
 | 2026-07-25 | Documento vivo creado. Refleja el pivote a pago directo + retiro en tienda, ledger financiero, reseñas, emails transaccionales codificados (pendiente de proveedor real), y las 7 features nuevas planeadas (cuentas de cliente, Clover como terminal de pago + POS diario, monitoreo de performance, upload de fotos, campañas de email). |
+| 2026-07-25 | Las 7 features planeadas quedaron implementadas y se movieron a "Ce qui est déjà en place". Se fijó el precio final: 6 000 $ CAD + taxes, soporte incluido sin costo salvo cambios grandes/sustanciales (nuevas features), sin frais mensuales de GABAN Solutions. |

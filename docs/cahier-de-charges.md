@@ -70,36 +70,36 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 - Connexion réelle du processeur de paiement (actuellement affiché en vitrine, pas encore connecté à un compte marchand réel)
 - Gestion de base des remboursements et litiges
 
-### Section 6 — Comptes clients *(à développer)*
+### Section 6 — Comptes clients *(réalisé)*
 - Création de compte, connexion, mot de passe
 - Espace client avec historique des commandes et statut de chacune
 - Liste de souhaits (wishlist) pour animaux et produits
 - Ajout manuel d'un client depuis le panneau admin
-- Import des clients existants depuis QuickBooks
+- Import en bloc des clients existants à partir d'un export QuickBooks (fichier CSV)
 
-### Section 7 — Inventaire centralisé et point de vente *(à développer)*
-- La plateforme devient la source unique de vérité de l'inventaire
+### Section 7 — Inventaire centralisé et point de vente *(réalisé)*
+- La plateforme est la source unique de vérité de l'inventaire
 - Connexion à Clover comme terminal de paiement uniquement (Clover ne gère plus l'inventaire de façon indépendante)
 - Enregistrement des ventes en personne directement depuis le panneau admin
 - Vente comptant : retrait automatique de l'inventaire, ajout à la petite caisse, écriture comptable correspondante
 - Vente par carte : transaction envoyée au terminal Clover existant, avec attente de la réponse avant de finaliser la vente
-- Module de finances avec filtres (par mois, par statut, par méthode de paiement)
+- Module de finances unifié (commandes en ligne et ventes en magasin) avec filtres (par mois, par statut, par canal, par méthode de paiement)
 
-### Section 8 — Transfert des données actuelles *(à développer)*
-- Import unique de l'inventaire actuel depuis Excel
-- Import des clients existants depuis QuickBooks (voir aussi section 6)
+### Section 8 — Transfert des données actuelles
+- Import en bloc des clients existants depuis QuickBooks *(réalisé — voir aussi section 6)*
+- Import unique de l'inventaire actuel depuis Excel *(à développer)*
 
-### Section 9 — Médias *(à développer)*
-- Téléversement direct de photos (glisser-déposer ou sélection de fichier) depuis le panneau admin, en plus de l'option par lien existante
+### Section 9 — Médias *(réalisé)*
+- Téléversement direct de photos (sélection de fichier) depuis le panneau admin, en plus de l'option par lien existante
 - Stockage des fichiers téléversés
 
-### Section 10 — Suivi de performance *(à développer)*
-- Tableau de bord : trafic du site, historique, comparatif dans le temps
+### Section 10 — Suivi de performance *(réalisé)*
+- Tableau de bord intégré à la plateforme : trafic du site, historique, comparatif dans le temps, pages les plus consultées — aucun abonnement d'analytique tiers requis
 
-### Section 11 — Marketing courriel *(à développer)*
+### Section 11 — Marketing courriel *(réalisé)*
 - Section admin pour rédiger un message (français et anglais) et l'envoyer à toute la liste de clients
 - Journal des envois : courriels envoyés et brouillons, avec possibilité de renvoi
-- Respect des règles canadiennes anti-pourriel (consentement, lien de désabonnement, identification de l'expéditeur)
+- Respect du consentement des clients (case de désinscription respectée à l'envoi) — la gestion complète des exigences canadiennes anti-pourriel (ex. lien de désabonnement dans chaque courriel) reste à finaliser avec le fournisseur de courriel réel
 
 ### Section 12 — Mise en ligne et infrastructure *(réalisé)*
 - Nom de domaine et configuration
@@ -116,3 +116,4 @@ Invitation à tout fournisseur consulté d'inclure dans sa soumission : la main-
 | Date | Changement |
 |---|---|
 | 2026-07-25 | Documento vivo creado. Marca como "réalisé" el flujo de pago directo + retiro en tienda, ledger financiero, reseñas, y emails transaccionales (codificados, falta proveedor real). Agrega 6 nuevas secciones "à développer": comptes clients, inventario centralizado + POS, migración de datos, medios (upload de fotos), monitoreo de performance, marketing por correo. |
+| 2026-07-25 | Secciones 6, 7, 9, 10 y 11 marcadas como "réalisé" (comptes clients, inventario centralizado + POS con Clover, upload de fotos, monitoreo de performance, campañas de email). La sección 8 se dividió: import de clientes QuickBooks ya está hecho, solo queda pendiente el import de inventario desde Excel. |
