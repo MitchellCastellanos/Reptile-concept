@@ -70,6 +70,16 @@ export function PosForm({
     setLines((prev) => prev.filter((l) => !(l.type === type && l.id === id)));
   }
 
+  function changeProductQuantity(id: string, delta: number) {
+    setLines((prev) =>
+      prev.map((l) =>
+        l.type === "product" && l.id === id
+          ? { ...l, quantity: Math.min(Math.max(l.quantity + delta, 1), l.maxQuantity ?? Infinity) }
+          : l,
+      ),
+    );
+  }
+
   return (
     <div className="flex max-w-2xl flex-col gap-6">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -120,19 +130,43 @@ export function PosForm({
           {lines.map((line) => (
             <li
               key={`${line.type}-${line.id}`}
-              className="flex items-center justify-between rounded border border-black/10 px-3 py-2 text-sm dark:border-white/10"
+              className="flex items-center justify-between gap-3 rounded border border-black/10 px-3 py-2 text-sm dark:border-white/10"
             >
               <span>
-                {line.label} {line.type === "product" ? `× ${line.quantity}` : ""} —{" "}
-                {(line.priceCAD * line.quantity).toFixed(2)} $
+                {line.label} — {(line.priceCAD * line.quantity).toFixed(2)} $
               </span>
-              <button
-                type="button"
-                onClick={() => removeLine(line.type, line.id)}
-                className="text-red-600 underline dark:text-red-400"
-              >
-                Retirer
-              </button>
+              <div className="flex items-center gap-3">
+                {line.type === "product" ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => changeProductQuantity(line.id, -1)}
+                      disabled={line.quantity <= 1}
+                      className="flex h-6 w-6 items-center justify-center rounded border border-black/20 disabled:opacity-40 dark:border-white/20"
+                      aria-label="Diminuer la quantité"
+                    >
+                      −
+                    </button>
+                    <span className="w-6 text-center">{line.quantity}</span>
+                    <button
+                      type="button"
+                      onClick={() => changeProductQuantity(line.id, 1)}
+                      disabled={line.maxQuantity !== undefined && line.quantity >= line.maxQuantity}
+                      className="flex h-6 w-6 items-center justify-center rounded border border-black/20 disabled:opacity-40 dark:border-white/20"
+                      aria-label="Augmenter la quantité"
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => removeLine(line.type, line.id)}
+                  className="text-red-600 underline dark:text-red-400"
+                >
+                  Retirer
+                </button>
+              </div>
             </li>
           ))}
         </ul>

@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { getProductImageUrl } from "@/lib/images";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { KlarnaInstallments } from "@/components/klarna-installments";
+import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
 
 type ProductCardProduct = {
   id: string;
@@ -19,11 +20,15 @@ export function ProductCard({
   locale,
   inStockLabel,
   outOfStockLabel,
+  showWishlist = false,
+  inWishlist = false,
 }: {
   product: ProductCardProduct;
   locale: string;
   inStockLabel: string;
   outOfStockLabel: string;
+  showWishlist?: boolean;
+  inWishlist?: boolean;
 }) {
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const imageUrl = product.imageUrl || getProductImageUrl(product.category);
@@ -39,6 +44,11 @@ export function ProductCard({
             className="object-cover transition duration-300 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
+          {showWishlist ? (
+            <span className="absolute right-3 top-3">
+              <WishlistToggleButton type="product" itemId={product.id} initialActive={inWishlist} variant="icon" />
+            </span>
+          ) : null}
         </div>
       </Link>
       <div className="flex flex-1 flex-col gap-1 p-4">

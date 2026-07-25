@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { getAnimalImageUrl } from "@/lib/images";
 import { KlarnaInstallments } from "@/components/klarna-installments";
+import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
 
 type AnimalCardAnimal = {
   id: string;
@@ -16,11 +17,15 @@ export function AnimalCard({
   locale,
   priceLabel,
   availableLabel,
+  showWishlist = false,
+  inWishlist = false,
 }: {
   animal: AnimalCardAnimal;
   locale: string;
   priceLabel: string;
   availableLabel?: string;
+  showWishlist?: boolean;
+  inWishlist?: boolean;
 }) {
   const speciesName =
     locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
@@ -42,6 +47,11 @@ export function AnimalCard({
         {availableLabel ? (
           <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-white">
             {availableLabel}
+          </span>
+        ) : null}
+        {showWishlist ? (
+          <span className="absolute right-3 top-3">
+            <WishlistToggleButton type="animal" itemId={animal.id} initialActive={inWishlist} variant="icon" />
           </span>
         ) : null}
       </div>
