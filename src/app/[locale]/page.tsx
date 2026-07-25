@@ -4,7 +4,8 @@ import { Link } from "@/i18n/navigation";
 import { AnimalCard } from "@/components/animal-card";
 import { ProductCard } from "@/components/product-card";
 import { PaymentBadges } from "@/components/payment-badges";
-import { getAvailableAnimals, getProducts } from "@/lib/queries";
+import { getAvailableAnimals, getProducts, getWishlistedIds } from "@/lib/queries";
+import { getCurrentCustomer } from "@/lib/customer-auth";
 
 const categoryIcons = [
   { key: "reptiles" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
@@ -26,6 +27,8 @@ export default async function Home() {
   const products = await getProducts();
   const featured = animals.slice(0, 6);
   const popular = products.slice(0, 4);
+  const customer = await getCurrentCustomer();
+  const { animalIds, productIds } = await getWishlistedIds(customer?.id);
 
   return (
     <>
@@ -103,6 +106,8 @@ export default async function Home() {
                   locale={locale}
                   priceLabel={t("priceLabel")}
                   availableLabel={t("available")}
+                  showWishlist
+                  inWishlist={animalIds.has(animal.id)}
                 />
               ))}
             </div>
@@ -125,6 +130,8 @@ export default async function Home() {
                   locale={locale}
                   inStockLabel={t("inStock")}
                   outOfStockLabel={t("outOfStock")}
+                  showWishlist
+                  inWishlist={productIds.has(product.id)}
                 />
               ))}
             </div>

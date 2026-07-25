@@ -1,11 +1,14 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import { getProducts } from "@/lib/queries";
+import { getProducts, getWishlistedIds } from "@/lib/queries";
 import { ProductCard } from "@/components/product-card";
+import { getCurrentCustomer } from "@/lib/customer-auth";
 
 export default async function BoutiquePage() {
   const t = await getTranslations("Boutique");
   const locale = await getLocale();
   const products = await getProducts();
+  const customer = await getCurrentCustomer();
+  const { productIds } = await getWishlistedIds(customer?.id);
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-12">
@@ -28,6 +31,8 @@ export default async function BoutiquePage() {
               locale={locale}
               inStockLabel={t("inStock")}
               outOfStockLabel={t("outOfStock")}
+              showWishlist
+              inWishlist={productIds.has(product.id)}
             />
           ))}
         </div>

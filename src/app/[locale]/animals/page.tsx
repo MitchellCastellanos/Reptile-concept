@@ -1,12 +1,15 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AnimalCard } from "@/components/animal-card";
-import { getAvailableAnimals } from "@/lib/queries";
+import { getAvailableAnimals, getWishlistedIds } from "@/lib/queries";
+import { getCurrentCustomer } from "@/lib/customer-auth";
 
 export default async function AnimalsPage() {
   const t = await getTranslations("Home");
   const locale = await getLocale();
   const animals = await getAvailableAnimals();
+  const customer = await getCurrentCustomer();
+  const { animalIds } = await getWishlistedIds(customer?.id);
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-8 px-6 py-12">
@@ -29,6 +32,8 @@ export default async function AnimalsPage() {
               locale={locale}
               priceLabel={t("priceLabel")}
               availableLabel={t("available")}
+              showWishlist
+              inWishlist={animalIds.has(animal.id)}
             />
           ))}
         </div>

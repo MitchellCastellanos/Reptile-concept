@@ -36,8 +36,15 @@ export function SiteNav() {
 
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
-          <Link href="/account" className="hidden text-sm font-medium text-foreground hover:text-primary sm:inline">
-            {t("account")}
+          <Link
+            href="/account"
+            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent-light hover:text-primary"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+            <span className="hidden sm:inline">{t("account")}</span>
           </Link>
           <Link
             href="/cart"
