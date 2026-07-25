@@ -1,11 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { StripeMark, KlarnaWordmark } from "@/components/brand-marks";
+import { KlarnaWordmark } from "@/components/brand-marks";
 
-// Stripe + Klarna aren't wired up to a real processor yet (see
-// checkout/actions.ts) — these badges promote the payment options across the
-// storefront ahead of connecting the merchant accounts.
+// Klarna isn't wired up to a real processor yet (see checkout/actions.ts) —
+// this badge promotes the payment option across the storefront ahead of
+// connecting the merchant account.
 export function PaymentBadges({
   className = "",
   variant = "light",
@@ -21,10 +21,6 @@ export function PaymentBadges({
 
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
-      <span className={badgeClass}>
-        <StripeMark />
-        {t("securePayment")}
-      </span>
       <span className={badgeClass}>
         <KlarnaWordmark />
         {t("klarnaPromo")}

@@ -25,7 +25,6 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/orders", label: "Commandes" },
       { href: "/admin/pos", label: "Vente en magasin" },
       { href: "/admin/finance", label: "Finances" },
-      { href: "/admin/performance", label: "Performance" },
     ],
   },
   {
@@ -40,6 +39,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Site",
     links: [
       { href: "/admin/announcements", label: "Annonces" },
+      { href: "/admin/performance", label: "Performance du site" },
       { href: "/admin/settings", label: "Réglages" },
     ],
   },
@@ -71,17 +71,53 @@ function NavLinkItem({
   );
 }
 
-function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavSectionGroup({
+  section,
+  pathname,
+  onNavigate,
+}: {
+  section: NavSection;
+  pathname: string;
+  onNavigate?: () => void;
+}) {
+  const [expanded, setExpanded] = useState(true);
+
   return (
-    <nav className="flex flex-col gap-5">
-      <NavLinkItem link={DASHBOARD_LINK} active={isActiveLink(pathname, DASHBOARD_LINK.href)} onNavigate={onNavigate} />
-      {NAV_SECTIONS.map((section) => (
-        <div key={section.title} className="flex flex-col gap-1">
-          <p className="px-3 text-xs font-semibold uppercase tracking-wide text-zinc-500">{section.title}</p>
+    <div className="flex flex-col gap-1">
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
+        className="flex items-center justify-between rounded-lg px-3 py-1 text-sm font-bold text-zinc-700 hover:bg-black/5 dark:text-zinc-300"
+      >
+        {section.title}
+        <svg
+          viewBox="0 0 24 24"
+          className={`h-4 w-4 shrink-0 text-zinc-400 transition-transform ${expanded ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      </button>
+      {expanded ? (
+        <div className="flex flex-col gap-1">
           {section.links.map((link) => (
             <NavLinkItem key={link.href} link={link} active={isActiveLink(pathname, link.href)} onNavigate={onNavigate} />
           ))}
         </div>
+      ) : null}
+    </div>
+  );
+}
+
+function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+  return (
+    <nav className="flex flex-col gap-4">
+      <NavLinkItem link={DASHBOARD_LINK} active={isActiveLink(pathname, DASHBOARD_LINK.href)} onNavigate={onNavigate} />
+      {NAV_SECTIONS.map((section) => (
+        <NavSectionGroup key={section.title} section={section} pathname={pathname} onNavigate={onNavigate} />
       ))}
     </nav>
   );

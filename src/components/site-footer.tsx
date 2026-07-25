@@ -1,7 +1,9 @@
 import Image from "next/image";
+import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PaymentBadges } from "@/components/payment-badges";
+import { AmexMark, MastercardMark, VisaMark } from "@/components/brand-marks";
 import { getStoreSettings } from "@/lib/settings";
 
 export async function SiteFooter() {
@@ -55,12 +57,23 @@ export async function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-white/20 px-6 py-6">
-        <PaymentBadges variant="onDark" className="mx-auto w-fit" />
+      <div className="flex flex-col items-center gap-3 border-t border-white/20 px-6 py-6">
+        <PaymentBadges variant="onDark" className="w-fit" />
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-white/60">{t("cardsAccepted")}</span>
+          <VisaMark />
+          <MastercardMark />
+          <AmexMark />
+        </div>
       </div>
 
-      <div className="border-t border-white/20 px-6 py-4 text-center text-xs text-white/60">
-        © {new Date().getFullYear()} Reptile Concept — {t("rights")}
+      <div className="flex flex-col items-center gap-2 border-t border-white/20 px-6 py-4 text-center text-xs text-white/60 sm:flex-row sm:justify-between">
+        <span>
+          © {new Date().getFullYear()} Reptile Concept — {t("rights")}
+        </span>
+        <NextLink href="/admin/login" className="text-white/40 hover:text-white/70">
+          {t("staff")}
+        </NextLink>
       </div>
     </footer>
   );
