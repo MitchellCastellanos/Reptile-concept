@@ -34,22 +34,28 @@ export function CookieConsentBanner() {
   if (consented) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-primary px-6 py-4 text-white shadow-lg">
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
-        <p className="text-sm text-white/90">
-          {t("cookieBannerText")}{" "}
-          <Link href="/legal/cookies" className="underline hover:text-white">
-            {t("cookieBannerLearnMore")}
-          </Link>
-        </p>
-        <button
-          type="button"
-          onClick={accept}
-          className="shrink-0 rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary transition hover:bg-white/90"
-        >
-          {t("cookieBannerAccept")}
-        </button>
-      </div>
+    <div className="fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm flex-col gap-3 rounded-2xl border border-border bg-primary p-4 pr-9 text-white shadow-lg sm:inset-x-auto sm:left-4 sm:mx-0">
+      <button
+        type="button"
+        onClick={accept}
+        aria-label={t("cookieBannerClose")}
+        className="absolute right-3 top-3 text-lg leading-none text-white/60 hover:text-white"
+      >
+        &times;
+      </button>
+      <p className="text-sm text-white/90">
+        {t("cookieBannerText")}{" "}
+        <Link href="/legal/cookies" className="underline hover:text-white">
+          {t("cookieBannerLearnMore")}
+        </Link>
+      </p>
+      <button
+        type="button"
+        onClick={accept}
+        className="self-start rounded-full bg-white px-5 py-2 text-sm font-semibold text-primary transition hover:bg-white/90"
+      >
+        {t("cookieBannerAccept")}
+      </button>
     </div>
   );
 }

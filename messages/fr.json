@@ -144,6 +144,7 @@
   "Legal": {
     "cookieBannerText": "Nous utilisons des témoins (cookies) pour faire fonctionner notre boutique (panier, connexion) et pour comprendre comment nos visiteurs utilisent le site. Consultez notre politique de témoins pour en savoir plus.",
     "cookieBannerAccept": "J'ai compris",
+    "cookieBannerClose": "Fermer",
     "cookieBannerLearnMore": "En savoir plus",
     "cookiePolicyLink": "Politique de témoins",
     "cookiePolicyTitle": "Politique de témoins (cookies)",
