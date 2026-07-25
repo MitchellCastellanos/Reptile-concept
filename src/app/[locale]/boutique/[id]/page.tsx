@@ -7,6 +7,9 @@ import { getProductImageUrl } from "@/lib/images";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
+import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { getCurrentCustomer } from "@/lib/customer-auth";
+import { prisma } from "@/lib/db";
 
 export default async function ProductDetailPage({
   params,
@@ -22,6 +25,15 @@ export default async function ProductDetailPage({
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const description = locale === "en" ? product.descriptionEn : product.descriptionFr;
   const imageUrl = product.imageUrl || getProductImageUrl(product.category);
+
+  const customer = await getCurrentCustomer();
+  const isWishlisted = customer
+    ? Boolean(
+        await prisma.wishlistItem.findFirst({
+          where: { customerId: customer.id, productId: product.id },
+        }),
+      )
+    : false;
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
@@ -70,6 +82,7 @@ export default async function ProductDetailPage({
           />
 
           <PaymentBadges />
+          <WishlistToggleButton type="product" itemId={product.id} initialActive={isWishlisted} />
         </div>
       </div>
     </main>

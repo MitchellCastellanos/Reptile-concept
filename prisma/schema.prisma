@@ -82,6 +82,26 @@ enum AuditAction {
   delete
 }
 
+enum FinancialChannel {
+  online
+  in_store
+}
+
+enum PosPaymentMethod {
+  cash
+  card
+}
+
+enum PosSaleStatus {
+  completed
+  failed
+}
+
+enum CampaignStatus {
+  draft
+  sent
+}
+
 model Species {
   id               String           @id @default(uuid())
   commonNameFr     String
@@ -114,27 +134,29 @@ model Species {
 }
 
 model Animal {
-  id            String       @id @default(uuid())
-  species       Species      @relation(fields: [speciesId], references: [id])
+  id            String         @id @default(uuid())
+  species       Species        @relation(fields: [speciesId], references: [id])
   speciesId     String
   morph         String
-  sex           AnimalSex    @default(unknown)
+  sex           AnimalSex      @default(unknown)
   birthDate     DateTime?
   weightGrams   Float?
   priceCAD      Decimal
-  status        AnimalStatus @default(available)
+  status        AnimalStatus   @default(available)
   descriptionFr String
   descriptionEn String
-  dam           Animal?      @relation("Parentage_Dam", fields: [damId], references: [id])
+  dam           Animal?        @relation("Parentage_Dam", fields: [damId], references: [id])
   damId         String?
-  sire          Animal?      @relation("Parentage_Sire", fields: [sireId], references: [id])
+  sire          Animal?        @relation("Parentage_Sire", fields: [sireId], references: [id])
   sireId        String?
-  damOffspring  Animal[]     @relation("Parentage_Dam")
-  sireOffspring Animal[]     @relation("Parentage_Sire")
+  damOffspring  Animal[]       @relation("Parentage_Dam")
+  sireOffspring Animal[]       @relation("Parentage_Sire")
   media         Media[]
   orderItems    OrderItem[]
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  wishlistItems WishlistItem[]
+  posSaleItems  PosSaleItem[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Media {
@@ -161,6 +183,8 @@ model Product {
   weightKg          Float?
   bundleItems       BundleItem[]
   orderItems        OrderItem[]
+  wishlistItems     WishlistItem[]
+  posSaleItems      PosSaleItem[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 }
@@ -186,18 +210,36 @@ model BundleItem {
 }
 
 model Customer {
-  id            String    @id @default(uuid())
+  id            String         @id @default(uuid())
   fullName      String
-  email         String    @unique
+  email         String         @unique
   phone         String?
-  preferredLang Locale    @default(fr)
-  ageVerified   Boolean   @default(false)
+  preferredLang Locale         @default(fr)
+  ageVerified   Boolean        @default(false)
   internalNotes String?
+  passwordHash  String?
+  emailOptOut   Boolean        @default(false)
   addresses     Address[]
   orders        Order[]
   reviews       Review[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  wishlistItems WishlistItem[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+// A customer can wish-list either an Animal or a Product, never both.
+model WishlistItem {
+  id         String   @id @default(uuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  animal     Animal?  @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  animalId   String?
+  product    Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String?
+  createdAt  DateTime @default(now())
+
+  @@unique([customerId, animalId])
+  @@unique([customerId, productId])
 }
 
 model Address {
@@ -260,13 +302,15 @@ model Payment {
 }
 
 model AdminUser {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  passwordHash  String
-  role          AdminRole      @default(staff)
-  auditLogs     AuditLog[]
-  announcements Announcement[]
-  createdAt     DateTime       @default(now())
+  id             String          @id @default(uuid())
+  email          String          @unique
+  passwordHash   String
+  role           AdminRole       @default(staff)
+  auditLogs      AuditLog[]
+  announcements  Announcement[]
+  posSales       PosSale[]
+  emailCampaigns EmailCampaign[]
+  createdAt      DateTime        @default(now())
 }
 
 model AuditLog {
@@ -291,17 +335,52 @@ model Announcement {
   createdAt        DateTime  @default(now())
 }
 
-// Revenue/refund ledger. Sale entries are booked once an order is marked
-// ready for pickup (the point staff confirm the items are set aside and the
-// sale is final); refund/fee entries are booked on cancellation.
+// Revenue/refund ledger, covering both online orders and in-store POS sales.
+// Online sale entries are booked once an order is marked ready for pickup
+// (the point staff confirm the items are set aside and the sale is final);
+// refund/fee entries are booked on cancellation. In-store entries are booked
+// immediately when a POS sale is recorded.
 model FinancialRecord {
-  id        String              @id @default(uuid())
-  order     Order               @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId   String
-  type      FinancialRecordType
-  amountCAD Decimal
-  note      String?
-  createdAt DateTime            @default(now())
+  id            String              @id @default(uuid())
+  order         Order?              @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String?
+  posSale       PosSale?            @relation(fields: [posSaleId], references: [id], onDelete: Cascade)
+  posSaleId     String?
+  type          FinancialRecordType
+  channel       FinancialChannel    @default(online)
+  paymentMethod PosPaymentMethod?
+  amountCAD     Decimal
+  note          String?
+  createdAt     DateTime            @default(now())
+}
+
+// A sale registered in person by staff (walk-in customer), as opposed to an
+// online Order. Inventory lives only in this platform, so both channels
+// decrement the same Animal/Product records — there is nothing to reconcile
+// against a separate inventory system.
+model PosSale {
+  id                  String            @id @default(uuid())
+  paymentMethod       PosPaymentMethod
+  status              PosSaleStatus     @default(completed)
+  amountCAD           Decimal
+  cloverTransactionId String?
+  items               PosSaleItem[]
+  financialRecords    FinancialRecord[]
+  createdByAdminId    String
+  createdByAdmin      AdminUser         @relation(fields: [createdByAdminId], references: [id])
+  createdAt           DateTime          @default(now())
+}
+
+model PosSaleItem {
+  id             String   @id @default(uuid())
+  posSale        PosSale  @relation(fields: [posSaleId], references: [id], onDelete: Cascade)
+  posSaleId      String
+  animal         Animal?  @relation(fields: [animalId], references: [id])
+  animalId       String?
+  product        Product? @relation(fields: [productId], references: [id])
+  productId      String?
+  quantity       Int      @default(1)
+  priceAtSaleCAD Decimal
 }
 
 model Review {
@@ -323,4 +402,32 @@ model StoreSettings {
   cancellationFeePercent     Decimal  @default(15)
   adminNotificationEmail     String?
   updatedAt                  DateTime @updatedAt
+}
+
+// One row per bilingual message the team sends to the customer list.
+model EmailCampaign {
+  id               String         @id @default(uuid())
+  subjectFr        String
+  subjectEn        String
+  bodyFr           String
+  bodyEn           String
+  status           CampaignStatus @default(draft)
+  recipientCount   Int?
+  sentAt           DateTime?
+  createdByAdminId String
+  createdByAdmin   AdminUser      @relation(fields: [createdByAdminId], references: [id])
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+// Lightweight, self-hosted page view log — avoids paying for a third-party
+// analytics subscription. One row per page load; aggregated on the admin
+// performance dashboard, never displayed raw.
+model PageView {
+  id        String   @id @default(uuid())
+  path      String
+  locale    Locale
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }

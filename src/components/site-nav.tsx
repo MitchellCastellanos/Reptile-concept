@@ -36,6 +36,9 @@ export function SiteNav() {
 
         <div className="flex items-center gap-3">
           <LocaleSwitcher />
+          <Link href="/account" className="hidden text-sm font-medium text-foreground hover:text-primary sm:inline">
+            {t("account")}
+          </Link>
           <Link
             href="/cart"
             className="relative flex items-center gap-1.5 rounded-full bg-accent-light px-3 py-1.5 text-sm font-medium text-accent hover:bg-accent/20"

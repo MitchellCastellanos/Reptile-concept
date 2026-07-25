@@ -7,6 +7,9 @@ import { getAnimalImageUrl } from "@/lib/images";
 import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
+import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { getCurrentCustomer } from "@/lib/customer-auth";
+import { prisma } from "@/lib/db";
 
 export default async function AnimalDetailPage({
   params,
@@ -24,6 +27,15 @@ export default async function AnimalDetailPage({
   const speciesName =
     locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
   const imageUrl = getAnimalImageUrl(animal.species.id, animal.media);
+
+  const customer = await getCurrentCustomer();
+  const isWishlisted = customer
+    ? Boolean(
+        await prisma.wishlistItem.findFirst({
+          where: { customerId: customer.id, animalId: animal.id },
+        }),
+      )
+    : false;
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
@@ -77,6 +89,7 @@ export default async function AnimalDetailPage({
               <PaymentBadges />
             </>
           ) : null}
+          <WishlistToggleButton type="animal" itemId={animal.id} initialActive={isWishlisted} />
         </div>
       </div>
     </main>

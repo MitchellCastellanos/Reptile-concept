@@ -35,7 +35,8 @@
     "boutique": "Boutique",
     "home": "Accueil",
     "cart": "Panier",
-    "reviews": "Avis clients"
+    "reviews": "Avis clients",
+    "account": "Compte"
   },
   "Footer": {
     "tagline": "Votre boutique spécialisée en reptiles à Lachine, Québec.",
@@ -112,5 +113,29 @@
     "commentLabel": "Votre commentaire",
     "submit": "Envoyer",
     "thankYou": "Merci pour votre avis!"
+  },
+  "Account": {
+    "title": "Mon compte",
+    "loginTitle": "Se connecter",
+    "registerTitle": "Créer un compte",
+    "fullName": "Nom complet",
+    "email": "Courriel",
+    "password": "Mot de passe",
+    "loginButton": "Se connecter",
+    "registerButton": "Créer mon compte",
+    "noAccount": "Pas encore de compte ?",
+    "createOne": "Créez-en un",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "loginInstead": "Connectez-vous",
+    "logout": "Déconnexion",
+    "myOrders": "Mes commandes",
+    "myWishlist": "Ma liste de souhaits",
+    "noOrders": "Vous n'avez pas encore de commande.",
+    "noWishlist": "Votre liste de souhaits est vide.",
+    "addToWishlist": "Ajouter à ma liste",
+    "removeFromWishlist": "Retirer de ma liste",
+    "welcomeBack": "Content de vous revoir",
+    "orderNumber": "Commande",
+    "status": "Statut"
   }
 }
