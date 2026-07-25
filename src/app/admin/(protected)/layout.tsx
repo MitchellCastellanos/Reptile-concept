@@ -40,6 +40,9 @@ export default async function ProtectedAdminLayout({
             <Link href="/admin/finance" className="text-sm">
               Finances
             </Link>
+            <Link href="/admin/performance" className="text-sm">
+              Performance
+            </Link>
             <Link href="/admin/reviews" className="text-sm">
               Avis
             </Link>
