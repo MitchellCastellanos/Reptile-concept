@@ -31,6 +31,9 @@ export default async function ProtectedAdminLayout({
             <Link href="/admin/orders" className="text-sm">
               Commandes
             </Link>
+            <Link href="/admin/pos" className="text-sm">
+              Vente en magasin
+            </Link>
             <Link href="/admin/customers" className="text-sm">
               Clients
             </Link>
