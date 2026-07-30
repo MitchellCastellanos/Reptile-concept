@@ -6,6 +6,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { chargeCloverTerminal } from "@/lib/clover";
+import { pushSoldItemsToClover } from "@/lib/clover-sync";
 import { getStoreSettings } from "@/lib/settings";
 import { computeTax } from "@/lib/tax";
 import { sendEmail } from "@/lib/email";
@@ -160,6 +161,27 @@ export async function recordPosSaleAction(
   revalidatePath("/admin/finance");
   revalidatePath("/animals");
   revalidatePath("/boutique");
+
+  // Best-effort — this manual POS path is now just a backup for real
+  // in-person sales (which happen directly on the Clover device), but if
+  // it's used, Clover's own stock should reflect it too.
+  await pushSoldItemsToClover([
+    ...cart
+      .filter((l) => l.type === "animal")
+      .map((l) => ({
+        cloverItemId: animals.find((a) => a.id === l.id)?.cloverItemId,
+        nextStockQty: 0,
+      })),
+    ...cart
+      .filter((l) => l.type === "product")
+      .map((l) => {
+        const product = products.find((p) => p.id === l.id)!;
+        return {
+          cloverItemId: product.cloverItemId,
+          nextStockQty: Math.max(0, product.stockQty - l.quantity),
+        };
+      }),
+  ]);
 
   return { success: true, posSaleId: saleId };
 }

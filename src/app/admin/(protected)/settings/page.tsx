@@ -1,12 +1,45 @@
+import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
+import { isCloverConfigured } from "@/lib/clover";
 import { updateSettingsAction } from "./actions";
 
 export default async function AdminSettingsPage() {
   const settings = await getStoreSettings();
+  const cloverSyncState = await prisma.cloverSyncState.findUnique({ where: { id: "singleton" } });
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Réglages</h1>
+
+      <fieldset className="flex max-w-2xl flex-col gap-2 rounded-lg border border-black/10 p-4 dark:border-white/10">
+        <legend className="px-1 text-sm font-medium">Synchronisation Clover</legend>
+        <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          Ventes faites directement sur l&apos;appareil Clover (magasin ou expo), reflétées ici via
+          webhook (temps réel) et un sondage de secours (variables d&apos;environnement
+          CLOVER_MERCHANT_ID / CLOVER_API_TOKEN / CLOVER_WEBHOOK_SECRET).
+        </p>
+        <p className="text-sm">
+          Identifiants configurés :{" "}
+          <span className={isCloverConfigured() ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+            {isCloverConfigured() ? "oui" : "non"}
+          </span>
+        </p>
+        {cloverSyncState?.lastVerificationCode ? (
+          <p className="text-sm">
+            Dernier code de vérification reçu de Clover (à coller dans le Developer Dashboard lors
+            de la configuration du webhook) :{" "}
+            <code className="rounded bg-black/5 px-1.5 py-0.5 dark:bg-white/10">
+              {cloverSyncState.lastVerificationCode}
+            </code>
+          </p>
+        ) : null}
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Dernier sondage de secours :{" "}
+          {cloverSyncState?.lastPolledAt
+            ? cloverSyncState.lastPolledAt.toLocaleString("fr-CA")
+            : "jamais"}
+        </p>
+      </fieldset>
 
       <form action={updateSettingsAction} className="flex max-w-2xl flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">

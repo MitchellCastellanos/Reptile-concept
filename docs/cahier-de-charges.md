@@ -80,14 +80,18 @@ Ce document décrit l'ensemble des composants du projet, déjà réalisés et à
 - Ajout manuel d'un client depuis le panneau admin
 - Import en bloc des clients existants à partir d'un export QuickBooks (fichier CSV)
 
-### Section 7 — Inventaire centralisé et point de vente *(réalisé)*
-- La plateforme est la source unique de vérité de l'inventaire
-- Connexion à Clover comme terminal de paiement uniquement (Clover ne gère plus l'inventaire de façon indépendante)
-- Enregistrement des ventes en personne directement depuis le panneau admin
-- Vente comptant : retrait automatique de l'inventaire, ajout à la petite caisse, écriture comptable correspondante
-- Vente par carte : transaction envoyée au terminal Clover existant, avec attente de la réponse avant de finaliser la vente
-- Module de finances unifié (commandes en ligne et ventes en magasin) avec filtres (par mois, par statut, par canal, par méthode de paiement) et détail des taxes perçues
-- Reçu de vente en magasin imprimable et envoyable par courriel, avec détail des taxes
+### Section 7 — Inventaire centralisé et point de vente *(réalisé, portée révisée — voir note)*
+
+> **Note sur la portée** : cette section a été révisée après l'acquisition par le client d'un appareil Clover à écran tactile autonome (utilisé aussi bien au comptoir en magasin que dans les salons/expositions, sans ordinateur). Contrairement à la portée d'origine, les ventes en personne ne sont plus enregistrées depuis le panneau admin — elles sont sonnées directement sur l'appareil Clover, qui devient l'autorité sur l'inventaire et les ventes en personne. La plateforme reste la source de vérité pour le contenu enrichi du catalogue (photos, génétique, lignée, fiches bilingues) et pour les ventes en ligne, et se synchronise avec Clover dans les deux sens pour rester exacte. Ce changement de portée n'était pas prévu dans le développement d'origine (voir journal ci-dessous).
+
+- Connexion bidirectionnelle avec l'appareil Clover autonome :
+  - Chaque vente sonnée sur Clover (comptoir ou salon) est reflétée automatiquement sur la plateforme (webhook temps réel + sondage de secours), qui met à jour la disponibilité de l'animal/produit concerné
+  - Chaque vente en ligne sur la plateforme met à jour l'inventaire correspondant dans Clover, pour que l'appareil ne propose plus un article déjà vendu en ligne
+  - Un identifiant Clover optionnel relie chaque fiche animal/produit du site à sa fiche correspondante dans Clover
+- Enregistrement manuel d'une vente en personne depuis le panneau admin, conservé comme solution de secours (ex. ajustement, cas particulier) — ce n'est plus le chemin principal des ventes en personne
+- Vente par carte (solution de secours ci-dessus) : transaction envoyée au terminal Clover existant, avec attente de la réponse avant de finaliser la vente
+- Module de finances unifié (commandes en ligne, ventes Clover synchronisées, et ventes manuelles de secours) avec filtres (par mois, par statut, par canal, par méthode de paiement) et détail des taxes perçues — le volet des ventes Clover est un miroir en lecture seule de ce qui s'est passé sur l'appareil, pas une comptabilité parallèle
+- Reçu de vente en magasin imprimable et envoyable par courriel (pour les ventes manuelles de secours), avec détail des taxes
 
 ### Section 8 — Transfert des données actuelles
 - Import en bloc des clients existants depuis QuickBooks *(réalisé — voir aussi section 6)*
@@ -124,3 +128,4 @@ Invitation à tout fournisseur consulté d'inclure dans sa soumission : la main-
 | 2026-07-25 | Se agregó cálculo de taxes TPS/TVQ (Sección 2 y 7) configurables desde el admin, aplicadas en checkout en línea y ventas en magasin, con reçus de vente en magasin imprimibles/enviables por correo. |
 | 2026-07-25 | Se agregó botón de cuenta visible en todo momento, wishlist en cada tarjeta del catálogo (Sección 2 y 6), y control +/- de cantidad en vente en magasin (Sección 7). Se reorganizó el panneau admin en menú lateral por categoría y se hizo responsive (Sección 3), corrigiendo también un bug de contraste en los campos de formulario. |
 | 2026-07-25 | Se agregó a la Sección 3 la posibilidad de editar desde el admin el courriel de contacto público, teléfono, dirección y horarios (FR/EN), reflejados automáticamente en el sitio, los reçus y los courriels transaccionales. |
+| 2026-07-30 | Cambio de alcance no previsto: el cliente adquirió un aparato Clover de pantalla táctil autónomo, usado tanto en el mostrador de la tienda como en salones/expos sin computadora. Esto invierte la Sección 7: Clover pasa a ser la autoridad sobre el inventario y las ventas en persona (ya no la plataforma); la plataforma se vuelve el catálogo enriquecido (fotos, genética, fichas bilingües) y el canal de venta en línea, sincronizado con Clover en ambos sentidos (webhook + sondage de secours). Se implementó: enlace opcional Clover Item ID en cada fiche animal/produit, sync entrant (ventes Clover → disponibilité du site) y sync sortant (ventes en ligne → stock Clover), tableau de bord de finances devenu un miroir en lecture seule pour le volet Clover. Ce changement sort de la portée d'origine — voir proposal.md pour la note de tarification séparée. |

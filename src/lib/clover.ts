@@ -21,6 +21,108 @@ type ChargeResult =
   | { success: true; transactionId: string }
   | { success: false; error: string };
 
+export function isCloverConfigured(): boolean {
+  return getCloverCredentials() !== null;
+}
+
+function getCloverCredentials(): { merchantId: string; apiToken: string } | null {
+  const merchantId = process.env.CLOVER_MERCHANT_ID;
+  const apiToken = process.env.CLOVER_API_TOKEN;
+  if (!merchantId || !apiToken) return null;
+  return { merchantId, apiToken };
+}
+
+function cloverApiBase() {
+  // Clover splits sandbox vs production across two hostnames; default to
+  // production once real credentials are set, but let a sandbox merchant
+  // opt in explicitly while testing the Inventory/Orders/webhook flow.
+  return process.env.CLOVER_ENV === "sandbox"
+    ? "https://apisandbox.dev.clover.com"
+    : "https://api.clover.com";
+}
+
+async function cloverApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const creds = getCloverCredentials();
+  if (!creds) throw new Error("Clover credentials not configured (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN).");
+
+  const res = await fetch(`${cloverApiBase()}/v3/merchants/${creds.merchantId}${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${creds.apiToken}`,
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Clover API error ${res.status} on ${path}: ${body}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+export type CloverItem = {
+  id: string;
+  name: string;
+  price: number; // cents
+  code?: string;
+  sku?: string;
+  categories?: { elements: { id: string; name: string }[] };
+  stockCount?: number;
+};
+
+export type CloverLineItem = {
+  id: string;
+  item?: { id: string };
+  name: string;
+  price: number; // cents
+  unitQty?: number;
+};
+
+export type CloverOrder = {
+  id: string;
+  state?: string;
+  total: number; // cents
+  createdTime?: number;
+  modifiedTime?: number;
+  lineItems?: { elements: CloverLineItem[] };
+  payments?: { elements: { id: string; amount: number; result?: string; tender?: { label?: string } }[] };
+};
+
+// Reference: Clover Inventory API (GET /v3/merchants/{mId}/items/{itemId}).
+// Confirm the exact expand params against the client's sandbox account.
+export async function fetchCloverItem(itemId: string): Promise<CloverItem> {
+  return cloverApiFetch<CloverItem>(`/items/${itemId}?expand=categories`);
+}
+
+// Reference: Clover Orders API (GET /v3/merchants/{mId}/orders/{orderId}).
+export async function fetchCloverOrder(orderId: string): Promise<CloverOrder> {
+  return cloverApiFetch<CloverOrder>(`/orders/${orderId}?expand=lineItems,payments`);
+}
+
+// Polling fallback for the webhook — pulls orders modified since `sinceMs`
+// (epoch milliseconds). Clover paginates at 100 by default; a client this
+// size shouldn't hit that within one polling window, but if volume grows
+// this needs an offset loop.
+export async function listModifiedCloverOrders(sinceMs: number): Promise<CloverOrder[]> {
+  const data = await cloverApiFetch<{ elements?: CloverOrder[] }>(
+    `/orders?filter=modifiedTime>=${sinceMs}&expand=lineItems,payments&limit=100`,
+  );
+  return data.elements ?? [];
+}
+
+// Pushes the current stock count for an item we already know the Clover
+// item id for (set via the "Clover Item ID" field on the animal/product
+// admin form). Called after an online sale so the standalone Clover device
+// stops offering something that just sold on the site.
+// Reference: Clover Inventory API item-stock endpoint — confirm exact verb
+// (POST vs PUT) against the client's sandbox account before relying on it.
+export async function setCloverItemStock(cloverItemId: string, quantity: number): Promise<void> {
+  await cloverApiFetch(`/item_stocks/${cloverItemId}`, {
+    method: "POST",
+    body: JSON.stringify({ quantity }),
+  });
+}
+
 export async function chargeCloverTerminal({ amountCAD, description }: ChargeInput): Promise<ChargeResult> {
   const merchantId = process.env.CLOVER_MERCHANT_ID;
   const apiToken = process.env.CLOVER_API_TOKEN;
