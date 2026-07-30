@@ -17,6 +17,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/species", label: "Espèces" },
       { href: "/admin/animals", label: "Animaux" },
       { href: "/admin/products", label: "Produits" },
+      { href: "/admin/clover-import", label: "Nouveaux articles Clover" },
     ],
   },
   {

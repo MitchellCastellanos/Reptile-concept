@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
 import { isCloverConfigured } from "@/lib/clover";
 import { updateSettingsAction } from "./actions";
+import { CloverSyncNowButton } from "./clover-sync-button";
 
 export default async function AdminSettingsPage() {
   const settings = await getStoreSettings();
@@ -38,6 +39,12 @@ export default async function AdminSettingsPage() {
           {cloverSyncState?.lastPolledAt
             ? cloverSyncState.lastPolledAt.toLocaleString("fr-CA")
             : "jamais"}
+        </p>
+        <CloverSyncNowButton />
+        <p className="text-xs text-zinc-500">
+          Force la vérification immédiate des ventes Clover, sans attendre le sondage automatique
+          (toutes les 10 minutes) ou un webhook manqué. Ne crée pas de nouvelles fiches — met à jour
+          uniquement les animaux/produits déjà reliés à un article Clover.
         </p>
       </fieldset>
 

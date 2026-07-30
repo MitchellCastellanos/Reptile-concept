@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { syncCloverOrderById } from "@/lib/clover-sync";
+import { syncCloverOrderById, syncCloverItemById, removeCloverImportCandidate } from "@/lib/clover-sync";
 
 // Receives near-real-time notifications from Clover (Developer Dashboard →
 // this app → Webhooks) whenever an order/payment/item changes for this
@@ -56,13 +56,23 @@ export async function POST(request: Request) {
 
     // objectId format is "<TYPE>:<id>", e.g. "O:ABC123" for an order,
     // "I:ABC123" for an inventory item, "PAYMENT:ABC123" for a payment.
-    // Orders are the one we act on directly — a payment event without an
-    // accompanying order change would be unusual, and inventory-item events
-    // (price/name edits in Clover) don't need a push back from here.
+    // Orders drive the sales mirror; inventory items drive the catalog
+    // import queue and keep price/stock current for already-linked
+    // animals/products. A payment event without an accompanying order
+    // change would be unusual, so it's not handled separately.
     const [prefix, id] = event.objectId.split(":");
     try {
       if (prefix === "O" && id) {
         await syncCloverOrderById(id);
+      } else if (prefix === "I" && id) {
+        // Confirm the exact casing Clover sends ("DELETE" vs "deleted", etc.)
+        // against the client's sandbox account — compared case-insensitively
+        // here since it isn't consistently documented.
+        if (event.type.toUpperCase().includes("DELETE")) {
+          await removeCloverImportCandidate(id);
+        } else {
+          await syncCloverItemById(id);
+        }
       }
     } catch (err) {
       console.error(`[clover:webhook] failed to process event ${event.objectId}:`, err);

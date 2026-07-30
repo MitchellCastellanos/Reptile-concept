@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getCurrentAdmin } from "@/lib/auth";
 import { updateStoreSettings } from "@/lib/settings";
 import { recordAudit } from "@/lib/audit";
+import { isCloverConfigured } from "@/lib/clover";
+import { pollClover } from "@/lib/clover-sync";
 
 export async function updateSettingsAction(formData: FormData) {
   const admin = await getCurrentAdmin();
@@ -60,4 +62,46 @@ export async function updateSettingsAction(formData: FormData) {
 
   revalidatePath("/admin/settings");
   revalidatePath("/", "layout");
+}
+
+export type CloverSyncNowResult = {
+  error?: string;
+  ordersChecked?: number;
+  ordersProcessed?: number;
+  itemsChecked?: number;
+  itemsQueued?: number;
+};
+
+// Manual "just in case" trigger — forces the same reconciliation the
+// polling cron does every 10 minutes, without waiting for it (or for a
+// webhook delivery that may have been missed): syncs sales for
+// already-linked animals/products, updates price/stock for linked items
+// edited directly in Clover, and queues any brand-new Clover item into
+// /admin/clover-import for staff to turn into a real listing.
+export async function syncCloverNowAction(
+  _prevState: CloverSyncNowResult | undefined,
+): Promise<CloverSyncNowResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  if (!isCloverConfigured()) {
+    return { error: "Identifiants Clover non configurés (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN)." };
+  }
+
+  try {
+    const result = await pollClover();
+    await recordAudit(admin.id, "CloverSyncState", "singleton", "update");
+
+    revalidatePath("/admin/settings");
+    revalidatePath("/admin/finance");
+    revalidatePath("/admin/animals");
+    revalidatePath("/admin/products");
+    revalidatePath("/admin/clover-import");
+    revalidatePath("/animals");
+    revalidatePath("/boutique");
+
+    return result;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Erreur de synchronisation avec Clover." };
+  }
 }

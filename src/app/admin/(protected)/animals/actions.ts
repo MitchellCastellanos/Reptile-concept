@@ -53,7 +53,18 @@ export async function createAnimalAction(formData: FormData) {
   await savePrimaryPhoto(animal.id, formData);
   await recordAudit(admin.id, "Animal", animal.id, "create");
 
+  if (data.cloverItemId) {
+    // Resolves the /admin/clover-import queue entry this animal was created
+    // from, if any — a no-op if the Clover Item ID was typed in by hand
+    // instead of coming from that queue.
+    await prisma.cloverImportCandidate.updateMany({
+      where: { cloverItemId: data.cloverItemId, status: "pending" },
+      data: { status: "created" },
+    });
+  }
+
   revalidatePath("/admin/animals");
+  revalidatePath("/admin/clover-import");
   redirect("/admin/animals");
 }
 

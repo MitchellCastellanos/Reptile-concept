@@ -110,6 +110,17 @@ export async function listModifiedCloverOrders(sinceMs: number): Promise<CloverO
   return data.elements ?? [];
 }
 
+// Polling fallback counterpart to listModifiedCloverOrders — catches new
+// items captured (or edited/re-priced) directly on the Clover device so the
+// site's import queue and linked price/stock stay current even if a webhook
+// delivery is missed. Same pagination caveat as listModifiedCloverOrders.
+export async function listModifiedCloverItems(sinceMs: number): Promise<CloverItem[]> {
+  const data = await cloverApiFetch<{ elements?: CloverItem[] }>(
+    `/items?filter=modifiedTime>=${sinceMs}&expand=categories&limit=100`,
+  );
+  return data.elements ?? [];
+}
+
 // Pushes the current stock count for an item we already know the Clover
 // item id for (set via the "Clover Item ID" field on the animal/product
 // admin form). Called after an online sale so the standalone Clover device
