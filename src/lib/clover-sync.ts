@@ -13,10 +13,13 @@
 import { prisma } from "@/lib/db";
 import {
   fetchCloverOrder,
+  fetchCloverItem,
   listModifiedCloverOrders,
+  listModifiedCloverItems,
   setCloverItemStock,
   isCloverConfigured,
   type CloverOrder,
+  type CloverItem,
 } from "@/lib/clover";
 
 function resolvePaymentMethod(order: CloverOrder): "cash" | "card" | undefined {
@@ -117,18 +120,127 @@ export async function syncCloverOrderById(orderId: string): Promise<ProcessOrder
   return processCloverOrder(order);
 }
 
+// Only auto-flip an animal between available <-> sold based on Clover's
+// stock count — never touch reserved/on_hold/not_for_sale, those are staff
+// decisions that have nothing to do with Clover's stock count.
+async function syncLinkedAnimalFromItem(animalId: string, item: CloverItem) {
+  const priceCAD = item.price / 100;
+  await prisma.animal.update({ where: { id: animalId }, data: { priceCAD } });
+
+  if (item.stockCount == null) return;
+  if (item.stockCount <= 0) {
+    await prisma.animal.updateMany({ where: { id: animalId, status: "available" }, data: { status: "sold" } });
+  } else {
+    await prisma.animal.updateMany({ where: { id: animalId, status: "sold" }, data: { status: "available" } });
+  }
+}
+
+async function syncLinkedProductFromItem(productId: string, item: CloverItem) {
+  await prisma.product.update({
+    where: { id: productId },
+    data: {
+      priceCAD: item.price / 100,
+      ...(item.stockCount != null ? { stockQty: Math.max(0, item.stockCount) } : {}),
+    },
+  });
+}
+
+export type ProcessItemResult = { action: "linked-animal" | "linked-product" | "queued" | "skipped" };
+
+// Handles a Clover inventory item change (created directly on the device, or
+// price/stock edited there). If it's already linked to a site record, Clover
+// is treated as authoritative for price/stock from here on. Otherwise it's
+// queued in CloverImportCandidate so staff can turn it into a real listing
+// from the admin (see /admin/clover-import) without hunting for the item id.
+export async function processCloverItem(item: CloverItem): Promise<ProcessItemResult> {
+  const [animal, product] = await Promise.all([
+    prisma.animal.findUnique({ where: { cloverItemId: item.id } }),
+    prisma.product.findUnique({ where: { cloverItemId: item.id } }),
+  ]);
+
+  if (animal) {
+    await syncLinkedAnimalFromItem(animal.id, item);
+    return { action: "linked-animal" };
+  }
+  if (product) {
+    await syncLinkedProductFromItem(product.id, item);
+    return { action: "linked-product" };
+  }
+
+  const existingCandidate = await prisma.cloverImportCandidate.findUnique({ where: { cloverItemId: item.id } });
+  // Don't resurrect one staff already dismissed or already turned into a
+  // listing — just keep its descriptive fields current in case they revisit it.
+  if (existingCandidate && existingCandidate.status !== "pending") {
+    await prisma.cloverImportCandidate.update({
+      where: { cloverItemId: item.id },
+      data: {
+        name: item.name,
+        priceCAD: item.price / 100,
+        cloverCategoryName: item.categories?.elements?.[0]?.name,
+        stockCount: item.stockCount,
+      },
+    });
+    return { action: "skipped" };
+  }
+
+  await prisma.cloverImportCandidate.upsert({
+    where: { cloverItemId: item.id },
+    update: {
+      name: item.name,
+      priceCAD: item.price / 100,
+      cloverCategoryName: item.categories?.elements?.[0]?.name,
+      stockCount: item.stockCount,
+    },
+    create: {
+      cloverItemId: item.id,
+      name: item.name,
+      priceCAD: item.price / 100,
+      cloverCategoryName: item.categories?.elements?.[0]?.name,
+      stockCount: item.stockCount,
+    },
+  });
+  return { action: "queued" };
+}
+
+export async function syncCloverItemById(itemId: string): Promise<ProcessItemResult> {
+  const item = await fetchCloverItem(itemId);
+  return processCloverItem(item);
+}
+
+// Removes a pending queue entry once its Clover item is deleted — if it was
+// already linked to a real Animal/Product, leave that alone; a disappearing
+// Clover item doesn't automatically mean the site listing should too.
+export async function removeCloverImportCandidate(cloverItemId: string): Promise<void> {
+  await prisma.cloverImportCandidate.deleteMany({ where: { cloverItemId, status: "pending" } });
+}
+
+export type PollResult = {
+  ordersChecked: number;
+  ordersProcessed: number;
+  itemsChecked: number;
+  itemsQueued: number;
+};
+
 // Polling fallback — catches anything a missed/failed webhook delivery
-// didn't relay. Safe to call repeatedly: processCloverOrder() is a no-op for
-// an order already mirrored (unique cloverOrderId).
-export async function pollCloverOrders(): Promise<{ checked: number; processed: number }> {
+// didn't relay, for both sales (processCloverOrder) and catalog changes
+// (processCloverItem). Safe to call repeatedly/concurrently: both are
+// no-ops on data already synced.
+export async function pollClover(): Promise<PollResult> {
   const state = await prisma.cloverSyncState.findUnique({ where: { id: "singleton" } });
   const sinceMs = state?.lastPolledAt ? state.lastPolledAt.getTime() : Date.now() - 24 * 60 * 60 * 1000;
 
-  const orders = await listModifiedCloverOrders(sinceMs);
-  let processed = 0;
+  const [orders, items] = await Promise.all([listModifiedCloverOrders(sinceMs), listModifiedCloverItems(sinceMs)]);
+
+  let ordersProcessed = 0;
   for (const order of orders) {
     const result = await processCloverOrder(order);
-    if (result.processed) processed++;
+    if (result.processed) ordersProcessed++;
+  }
+
+  let itemsQueued = 0;
+  for (const item of items) {
+    const result = await processCloverItem(item);
+    if (result.action === "queued") itemsQueued++;
   }
 
   await prisma.cloverSyncState.upsert({
@@ -137,7 +249,12 @@ export async function pollCloverOrders(): Promise<{ checked: number; processed: 
     create: { id: "singleton", lastPolledAt: new Date() },
   });
 
-  return { checked: orders.length, processed };
+  return {
+    ordersChecked: orders.length,
+    ordersProcessed,
+    itemsChecked: items.length,
+    itemsQueued,
+  };
 }
 
 type SoldLine = { cloverItemId: string | null | undefined; nextStockQty: number };

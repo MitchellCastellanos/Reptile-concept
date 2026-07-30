@@ -30,10 +30,22 @@ export async function createProductAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
-  const product = await prisma.product.create({ data: readProductForm(formData) });
+  const data = readProductForm(formData);
+  const product = await prisma.product.create({ data });
   await recordAudit(admin.id, "Product", product.id, "create");
 
+  if (data.cloverItemId) {
+    // Resolves the /admin/clover-import queue entry this product was
+    // created from, if any — a no-op if the Clover Item ID was typed in by
+    // hand instead of coming from that queue.
+    await prisma.cloverImportCandidate.updateMany({
+      where: { cloverItemId: data.cloverItemId, status: "pending" },
+      data: { status: "created" },
+    });
+  }
+
   revalidatePath("/admin/products");
+  revalidatePath("/admin/clover-import");
   redirect("/admin/products");
 }
 

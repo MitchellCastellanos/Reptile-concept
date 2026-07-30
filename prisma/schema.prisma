@@ -108,6 +108,12 @@ enum CampaignStatus {
   sent
 }
 
+enum CloverImportCandidateStatus {
+  pending
+  created
+  ignored
+}
+
 model Species {
   id               String           @id @default(uuid())
   commonNameFr     String
@@ -512,6 +518,24 @@ model CloverWebhookEvent {
   objectId    String
   type        String
   processedAt DateTime @default(now())
+}
+
+// A Clover inventory item captured on the Clover device (store or expo) that
+// doesn't correspond to any Animal/Product on the site yet — surfaced in the
+// admin as a queue so staff can turn it into a real listing (with photos,
+// genetics, bilingual copy) with one click, instead of hunting down the
+// Clover item id by hand. Populated by the webhook/poller; never touched by
+// an admin action except to flip its status.
+model CloverImportCandidate {
+  id                 String                       @id @default(uuid())
+  cloverItemId       String                       @unique
+  name               String
+  priceCAD           Decimal
+  cloverCategoryName String?
+  stockCount         Int?
+  status             CloverImportCandidateStatus  @default(pending)
+  firstSeenAt        DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
 }
 
 // Singleton row (id is always "singleton") tracking the polling fallback
