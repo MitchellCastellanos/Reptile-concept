@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { CategoryMenu } from "@/components/category-menu";
 
 export function SiteNav() {
   const t = useTranslations("Nav");
@@ -14,25 +15,13 @@ export function SiteNav() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
-        <Link href="/" className="flex min-w-0 shrink items-center gap-2">
-          <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
-          <span className="truncate whitespace-nowrap text-base font-semibold text-primary sm:text-lg">
-            Reptile Concept
-          </span>
-        </Link>
-
-        <div className="hidden items-center gap-6 text-sm font-medium md:flex">
-          <Link href="/" className="text-foreground hover:text-primary">
-            {t("home")}
-          </Link>
-          <Link href="/animals" className="text-foreground hover:text-primary">
-            {t("animals")}
-          </Link>
-          <Link href="/boutique" className="text-foreground hover:text-primary">
-            {t("boutique")}
-          </Link>
-          <Link href="/reviews" className="text-foreground hover:text-primary">
-            {t("reviews")}
+        <div className="flex min-w-0 shrink items-center gap-1.5">
+          <CategoryMenu />
+          <Link href="/" className="flex min-w-0 shrink items-center gap-2">
+            <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
+            <span className="truncate whitespace-nowrap text-base font-semibold text-primary sm:text-lg">
+              Reptile Concept
+            </span>
           </Link>
         </div>
 
