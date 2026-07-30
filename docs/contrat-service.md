@@ -33,7 +33,7 @@ Entre :
 
 Et :
 
-**Reptile Concept**, entreprise, ayant son établissement au 1150 rue Notre-Dame, Lachine, Québec, H8S 2C4, représentée par [NOM DU/DE LA REPRÉSENTANT·E À COMPLÉTER], ci-après « **le Client** »
+**Reptile Concept**, entreprise, ayant son établissement au 1150 rue Notre-Dame, Lachine, Québec, H8S 2C4, représentée par ______________________________ (nom et titre du/de la représentant·e), ci-après « **le Client** »
 
 Ci-après collectivement désignées « **les Parties** ».
 
@@ -208,8 +208,8 @@ Signature : ______________
 
 **Pour Reptile Concept**
 
-Nom : [À COMPLÉTER]
-Titre : [À COMPLÉTER]
+Nom : ______________________________
+Titre : ______________________________
 Date : ______________
 Signature : ______________
 
@@ -227,3 +227,4 @@ Signature : ______________
 | 2026-07-30 | Ajout des numéros d'inscription TPS/TVH (774415178 RT0001) et TVQ (4045997729 TQ0001) de GABAN Solutions à l'Article 4.2. Fixé la durée du support inclus sans frais à 12 mois suivant la mise en ligne (Article 7.2). Champs restants à compléter avant envoi : raisons sociales, adresses et représentant·e·s des deux Parties (page de garde), durée de survie de la confidentialité (Article 5.3 — 2 ans par défaut, à confirmer). |
 | 2026-07-30 | Renseignements de GABAN Solutions complétés : entreprise individuelle représentée par Mitchell Castellanos (propriétaire unique), établissement au 588 23e Avenue, Lachine, Québec, H8S 3V2. Date du contrat fixée au 30 juillet 2026. Durée de confidentialité confirmée à 2 ans (Article 5.3). Il reste à compléter la raison sociale, l'adresse et le/la représentant·e de Reptile Concept sur la page de garde et le bloc de signatures avant l'envoi pour signature. |
 | 2026-07-30 | Adresse de Reptile Concept complétée : 1150 rue Notre-Dame, Lachine, Québec, H8S 2C4. Il reste à compléter le nom du/de la représentant·e de Reptile Concept (page de garde, Article 1) et le bloc de signatures avant l'envoi pour signature. |
+| 2026-07-30 | Nom du/de la représentant·e de Reptile Concept remplacé par un champ à remplir (page de garde et bloc de signatures) plutôt qu'un placeholder fixe — à compléter directement dans DocuSign par un champ de texte assigné au signataire du Client, puisque le nom exact n'est pas encore connu au moment de la préparation du contrat. Le contrat ne contient plus aucun champ `[À COMPLÉTER]` : tous les champs restants sont des lignes à remplir (Nom, Titre, Date, Signature) que DocuSign transformera en champs de saisie/signature pour le signataire de Reptile Concept. |
