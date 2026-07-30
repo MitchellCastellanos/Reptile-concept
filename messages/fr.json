@@ -36,7 +36,28 @@
     "home": "Accueil",
     "cart": "Panier",
     "reviews": "Avis clients",
-    "account": "Compte"
+    "account": "Compte",
+    "menu": "Menu"
+  },
+  "NavCategories": {
+    "reptiles": "Reptiles",
+    "reptiles_snakes": "Serpents",
+    "reptiles_lizards": "Lézards et geckos",
+    "reptiles_turtles": "Tortues",
+    "reptiles_other": "Autres reptiles",
+    "amphibians": "Amphibiens",
+    "amphibians_frogs": "Grenouilles et crapauds",
+    "amphibians_salamanders": "Salamandres et axolotls",
+    "amphibians_other": "Autres amphibiens",
+    "viewAllAnimals": "Voir tous les animaux",
+    "terrarium": "Terrariums et habitats",
+    "substrate": "Substrats",
+    "decor": "Décoration",
+    "lighting": "Éclairage et chauffage",
+    "food_live": "Nourriture vivante",
+    "food_frozen": "Nourriture congelée",
+    "food_packaged": "Nourriture sèche et emballée",
+    "viewAllProducts": "Voir toute la boutique"
   },
   "Footer": {
     "tagline": "Votre boutique spécialisée en reptiles à Lachine, Québec.",

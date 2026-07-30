@@ -15,8 +15,26 @@ export function getAnimalById(id: string) {
   });
 }
 
-export function getProducts() {
-  return prisma.product.findMany({ orderBy: { createdAt: "desc" } });
+export const PRODUCT_CATEGORIES = [
+  "terrarium",
+  "substrate",
+  "decor",
+  "food_live",
+  "food_frozen",
+  "food_packaged",
+] as const;
+
+export type ProductCategoryValue = (typeof PRODUCT_CATEGORIES)[number];
+
+export function isProductCategory(value: string | undefined): value is ProductCategoryValue {
+  return !!value && (PRODUCT_CATEGORIES as readonly string[]).includes(value);
+}
+
+export function getProducts(category?: string) {
+  return prisma.product.findMany({
+    where: isProductCategory(category) ? { category } : undefined,
+    orderBy: { createdAt: "desc" },
+  });
 }
 
 export function getProductById(id: string) {
