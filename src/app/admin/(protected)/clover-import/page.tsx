@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { ignoreCloverImportCandidateAction } from "./actions";
+import { FullImportButton } from "./full-import-button";
 
 export default async function CloverImportPage() {
   const candidates = await prisma.cloverImportCandidate.findMany({
@@ -17,6 +18,10 @@ export default async function CloverImportPage() {
           pas encore de fiche sur le site. Créez la fiche animal/produit correspondante — l&apos;article
           Clover sera relié automatiquement, sans avoir à retrouver son identifiant à la main.
         </p>
+      </div>
+
+      <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+        <FullImportButton />
       </div>
 
       {candidates.length === 0 ? (
