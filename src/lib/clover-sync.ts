@@ -16,6 +16,7 @@ import {
   fetchCloverItem,
   listModifiedCloverOrders,
   listModifiedCloverItems,
+  fetchAllCloverItems,
   setCloverItemStock,
   isCloverConfigured,
   type CloverOrder,
@@ -212,6 +213,27 @@ export async function syncCloverItemById(itemId: string): Promise<ProcessItemRes
 // Clover item doesn't automatically mean the site listing should too.
 export async function removeCloverImportCandidate(cloverItemId: string): Promise<void> {
   await prisma.cloverImportCandidate.deleteMany({ where: { cloverItemId, status: "pending" } });
+}
+
+export type FullImportResult = { totalItems: number; queued: number; alreadyLinked: number };
+
+// One-time (repeatable) backfill for a merchant's pre-existing Clover
+// catalog. The webhook/poll only ever see items created or edited *after*
+// the integration went live — anything captured in Clover before that never
+// surfaces in /admin/clover-import on its own. This pulls Clover's entire
+// current item list and runs it through the same processCloverItem() logic,
+// so already-linked items just get their price/stock refreshed and
+// everything else lands in the queue.
+export async function importFullCloverCatalog(): Promise<FullImportResult> {
+  const items = await fetchAllCloverItems();
+  let queued = 0;
+  let alreadyLinked = 0;
+  for (const item of items) {
+    const result = await processCloverItem(item);
+    if (result.action === "queued") queued++;
+    if (result.action === "linked-animal" || result.action === "linked-product") alreadyLinked++;
+  }
+  return { totalItems: items.length, queued, alreadyLinked };
 }
 
 export type PollResult = {

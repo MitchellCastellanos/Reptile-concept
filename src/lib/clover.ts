@@ -121,6 +121,26 @@ export async function listModifiedCloverItems(sinceMs: number): Promise<CloverIt
   return data.elements ?? [];
 }
 
+// One-time (or on-demand) full catalog pull — unlike listModifiedCloverItems,
+// this ignores modifiedTime and fetches every item that currently exists in
+// Clover, paginating past the 100-per-page default. Used to backfill the
+// /admin/clover-import queue with a merchant's pre-existing Clover catalog,
+// since the webhook/poll only ever see items created or edited *after* the
+// integration went live. Capped at 2000 items (20 pages) as a sanity limit.
+export async function fetchAllCloverItems(): Promise<CloverItem[]> {
+  const items: CloverItem[] = [];
+  const pageSize = 100;
+  for (let page = 0; page < 20; page++) {
+    const data = await cloverApiFetch<{ elements?: CloverItem[] }>(
+      `/items?expand=categories&limit=${pageSize}&offset=${page * pageSize}`,
+    );
+    const batch = data.elements ?? [];
+    items.push(...batch);
+    if (batch.length < pageSize) break;
+  }
+  return items;
+}
+
 // Pushes the current stock count for an item we already know the Clover
 // item id for (set via the "Clover Item ID" field on the animal/product
 // admin form). Called after an online sale so the standalone Clover device
