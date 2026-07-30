@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
 import { getStoreSettings } from "@/lib/settings";
 import { computeTax } from "@/lib/tax";
+import { pushSoldItemsToClover } from "@/lib/clover-sync";
 
 type CartLineInput = {
   type: "animal" | "product";
@@ -156,6 +157,28 @@ export async function placeOrderAction(formData: FormData) {
   } catch (err) {
     console.error("[checkout] failed to send order notification emails:", err);
   }
+
+  // Best-effort — tells the standalone Clover device to stop offering
+  // anything that just sold online. Never blocks the checkout: a failed
+  // push here just means the device shows stale stock until the next
+  // webhook/poll reconciles it.
+  await pushSoldItemsToClover([
+    ...cart
+      .filter((l) => l.type === "animal")
+      .map((l) => ({
+        cloverItemId: animals.find((a) => a.id === l.id)?.cloverItemId,
+        nextStockQty: 0,
+      })),
+    ...cart
+      .filter((l) => l.type === "product")
+      .map((l) => {
+        const product = products.find((p) => p.id === l.id)!;
+        return {
+          cloverItemId: product.cloverItemId,
+          nextStockQty: Math.max(0, product.stockQty - l.quantity),
+        };
+      }),
+  ]);
 
   redirect(`/checkout/confirmation/${orderId}`);
 }

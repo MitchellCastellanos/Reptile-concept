@@ -22,6 +22,7 @@ function readProductForm(formData: FormData) {
     priceCAD: Number(formData.get("priceCAD")),
     stockQty: Number(formData.get("stockQty")),
     requiresColdChain: formData.get("requiresColdChain") === "on",
+    cloverItemId: String(formData.get("cloverItemId") ?? "").trim() || null,
   };
 }
 

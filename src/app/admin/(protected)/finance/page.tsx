@@ -10,7 +10,8 @@ const TYPE_LABELS: Record<string, string> = {
 
 const CHANNEL_LABELS: Record<string, string> = {
   online: "En ligne",
-  in_store: "En magasin",
+  in_store: "En magasin (manuel)",
+  clover_pos: "Clover (magasin/expo)",
 };
 
 const METHOD_LABELS: Record<string, string> = {
@@ -44,6 +45,7 @@ export default async function AdminFinancePage({
     include: {
       order: { include: { customer: true } },
       posSale: { include: { createdByAdmin: true } },
+      cloverSale: true,
     },
     orderBy: { createdAt: "desc" },
   });
@@ -54,7 +56,11 @@ export default async function AdminFinancePage({
       if (record.type === "sale") acc.sales += amount;
       if (record.type === "refund") acc.refunds += amount;
       if (record.type === "cancellation_fee") acc.fees += amount;
-      if (record.channel === "in_store" && record.paymentMethod === "cash" && record.type === "sale") {
+      if (
+        (record.channel === "in_store" || record.channel === "clover_pos") &&
+        record.paymentMethod === "cash" &&
+        record.type === "sale"
+      ) {
         acc.pettyCash += amount;
       }
       acc.gst += Number(record.gstAmountCAD ?? 0);
@@ -132,7 +138,8 @@ export default async function AdminFinancePage({
           >
             <option value="">Tous</option>
             <option value="online">En ligne</option>
-            <option value="in_store">En magasin</option>
+            <option value="in_store">En magasin (manuel)</option>
+            <option value="clover_pos">Clover (magasin/expo)</option>
           </select>
         </label>
         <label className="flex flex-col gap-1">
@@ -191,6 +198,8 @@ export default async function AdminFinancePage({
                   <span>
                     Vente en magasin #{record.posSaleId.slice(0, 8)} ({record.posSale?.createdByAdmin.email})
                   </span>
+                ) : record.cloverSaleId ? (
+                  <span>Clover #{record.cloverSale?.cloverOrderId.slice(0, 12)}</span>
                 ) : (
                   "—"
                 )}

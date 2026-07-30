@@ -20,6 +20,7 @@ function readAnimalForm(formData: FormData) {
       | "not_for_sale",
     descriptionFr: String(formData.get("descriptionFr")),
     descriptionEn: String(formData.get("descriptionEn")),
+    cloverItemId: String(formData.get("cloverItemId") ?? "").trim() || null,
   };
 }
 

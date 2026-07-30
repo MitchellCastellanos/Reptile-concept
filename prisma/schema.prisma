@@ -85,6 +85,12 @@ enum AuditAction {
 enum FinancialChannel {
   online
   in_store
+  // Sale rung up directly on the standalone Clover device (store counter or
+  // an expo booth) and mirrored into the platform after the fact. Distinct
+  // from `in_store`, which is a legacy sale recorded by an admin through the
+  // in-app POS (see PosSale) — that flow is no longer how in-person sales
+  // actually happen, but old records keep their original channel.
+  clover_pos
 }
 
 enum PosPaymentMethod {
@@ -155,8 +161,15 @@ model Animal {
   orderItems    OrderItem[]
   wishlistItems WishlistItem[]
   posSaleItems  PosSaleItem[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  // Links this record to its counterpart Clover inventory item. Set the
+  // first time it's synced from Clover (new item created there) or the
+  // first time it's pushed to Clover (new animal created on the site).
+  // Null means it has never been reconciled with Clover — still fine for
+  // display, but it won't get real-time stock updates either direction.
+  cloverItemId    String?          @unique
+  cloverSaleItems CloverSaleItem[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 model Media {
@@ -185,6 +198,8 @@ model Product {
   orderItems        OrderItem[]
   wishlistItems     WishlistItem[]
   posSaleItems      PosSaleItem[]
+  cloverItemId      String?         @unique
+  cloverSaleItems   CloverSaleItem[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 }
@@ -353,6 +368,8 @@ model FinancialRecord {
   orderId       String?
   posSale       PosSale?            @relation(fields: [posSaleId], references: [id], onDelete: Cascade)
   posSaleId     String?
+  cloverSale    CloverSale?         @relation(fields: [cloverSaleId], references: [id], onDelete: Cascade)
+  cloverSaleId  String?
   type          FinancialRecordType
   channel       FinancialChannel    @default(online)
   paymentMethod PosPaymentMethod?
@@ -365,10 +382,12 @@ model FinancialRecord {
   createdAt     DateTime            @default(now())
 }
 
-// A sale registered in person by staff (walk-in customer), as opposed to an
-// online Order. Inventory lives only in this platform, so both channels
-// decrement the same Animal/Product records — there is nothing to reconcile
-// against a separate inventory system.
+// A sale registered in person by an admin through this in-app POS, as
+// opposed to being rung up directly on the standalone Clover device (see
+// CloverSale) or placed online (Order). This used to be the only in-person
+// sales path; now that staff ring up in-person sales straight on the Clover
+// device (store counter and expo booths alike), this flow is kept only as a
+// manual/backup path — real in-person sales arrive as CloverSale records.
 model PosSale {
   id                  String            @id @default(uuid())
   paymentMethod       PosPaymentMethod
@@ -453,6 +472,57 @@ model EmailCampaign {
   createdByAdmin   AdminUser      @relation(fields: [createdByAdminId], references: [id])
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+}
+
+// Mirror of a sale that happened directly on the standalone Clover device
+// (store counter or an expo booth) — never created by an admin action, only
+// ever written by the Clover webhook handler or the polling fallback
+// (src/lib/clover-sync.ts). The site is read-only with respect to these:
+// Clover is the authority on when/whether the sale happened, this table just
+// reflects it so inventory and the finance dashboard stay accurate.
+model CloverSale {
+  id                String            @id @default(uuid())
+  cloverOrderId     String            @unique
+  cloverPaymentId   String?
+  amountCAD         Decimal
+  paymentMethod     PosPaymentMethod?
+  items             CloverSaleItem[]
+  financialRecords  FinancialRecord[]
+  cloverCreatedAt   DateTime?
+  syncedAt          DateTime          @default(now())
+}
+
+model CloverSaleItem {
+  id             String     @id @default(uuid())
+  cloverSale     CloverSale @relation(fields: [cloverSaleId], references: [id], onDelete: Cascade)
+  cloverSaleId   String
+  animal         Animal?    @relation(fields: [animalId], references: [id])
+  animalId       String?
+  product        Product?   @relation(fields: [productId], references: [id])
+  productId      String?
+  quantity       Int        @default(1)
+  priceAtSaleCAD Decimal
+}
+
+// Dedupe log for inbound Clover webhook events — Clover can and does deliver
+// the same event more than once, and inventory/order processing must not
+// double-decrement stock on a replay.
+model CloverWebhookEvent {
+  id          String   @id // `${objectId}:${ts}` as reported by Clover
+  objectId    String
+  type        String
+  processedAt DateTime @default(now())
+}
+
+// Singleton row (id is always "singleton") tracking the polling fallback
+// cursor, plus the last webhook verification code Clover sent while setting
+// up the webhook URL in the Developer Dashboard (surfaced in the admin so
+// whoever configures it doesn't have to dig through logs).
+model CloverSyncState {
+  id                    String    @id @default("singleton")
+  lastPolledAt          DateTime?
+  lastVerificationCode  String?
+  updatedAt             DateTime  @updatedAt
 }
 
 // Lightweight, self-hosted page view log — avoids paying for a third-party

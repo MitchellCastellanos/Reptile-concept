@@ -126,6 +126,21 @@ export function AnimalForm({
         />
       </label>
 
+      <label className="flex flex-col gap-1 text-sm">
+        Clover Item ID (optionnel)
+        <input
+          name="cloverItemId"
+          defaultValue={animal?.cloverItemId ?? ""}
+          placeholder="ex. ABCD1234EFGH5"
+          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+        />
+        <span className="text-xs text-zinc-500">
+          Reliez cet animal à sa fiche dans Clover (copiez l&apos;ID de l&apos;article depuis
+          Clover) pour que les ventes faites directement sur l&apos;appareil Clover mettent
+          automatiquement à jour la disponibilité sur le site.
+        </span>
+      </label>
+
       <button
         type="submit"
         className="w-fit rounded bg-foreground px-4 py-2 text-sm font-medium text-background"
