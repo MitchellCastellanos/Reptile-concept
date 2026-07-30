@@ -5,6 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getCurrentAdmin } from "@/lib/auth";
 import { updateStoreSettings } from "@/lib/settings";
 import { recordAudit } from "@/lib/audit";
+import { isCloverConfigured } from "@/lib/clover";
+import { pollCloverOrders } from "@/lib/clover-sync";
 
 export async function updateSettingsAction(formData: FormData) {
   const admin = await getCurrentAdmin();
@@ -60,4 +62,38 @@ export async function updateSettingsAction(formData: FormData) {
 
   revalidatePath("/admin/settings");
   revalidatePath("/", "layout");
+}
+
+export type CloverSyncNowResult = { error?: string; checked?: number; processed?: number };
+
+// Manual "just in case" trigger — forces the same reconciliation the
+// polling cron does every 10 minutes, without waiting for it (or for a
+// webhook delivery that may have been missed). Doesn't import Clover's
+// catalog into the site; it only catches up on sales for animals/products
+// that already have a Clover Item ID linked.
+export async function syncCloverNowAction(
+  _prevState: CloverSyncNowResult | undefined,
+): Promise<CloverSyncNowResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  if (!isCloverConfigured()) {
+    return { error: "Identifiants Clover non configurés (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN)." };
+  }
+
+  try {
+    const { checked, processed } = await pollCloverOrders();
+    await recordAudit(admin.id, "CloverSyncState", "singleton", "update");
+
+    revalidatePath("/admin/settings");
+    revalidatePath("/admin/finance");
+    revalidatePath("/admin/animals");
+    revalidatePath("/admin/products");
+    revalidatePath("/animals");
+    revalidatePath("/boutique");
+
+    return { checked, processed };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Erreur de synchronisation avec Clover." };
+  }
 }
