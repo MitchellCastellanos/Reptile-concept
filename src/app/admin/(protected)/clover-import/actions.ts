@@ -10,6 +10,8 @@ import {
   importFullCloverCatalog,
   bulkIgnoreCandidatesByCategory,
   bulkCreateProductsFromCategory,
+  saveCloverCategoryRule,
+  deleteCloverCategoryRule,
 } from "@/lib/clover-sync";
 
 // The category filter forms use "__none__" as a stand-in for "no Clover
@@ -35,6 +37,7 @@ export type FullImportActionResult = {
   totalItems?: number;
   queued?: number;
   alreadyLinked?: number;
+  autoCreated?: number;
 };
 
 // One-time (repeatable) backfill of Clover's existing catalog — the
@@ -74,6 +77,11 @@ export async function bulkIgnoreCategoryAction(
 
   const cloverCategoryName = decodeCloverCategory(formData);
   const { ignored } = await bulkIgnoreCandidatesByCategory(cloverCategoryName);
+
+  if (formData.get("remember") === "on") {
+    await saveCloverCategoryRule(cloverCategoryName, "ignore");
+    await recordAudit(admin.id, "CloverCategoryRule", cloverCategoryName ?? "__none__", "create");
+  }
   await recordAudit(admin.id, "CloverImportCandidate", "bulk-ignore", "update");
 
   revalidatePath("/admin/clover-import");
@@ -108,10 +116,30 @@ export async function bulkCreateProductsCategoryAction(
     cloverCategoryName,
     productCategory as (typeof PRODUCT_CATEGORY_VALUES)[number],
   );
+
+  if (formData.get("remember") === "on") {
+    await saveCloverCategoryRule(
+      cloverCategoryName,
+      "auto_product",
+      productCategory as (typeof PRODUCT_CATEGORY_VALUES)[number],
+    );
+    await recordAudit(admin.id, "CloverCategoryRule", cloverCategoryName ?? "__none__", "create");
+  }
   await recordAudit(admin.id, "Product", "bulk-create-from-clover", "create");
 
   revalidatePath("/admin/clover-import");
   revalidatePath("/admin/products");
   revalidatePath("/boutique");
   return { created, skipped };
+}
+
+export async function deleteCategoryRuleAction(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const cloverCategoryName = decodeCloverCategory(formData);
+  await deleteCloverCategoryRule(cloverCategoryName);
+  await recordAudit(admin.id, "CloverCategoryRule", cloverCategoryName ?? "__none__", "delete");
+
+  revalidatePath("/admin/clover-import");
 }

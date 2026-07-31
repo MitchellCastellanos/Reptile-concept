@@ -146,13 +146,23 @@ async function syncLinkedProductFromItem(productId: string, item: CloverItem) {
   });
 }
 
-export type ProcessItemResult = { action: "linked-animal" | "linked-product" | "queued" | "skipped" };
+export type ProcessItemResult = {
+  action: "linked-animal" | "linked-product" | "queued" | "skipped" | "rule-auto-created" | "rule-ignored";
+};
+
+// Category name as stored in CloverCategoryRule — "" stands in for "no
+// Clover category set", kept non-null so the table's unique constraint
+// behaves the same across databases.
+function ruleKeyFor(item: Pick<CloverItem, "categories">): string {
+  return item.categories?.elements?.[0]?.name ?? "";
+}
 
 // Handles a Clover inventory item change (created directly on the device, or
 // price/stock edited there). If it's already linked to a site record, Clover
-// is treated as authoritative for price/stock from here on. Otherwise it's
-// queued in CloverImportCandidate so staff can turn it into a real listing
-// from the admin (see /admin/clover-import) without hunting for the item id.
+// is treated as authoritative for price/stock from here on. Otherwise, a
+// saved CloverCategoryRule (see /admin/clover-import) may auto-create it as
+// a Product straight away; failing that it's queued in CloverImportCandidate
+// so staff can turn it into a real listing without hunting for the item id.
 export async function processCloverItem(item: CloverItem): Promise<ProcessItemResult> {
   const [animal, product] = await Promise.all([
     prisma.animal.findUnique({ where: { cloverItemId: item.id } }),
@@ -166,6 +176,23 @@ export async function processCloverItem(item: CloverItem): Promise<ProcessItemRe
   if (product) {
     await syncLinkedProductFromItem(product.id, item);
     return { action: "linked-product" };
+  }
+
+  const rule = await prisma.cloverCategoryRule.findUnique({ where: { cloverCategoryName: ruleKeyFor(item) } });
+  if (rule?.action === "ignore") {
+    return { action: "rule-ignored" };
+  }
+  if (rule?.action === "auto_product" && rule.productCategory) {
+    const created = await createProductFromCloverData({
+      cloverItemId: item.id,
+      name: item.name,
+      priceCAD: item.price / 100,
+      stockCount: item.stockCount,
+      productCategory: rule.productCategory as ProductCategoryValue,
+    });
+    if (created) return { action: "rule-auto-created" };
+    // Fell through (e.g. a rare id/sku collision) — queue it below instead
+    // of silently losing it.
   }
 
   const existingCandidate = await prisma.cloverImportCandidate.findUnique({ where: { cloverItemId: item.id } });
@@ -223,6 +250,36 @@ type ProductCategoryValue =
   | "food_frozen"
   | "food_packaged";
 
+// Shared by the one-time bulk creation and the ongoing per-item auto-rule
+// path — always uses the Clover item id as SKU (guaranteed unique) rather
+// than inventing one, and files the same French/English name from Clover
+// until staff refine them from the normal product edit form.
+async function createProductFromCloverData(params: {
+  cloverItemId: string;
+  name: string;
+  priceCAD: number;
+  stockCount?: number | null;
+  productCategory: ProductCategoryValue;
+}): Promise<boolean> {
+  try {
+    await prisma.product.create({
+      data: {
+        sku: params.cloverItemId,
+        category: params.productCategory,
+        nameFr: params.name,
+        nameEn: params.name,
+        priceCAD: params.priceCAD,
+        stockQty: params.stockCount ?? 0,
+        cloverItemId: params.cloverItemId,
+      },
+    });
+    return true;
+  } catch (err) {
+    console.error(`[clover-sync] failed to create product for Clover item ${params.cloverItemId}:`, err);
+    return false;
+  }
+}
+
 export type BulkIgnoreResult = { ignored: number };
 
 // Dismisses every pending candidate under one Clover category in one shot —
@@ -243,8 +300,7 @@ export type BulkCreateResult = { created: number; skipped: number };
 // Meant for generic accessories (a Clover "Substrates" category becoming a
 // batch of site products), not animals — those still need individual
 // species/genetics/description entry and go through the normal "Créer un
-// animal" link instead. Uses the Clover item id as the SKU (guaranteed
-// unique) rather than inventing one.
+// animal" link instead.
 export async function bulkCreateProductsFromCategory(
   cloverCategoryName: string | null,
   productCategory: ProductCategoryValue,
@@ -256,47 +312,87 @@ export async function bulkCreateProductsFromCategory(
   let created = 0;
   let skipped = 0;
   for (const candidate of candidates) {
-    try {
-      await prisma.product.create({
-        data: {
-          sku: candidate.cloverItemId,
-          category: productCategory,
-          nameFr: candidate.name,
-          nameEn: candidate.name,
-          priceCAD: candidate.priceCAD,
-          stockQty: candidate.stockCount ?? 0,
-          cloverItemId: candidate.cloverItemId,
-        },
-      });
+    const ok = await createProductFromCloverData({
+      cloverItemId: candidate.cloverItemId,
+      name: candidate.name,
+      priceCAD: Number(candidate.priceCAD),
+      stockCount: candidate.stockCount,
+      productCategory,
+    });
+    if (ok) {
       await prisma.cloverImportCandidate.update({ where: { id: candidate.id }, data: { status: "created" } });
       created++;
-    } catch (err) {
-      console.error(`[clover-sync] bulk create skipped candidate ${candidate.id}:`, err);
+    } else {
       skipped++;
     }
   }
   return { created, skipped };
 }
 
-export type FullImportResult = { totalItems: number; queued: number; alreadyLinked: number };
+export type CloverCategoryRuleInfo = {
+  cloverCategoryName: string;
+  action: "auto_product" | "ignore";
+  productCategory: ProductCategoryValue | null;
+};
+
+export async function listCloverCategoryRules(): Promise<CloverCategoryRuleInfo[]> {
+  const rules = await prisma.cloverCategoryRule.findMany({ orderBy: { cloverCategoryName: "asc" } });
+  return rules.map((r) => ({
+    cloverCategoryName: r.cloverCategoryName,
+    action: r.action,
+    productCategory: r.productCategory as ProductCategoryValue | null,
+  }));
+}
+
+// Remembers a decision so future items under this Clover category stop
+// needing a click at all: "auto_product" auto-creates them as a Product
+// going forward, "ignore" keeps them out of the queue entirely. `null`
+// category means "items with no Clover category set".
+export async function saveCloverCategoryRule(
+  cloverCategoryName: string | null,
+  action: "auto_product" | "ignore",
+  productCategory?: ProductCategoryValue,
+): Promise<void> {
+  const key = cloverCategoryName ?? "";
+  await prisma.cloverCategoryRule.upsert({
+    where: { cloverCategoryName: key },
+    update: { action, productCategory: action === "auto_product" ? productCategory : null },
+    create: { cloverCategoryName: key, action, productCategory: action === "auto_product" ? productCategory : null },
+  });
+}
+
+export async function deleteCloverCategoryRule(cloverCategoryName: string | null): Promise<void> {
+  const key = cloverCategoryName ?? "";
+  await prisma.cloverCategoryRule.deleteMany({ where: { cloverCategoryName: key } });
+}
+
+export type FullImportResult = {
+  totalItems: number;
+  queued: number;
+  alreadyLinked: number;
+  autoCreated: number;
+};
 
 // One-time (repeatable) backfill for a merchant's pre-existing Clover
 // catalog. The webhook/poll only ever see items created or edited *after*
 // the integration went live — anything captured in Clover before that never
 // surfaces in /admin/clover-import on its own. This pulls Clover's entire
 // current item list and runs it through the same processCloverItem() logic,
-// so already-linked items just get their price/stock refreshed and
+// so already-linked items just get their price/stock refreshed, anything
+// matching a saved CloverCategoryRule is created/ignored automatically, and
 // everything else lands in the queue.
 export async function importFullCloverCatalog(): Promise<FullImportResult> {
   const items = await fetchAllCloverItems();
   let queued = 0;
   let alreadyLinked = 0;
+  let autoCreated = 0;
   for (const item of items) {
     const result = await processCloverItem(item);
     if (result.action === "queued") queued++;
     if (result.action === "linked-animal" || result.action === "linked-product") alreadyLinked++;
+    if (result.action === "rule-auto-created") autoCreated++;
   }
-  return { totalItems: items.length, queued, alreadyLinked };
+  return { totalItems: items.length, queued, alreadyLinked, autoCreated };
 }
 
 export type PollResult = {
@@ -304,6 +400,7 @@ export type PollResult = {
   ordersProcessed: number;
   itemsChecked: number;
   itemsQueued: number;
+  itemsAutoCreated: number;
 };
 
 // Polling fallback — catches anything a missed/failed webhook delivery
@@ -323,9 +420,11 @@ export async function pollClover(): Promise<PollResult> {
   }
 
   let itemsQueued = 0;
+  let itemsAutoCreated = 0;
   for (const item of items) {
     const result = await processCloverItem(item);
     if (result.action === "queued") itemsQueued++;
+    if (result.action === "rule-auto-created") itemsAutoCreated++;
   }
 
   await prisma.cloverSyncState.upsert({
@@ -339,6 +438,7 @@ export async function pollClover(): Promise<PollResult> {
     ordersProcessed,
     itemsChecked: items.length,
     itemsQueued,
+    itemsAutoCreated,
   };
 }
 

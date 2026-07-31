@@ -19,8 +19,8 @@ export function CloverSyncNowButton() {
       {state && !state.error ? (
         <p className="text-sm text-green-700 dark:text-green-400">
           {state.ordersChecked} commande(s) vérifiée(s) ({state.ordersProcessed} nouvelle(s) vente(s)
-          synchronisée(s)) — {state.itemsChecked} article(s) Clover vérifié(s), {state.itemsQueued} nouveau(x)
-          ajouté(s) à la file d&apos;import.
+          synchronisée(s)) — {state.itemsChecked} article(s) Clover vérifié(s), {state.itemsAutoCreated} créé(s)
+          automatiquement (règle enregistrée), {state.itemsQueued} nouveau(x) ajouté(s) à la file d&apos;import.
         </p>
       ) : null}
     </form>

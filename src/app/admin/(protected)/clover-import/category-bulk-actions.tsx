@@ -22,7 +22,7 @@ export function CategoryBulkActions({ cloverCategoryName }: { cloverCategoryName
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <form action={createAction} className="flex items-center gap-2">
+      <form action={createAction} className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="cloverCategoryName" value={key} />
         <select
           name="productCategory"
@@ -46,9 +46,13 @@ export function CategoryBulkActions({ cloverCategoryName }: { cloverCategoryName
         >
           {createPending ? "..." : "Créer tout comme produits"}
         </button>
+        <label className="flex items-center gap-1 whitespace-nowrap text-xs text-zinc-500">
+          <input type="checkbox" name="remember" />
+          Se souvenir pour les prochains articles
+        </label>
       </form>
 
-      <form action={ignoreAction}>
+      <form action={ignoreAction} className="flex flex-wrap items-center gap-2">
         <input type="hidden" name="cloverCategoryName" value={key} />
         <button
           type="submit"
@@ -57,6 +61,10 @@ export function CategoryBulkActions({ cloverCategoryName }: { cloverCategoryName
         >
           {ignorePending ? "..." : "Ignorer tout"}
         </button>
+        <label className="flex items-center gap-1 whitespace-nowrap text-xs text-zinc-500">
+          <input type="checkbox" name="remember" />
+          Se souvenir
+        </label>
       </form>
 
       {createState?.error ? <span className="text-xs text-red-600 dark:text-red-400">{createState.error}</span> : null}
