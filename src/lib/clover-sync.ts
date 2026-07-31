@@ -215,6 +215,69 @@ export async function removeCloverImportCandidate(cloverItemId: string): Promise
   await prisma.cloverImportCandidate.deleteMany({ where: { cloverItemId, status: "pending" } });
 }
 
+type ProductCategoryValue =
+  | "terrarium"
+  | "substrate"
+  | "decor"
+  | "food_live"
+  | "food_frozen"
+  | "food_packaged";
+
+export type BulkIgnoreResult = { ignored: number };
+
+// Dismisses every pending candidate under one Clover category in one shot —
+// for a catalog with hundreds/thousands of queued items, reviewing each one
+// individually isn't realistic; staff triage by Clover category instead.
+export async function bulkIgnoreCandidatesByCategory(cloverCategoryName: string | null): Promise<BulkIgnoreResult> {
+  const result = await prisma.cloverImportCandidate.updateMany({
+    where: { status: "pending", cloverCategoryName },
+    data: { status: "ignored" },
+  });
+  return { ignored: result.count };
+}
+
+export type BulkCreateResult = { created: number; skipped: number };
+
+// Turns every pending candidate under one Clover category into a real
+// Product in one shot, all filed under the same site ProductCategory.
+// Meant for generic accessories (a Clover "Substrates" category becoming a
+// batch of site products), not animals — those still need individual
+// species/genetics/description entry and go through the normal "Créer un
+// animal" link instead. Uses the Clover item id as the SKU (guaranteed
+// unique) rather than inventing one.
+export async function bulkCreateProductsFromCategory(
+  cloverCategoryName: string | null,
+  productCategory: ProductCategoryValue,
+): Promise<BulkCreateResult> {
+  const candidates = await prisma.cloverImportCandidate.findMany({
+    where: { status: "pending", cloverCategoryName },
+  });
+
+  let created = 0;
+  let skipped = 0;
+  for (const candidate of candidates) {
+    try {
+      await prisma.product.create({
+        data: {
+          sku: candidate.cloverItemId,
+          category: productCategory,
+          nameFr: candidate.name,
+          nameEn: candidate.name,
+          priceCAD: candidate.priceCAD,
+          stockQty: candidate.stockCount ?? 0,
+          cloverItemId: candidate.cloverItemId,
+        },
+      });
+      await prisma.cloverImportCandidate.update({ where: { id: candidate.id }, data: { status: "created" } });
+      created++;
+    } catch (err) {
+      console.error(`[clover-sync] bulk create skipped candidate ${candidate.id}:`, err);
+      skipped++;
+    }
+  }
+  return { created, skipped };
+}
+
 export type FullImportResult = { totalItems: number; queued: number; alreadyLinked: number };
 
 // One-time (repeatable) backfill for a merchant's pre-existing Clover
