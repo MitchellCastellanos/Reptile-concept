@@ -41,23 +41,40 @@ function cloverApiBase() {
     : "https://api.clover.com";
 }
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function cloverApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const creds = getCloverCredentials();
   if (!creds) throw new Error("Clover credentials not configured (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN).");
 
-  const res = await fetch(`${cloverApiBase()}/v3/merchants/${creds.merchantId}${path}`, {
-    ...init,
-    headers: {
-      Authorization: `Bearer ${creds.apiToken}`,
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Clover API error ${res.status} on ${path}: ${body}`);
+  const maxAttempts = 5;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const res = await fetch(`${cloverApiBase()}/v3/merchants/${creds.merchantId}${path}`, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${creds.apiToken}`,
+        "Content-Type": "application/json",
+        ...init?.headers,
+      },
+    });
+
+    if (res.status === 429 && attempt < maxAttempts) {
+      // Clover rate-limits per merchant token; back off and retry rather
+      // than failing a whole catalog pull over one throttled page. Honor
+      // Retry-After if Clover sends it, otherwise a growing default delay.
+      const retryAfterSec = Number(res.headers.get("retry-after"));
+      const delayMs = Number.isFinite(retryAfterSec) && retryAfterSec > 0 ? retryAfterSec * 1000 : attempt * 1000;
+      await sleep(delayMs);
+      continue;
+    }
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      throw new Error(`Clover API error ${res.status} on ${path}: ${body}`);
+    }
+    return res.json() as Promise<T>;
   }
-  return res.json() as Promise<T>;
+  throw new Error(`Clover API error 429 on ${path}: rate limited after ${maxAttempts} attempts`);
 }
 
 export type CloverItem = {
@@ -131,6 +148,11 @@ export async function fetchAllCloverItems(): Promise<CloverItem[]> {
   const items: CloverItem[] = [];
   const pageSize = 100;
   for (let page = 0; page < 20; page++) {
+    // A small gap between pages keeps a large catalog from tripping
+    // Clover's per-token rate limit outright — cloverApiFetch's built-in
+    // 429 retry is the safety net if it still happens.
+    if (page > 0) await sleep(350);
+
     const data = await cloverApiFetch<{ elements?: CloverItem[] }>(
       `/items?expand=categories&limit=${pageSize}&offset=${page * pageSize}`,
     );
