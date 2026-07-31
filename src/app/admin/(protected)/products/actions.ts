@@ -5,17 +5,12 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
+import type { ProductCategoryValue } from "@/lib/product-categories";
 
 function readProductForm(formData: FormData) {
   return {
     sku: String(formData.get("sku")),
-    category: String(formData.get("category")) as
-      | "terrarium"
-      | "substrate"
-      | "decor"
-      | "food_live"
-      | "food_frozen"
-      | "food_packaged",
+    category: String(formData.get("category")) as ProductCategoryValue,
     nameFr: String(formData.get("nameFr")),
     nameEn: String(formData.get("nameEn")),
     imageUrl: String(formData.get("imageUrl") ?? "").trim() || null,

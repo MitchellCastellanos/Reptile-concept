@@ -13,6 +13,8 @@ import {
   saveCloverCategoryRule,
   deleteCloverCategoryRule,
 } from "@/lib/clover-sync";
+import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
+import { looksLikeAnimalCategory } from "@/lib/clover-category-mapping";
 
 // The category filter forms use "__none__" as a stand-in for "no Clover
 // category" (a real null can't travel through a form field).
@@ -90,15 +92,6 @@ export async function bulkIgnoreCategoryAction(
 
 export type BulkCreateActionResult = { error?: string; created?: number; skipped?: number };
 
-const PRODUCT_CATEGORY_VALUES = [
-  "terrarium",
-  "substrate",
-  "decor",
-  "food_live",
-  "food_frozen",
-  "food_packaged",
-] as const;
-
 export async function bulkCreateProductsCategoryAction(
   _prevState: BulkCreateActionResult | undefined,
   formData: FormData,
@@ -107,21 +100,28 @@ export async function bulkCreateProductsCategoryAction(
   if (!admin) redirect("/admin/login");
 
   const cloverCategoryName = decodeCloverCategory(formData);
+  // Defense in depth — the UI already hides this button for a category that
+  // looks like live animals, but never trust that a form submission only
+  // ever came from the UI as rendered.
+  if (looksLikeAnimalCategory(cloverCategoryName)) {
+    return { error: "Cette catégorie ressemble à des animaux — créez-les un par un plutôt qu'en bloc." };
+  }
+
   const productCategory = String(formData.get("productCategory") ?? "");
-  if (!PRODUCT_CATEGORY_VALUES.includes(productCategory as (typeof PRODUCT_CATEGORY_VALUES)[number])) {
+  if (!PRODUCT_CATEGORIES.includes(productCategory as (typeof PRODUCT_CATEGORIES)[number])) {
     return { error: "Choisissez une catégorie de produit." };
   }
 
   const { created, skipped } = await bulkCreateProductsFromCategory(
     cloverCategoryName,
-    productCategory as (typeof PRODUCT_CATEGORY_VALUES)[number],
+    productCategory as (typeof PRODUCT_CATEGORIES)[number],
   );
 
   if (formData.get("remember") === "on") {
     await saveCloverCategoryRule(
       cloverCategoryName,
       "auto_product",
-      productCategory as (typeof PRODUCT_CATEGORY_VALUES)[number],
+      productCategory as (typeof PRODUCT_CATEGORIES)[number],
     );
     await recordAudit(admin.id, "CloverCategoryRule", cloverCategoryName ?? "__none__", "create");
   }

@@ -3,15 +3,7 @@
 import { useState } from "react";
 import type { Product } from "@/generated/prisma/client";
 import { PhotoUploadField } from "@/components/admin/photo-upload-field";
-
-const CATEGORY_OPTIONS = [
-  "terrarium",
-  "substrate",
-  "decor",
-  "food_live",
-  "food_frozen",
-  "food_packaged",
-] as const;
+import { PRODUCT_CATEGORIES as CATEGORY_OPTIONS } from "@/lib/product-categories";
 
 export function ProductForm({
   product,

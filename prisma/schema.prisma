@@ -38,9 +38,17 @@ enum ProductCategory {
   terrarium
   substrate
   decor
+  // Added 2026-07 to match the client's real Clover catalog (bulbs, heat
+  // mats/lamps — "Lumiere" in Clover) — previously had nowhere to go.
+  lighting
+  // Spare parts, sealants, filters, charcoal etc. ("Piece Remplacement/
+  // Electronique" in Clover) — also had no home before.
+  equipment
   food_live
   food_frozen
   food_packaged
+  // Vitamins, care/cleaning products ("Supplement" in Clover).
+  supplement
 }
 
 enum OrderStatus {

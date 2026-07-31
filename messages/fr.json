@@ -54,9 +54,11 @@
     "substrate": "Substrats",
     "decor": "Décoration",
     "lighting": "Éclairage et chauffage",
+    "equipment": "Équipement et pièces",
     "food_live": "Nourriture vivante",
     "food_frozen": "Nourriture congelée",
     "food_packaged": "Nourriture sèche et emballée",
+    "supplement": "Suppléments et soins",
     "viewAllProducts": "Voir toute la boutique"
   },
   "Footer": {

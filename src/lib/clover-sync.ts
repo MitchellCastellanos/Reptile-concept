@@ -22,6 +22,8 @@ import {
   type CloverOrder,
   type CloverItem,
 } from "@/lib/clover";
+import type { ProductCategoryValue } from "@/lib/product-categories";
+import { looksLikeAnimalCategory } from "@/lib/clover-category-mapping";
 
 function resolvePaymentMethod(order: CloverOrder): "cash" | "card" | undefined {
   const tenderLabel = order.payments?.elements?.[0]?.tender?.label?.toLowerCase();
@@ -242,14 +244,6 @@ export async function removeCloverImportCandidate(cloverItemId: string): Promise
   await prisma.cloverImportCandidate.deleteMany({ where: { cloverItemId, status: "pending" } });
 }
 
-type ProductCategoryValue =
-  | "terrarium"
-  | "substrate"
-  | "decor"
-  | "food_live"
-  | "food_frozen"
-  | "food_packaged";
-
 // Shared by the one-time bulk creation and the ongoing per-item auto-rule
 // path — always uses the Clover item id as SKU (guaranteed unique) rather
 // than inventing one, and files the same French/English name from Clover
@@ -305,6 +299,10 @@ export async function bulkCreateProductsFromCategory(
   cloverCategoryName: string | null,
   productCategory: ProductCategoryValue,
 ): Promise<BulkCreateResult> {
+  if (looksLikeAnimalCategory(cloverCategoryName)) {
+    throw new Error(`Refusing to bulk-create Products for a category that looks like animals: ${cloverCategoryName}`);
+  }
+
   const candidates = await prisma.cloverImportCandidate.findMany({
     where: { status: "pending", cloverCategoryName },
   });
@@ -353,6 +351,10 @@ export async function saveCloverCategoryRule(
   action: "auto_product" | "ignore",
   productCategory?: ProductCategoryValue,
 ): Promise<void> {
+  if (action === "auto_product" && looksLikeAnimalCategory(cloverCategoryName)) {
+    throw new Error(`Refusing to save an auto-create rule for a category that looks like animals: ${cloverCategoryName}`);
+  }
+
   const key = cloverCategoryName ?? "";
   await prisma.cloverCategoryRule.upsert({
     where: { cloverCategoryName: key },
