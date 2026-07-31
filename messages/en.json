@@ -54,9 +54,11 @@
     "substrate": "Substrates",
     "decor": "Décor",
     "lighting": "Lighting & heating",
+    "equipment": "Equipment & parts",
     "food_live": "Live food",
     "food_frozen": "Frozen food",
     "food_packaged": "Dry & packaged food",
+    "supplement": "Supplements & care",
     "viewAllProducts": "View full shop"
   },
   "Footer": {

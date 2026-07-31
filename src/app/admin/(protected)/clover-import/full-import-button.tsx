@@ -24,7 +24,8 @@ export function FullImportButton() {
       {state && !state.error ? (
         <p className="text-sm text-green-700 dark:text-green-400">
           {state.totalItems} article(s) trouvé(s) dans Clover — {state.alreadyLinked} déjà relié(s)
-          mis à jour, {state.queued} ajouté(s) à la file ci-dessous.
+          mis à jour, {state.autoCreated} créé(s) automatiquement (règle enregistrée), {state.queued}{" "}
+          ajouté(s) à la file ci-dessous.
         </p>
       ) : null}
     </form>

@@ -38,9 +38,17 @@ enum ProductCategory {
   terrarium
   substrate
   decor
+  // Added 2026-07 to match the client's real Clover catalog (bulbs, heat
+  // mats/lamps — "Lumiere" in Clover) — previously had nowhere to go.
+  lighting
+  // Spare parts, sealants, filters, charcoal etc. ("Piece Remplacement/
+  // Electronique" in Clover) — also had no home before.
+  equipment
   food_live
   food_frozen
   food_packaged
+  // Vitamins, care/cleaning products ("Supplement" in Clover).
+  supplement
 }
 
 enum OrderStatus {
@@ -112,6 +120,11 @@ enum CloverImportCandidateStatus {
   pending
   created
   ignored
+}
+
+enum CloverCategoryRuleAction {
+  auto_product
+  ignore
 }
 
 model Species {
@@ -536,6 +549,26 @@ model CloverImportCandidate {
   status             CloverImportCandidateStatus  @default(pending)
   firstSeenAt        DateTime                     @default(now())
   updatedAt          DateTime                     @updatedAt
+}
+
+// A one-time-set rule per Clover category name, applied automatically to
+// every future item captured under that category — so accessories keep
+// flowing onto the site without a human re-deciding "what site category is
+// this" every time new stock gets rung into Clover. Deliberately never
+// consulted for anything that should stay a manual "Créer un animal" review
+// (see processCloverItem in src/lib/clover-sync.ts) — staff opt a category
+// into this only when it's genuinely generic merchandise.
+model CloverCategoryRule {
+  id                 String                   @id @default(uuid())
+  // Empty string stands in for "no Clover category set" (Clover items can
+  // be categoryless) — kept as "" rather than null so the unique
+  // constraint behaves predictably across databases.
+  cloverCategoryName String                   @unique
+  action             CloverCategoryRuleAction
+  // Required when action = auto_product; unused for action = ignore.
+  productCategory    ProductCategory?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
 }
 
 // Singleton row (id is always "singleton") tracking the polling fallback

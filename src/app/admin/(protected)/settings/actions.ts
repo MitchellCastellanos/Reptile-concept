@@ -70,6 +70,7 @@ export type CloverSyncNowResult = {
   ordersProcessed?: number;
   itemsChecked?: number;
   itemsQueued?: number;
+  itemsAutoCreated?: number;
 };
 
 // Manual "just in case" trigger — forces the same reconciliation the
