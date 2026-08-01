@@ -247,6 +247,7 @@ model BundleItem {
 model Customer {
   id            String         @id @default(uuid())
   fullName      String
+  companyName   String?
   email         String         @unique
   phone         String?
   preferredLang Locale         @default(fr)
@@ -254,6 +255,16 @@ model Customer {
   internalNotes String?
   passwordHash  String?
   emailOptOut   Boolean        @default(false)
+  // Free-text customer classification from imported accounting data (e.g.
+  // QuickBooks "Type de client") — not an enum since the client's own values
+  // vary and aren't ours to constrain.
+  customerType  String?
+  // Running account balance carried over from the client's accounting
+  // system at import time (QuickBooks "Solde courant").
+  currentBalanceCAD Decimal    @default(0)
+  // Filenames/references listed in the source system's "Pièces jointes"
+  // column. The CSV import can't carry the actual files, only this text.
+  attachmentsNote String?
   addresses     Address[]
   orders        Order[]
   reviews       Review[]

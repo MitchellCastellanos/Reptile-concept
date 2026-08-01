@@ -71,9 +71,11 @@ export function ImportCustomersCsvForm() {
         />
       </label>
       <p className="text-xs text-zinc-500">
-        Le fichier doit avoir des colonnes avec un en-tête contenant "name", "email" et
-        idéalement "phone". Les clients existants (même courriel) sont mis à jour, pas
-        dupliqués.
+        Colonnes reconnues (en-tête requis pour &laquo;&nbsp;courriel&nbsp;&raquo;, les autres
+        sont optionnelles) :
+        Nom, Nom de l&apos;entreprise, Adresse municipale, Ville, Province, Pays, Code postal,
+        Téléphone, Courriel, Type de client, Pièces jointes, Solde courant. Les clients
+        existants (même courriel) sont mis à jour, pas dupliqués.
       </p>
       {state?.error ? <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p> : null}
       {state && !state.error ? (

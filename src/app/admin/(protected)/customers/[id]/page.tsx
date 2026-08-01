@@ -11,19 +11,38 @@ export default async function AdminCustomerDetailPage({
   const { id } = await params;
   const customer = await prisma.customer.findUnique({
     where: { id },
-    include: { orders: { orderBy: { createdAt: "desc" } } },
+    include: { orders: { orderBy: { createdAt: "desc" } }, addresses: true },
   });
   if (!customer) notFound();
 
   const boundAction = updateCustomerNotesAction.bind(null, customer.id);
+  const address = customer.addresses[0];
 
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-semibold">{customer.fullName}</h1>
+      <div>
+        <h1 className="text-2xl font-semibold">{customer.fullName}</h1>
+        {customer.companyName ? (
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">{customer.companyName}</p>
+        ) : null}
+      </div>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         {customer.email} · {customer.phone ?? "sans téléphone"} · langue préférée:{" "}
         {customer.preferredLang}
+        {customer.customerType ? <> · type: {customer.customerType}</> : null}
+        {" · "}solde: {customer.currentBalanceCAD.toString()} $
       </p>
+      {address ? (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          {address.street}, {address.city}, {address.province} {address.postalCode},{" "}
+          {address.country}
+        </p>
+      ) : null}
+      {customer.attachmentsNote ? (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Pièces jointes: {customer.attachmentsNote}
+        </p>
+      ) : null}
 
       <section>
         <h2 className="font-medium">Historique des commandes</h2>
