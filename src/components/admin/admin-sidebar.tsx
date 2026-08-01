@@ -149,6 +149,13 @@ export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
       {open ? (
         <div className="no-print flex flex-col gap-4 border-b border-black/10 px-4 py-4 md:hidden">
           <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} />
+          <Link
+            href="/"
+            onClick={() => setOpen(false)}
+            className="rounded-lg px-3 py-2 text-sm text-zinc-600 hover:bg-black/5 dark:text-zinc-300"
+          >
+            ← Retour au site
+          </Link>
           <div className="flex items-center justify-between border-t border-black/10 pt-4 text-sm text-zinc-600">
             <span className="truncate">{adminEmail}</span>
             <form action={logoutAction}>
@@ -168,6 +175,9 @@ export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
           <NavLinks pathname={pathname} />
         </div>
         <div className="mt-6 flex flex-col gap-2 border-t border-black/10 pt-4 text-sm text-zinc-600">
+          <Link href="/" className="px-3 hover:underline">
+            ← Retour au site
+          </Link>
           <span className="truncate px-3">{adminEmail}</span>
           <form action={logoutAction}>
             <button type="submit" className="px-3 text-left underline">

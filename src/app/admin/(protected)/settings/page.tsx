@@ -1,16 +1,27 @@
 import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
+import { getCurrentAdmin } from "@/lib/auth";
 import { isCloverConfigured } from "@/lib/clover";
 import { updateSettingsAction } from "./actions";
 import { CloverSyncNowButton } from "./clover-sync-button";
+import { AccountForm } from "./account-form";
 
 export default async function AdminSettingsPage() {
   const settings = await getStoreSettings();
+  const admin = await getCurrentAdmin();
   const cloverSyncState = await prisma.cloverSyncState.findUnique({ where: { id: "singleton" } });
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Réglages</h1>
+
+      <fieldset className="flex max-w-2xl flex-col gap-2 rounded-lg border border-black/10 p-4 dark:border-white/10">
+        <legend className="px-1 text-sm font-medium">Mon compte administrateur</legend>
+        <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          Changez le courriel et le mot de passe utilisés pour vous connecter à l&apos;admin.
+        </p>
+        {admin ? <AccountForm currentEmail={admin.email} /> : null}
+      </fieldset>
 
       <fieldset className="flex max-w-2xl flex-col gap-2 rounded-lg border border-black/10 p-4 dark:border-white/10">
         <legend className="px-1 text-sm font-medium">Synchronisation Clover</legend>

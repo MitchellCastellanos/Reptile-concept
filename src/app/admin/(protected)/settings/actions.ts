@@ -1,7 +1,9 @@
 "use server";
 
+import bcrypt from "bcryptjs";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { updateStoreSettings } from "@/lib/settings";
 import { recordAudit } from "@/lib/audit";
@@ -105,4 +107,61 @@ export async function syncCloverNowAction(
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Erreur de synchronisation avec Clover." };
   }
+}
+
+export type UpdateAccountResult = { error?: string; success?: string };
+
+export async function updateAccountAction(
+  _prevState: UpdateAccountResult | undefined,
+  formData: FormData,
+): Promise<UpdateAccountResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const currentPassword = String(formData.get("currentPassword") ?? "");
+  const newEmail = String(formData.get("newEmail") ?? "").trim().toLowerCase();
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  const currentPasswordValid = await bcrypt.compare(currentPassword, admin.passwordHash);
+  if (!currentPasswordValid) {
+    return { error: "Mot de passe actuel incorrect / Current password is incorrect." };
+  }
+
+  if (!newEmail) {
+    return { error: "Le courriel est requis / Email is required." };
+  }
+
+  if (newPassword || confirmPassword) {
+    if (newPassword.length < 8) {
+      return {
+        error: "Le nouveau mot de passe doit contenir au moins 8 caractères / New password must be at least 8 characters.",
+      };
+    }
+    if (newPassword !== confirmPassword) {
+      return { error: "Les mots de passe ne correspondent pas / Passwords do not match." };
+    }
+  }
+
+  if (newEmail !== admin.email) {
+    const existing = await prisma.adminUser.findUnique({ where: { email: newEmail } });
+    if (existing && existing.id !== admin.id) {
+      return {
+        error: "Ce courriel est déjà utilisé par un autre compte administrateur / Email already in use.",
+      };
+    }
+  }
+
+  await prisma.adminUser.update({
+    where: { id: admin.id },
+    data: {
+      email: newEmail,
+      ...(newPassword ? { passwordHash: await bcrypt.hash(newPassword, 10) } : {}),
+    },
+  });
+  await recordAudit(admin.id, "AdminUser", admin.id, "update");
+
+  revalidatePath("/admin/settings");
+
+  return { success: "Compte mis à jour / Account updated." };
 }
