@@ -13,15 +13,27 @@ function orderByForSort(sort: string | undefined) {
   return { createdAt: "desc" as const };
 }
 
-export function getAvailableAnimals(category?: string, sort?: string) {
-  return prisma.animal.findMany({
-    where: {
-      status: "available",
-      ...(isAnimalCategory(category) ? { species: { category } } : {}),
-    },
-    include: { species: true, media: { orderBy: { sortOrder: "asc" } } },
-    orderBy: orderByForSort(sort),
-  });
+export async function getAvailableAnimals(
+  category?: string,
+  sort?: string,
+  pagination?: { page: number; pageSize: number },
+) {
+  const where = {
+    status: "available" as const,
+    ...(isAnimalCategory(category) ? { species: { category } } : {}),
+  };
+  const [items, total] = await Promise.all([
+    prisma.animal.findMany({
+      where,
+      include: { species: true, media: { orderBy: { sortOrder: "asc" } } },
+      orderBy: orderByForSort(sort),
+      ...(pagination
+        ? { skip: (pagination.page - 1) * pagination.pageSize, take: pagination.pageSize }
+        : {}),
+    }),
+    prisma.animal.count({ where }),
+  ]);
+  return { items, total };
 }
 
 export function getAnimalById(id: string) {
@@ -31,20 +43,33 @@ export function getAnimalById(id: string) {
   });
 }
 
-export function getProducts(
+export async function getProducts(
   category?: string,
-  opts?: { publishedOnly?: boolean; sort?: string; stock?: string },
+  opts?: {
+    publishedOnly?: boolean;
+    sort?: string;
+    stock?: string;
+    pagination?: { page: number; pageSize: number };
+  },
 ) {
   const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "all";
-  return prisma.product.findMany({
-    where: {
-      ...(opts?.publishedOnly ? { published: true } : {}),
-      ...(isProductCategory(category) ? { category } : {}),
-      ...(stock === "in_stock" ? { stockQty: { gt: 0 } } : {}),
-      ...(stock === "out_of_stock" ? { stockQty: { lte: 0 } } : {}),
-    },
-    orderBy: orderByForSort(opts?.sort),
-  });
+  const where = {
+    ...(opts?.publishedOnly ? { published: true } : {}),
+    ...(isProductCategory(category) ? { category } : {}),
+    ...(stock === "in_stock" ? { stockQty: { gt: 0 } } : {}),
+    ...(stock === "out_of_stock" ? { stockQty: { lte: 0 } } : {}),
+  };
+  const [items, total] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy: orderByForSort(opts?.sort),
+      ...(opts?.pagination
+        ? { skip: (opts.pagination.page - 1) * opts.pagination.pageSize, take: opts.pagination.pageSize }
+        : {}),
+    }),
+    prisma.product.count({ where }),
+  ]);
+  return { items, total };
 }
 
 export function getProductById(id: string, opts?: { publishedOnly?: boolean }) {

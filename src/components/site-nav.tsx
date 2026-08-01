@@ -14,18 +14,18 @@ export function SiteNav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
-        <div className="flex min-w-0 shrink items-center gap-1.5">
+      <nav className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 px-4 py-3 sm:flex-nowrap sm:gap-4 sm:px-6">
+        <div className="flex shrink-0 items-center gap-1.5">
           <CategoryMenu />
-          <Link href="/" className="flex min-w-0 shrink items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
-            <span className="truncate whitespace-nowrap text-base font-semibold text-primary sm:text-lg">
+            <span className="whitespace-nowrap text-base font-semibold text-primary sm:text-lg">
               Reptiles Concept
             </span>
           </Link>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0 sm:gap-3">
           <LocaleSwitcher />
           <Link
             href="/account"

@@ -68,38 +68,27 @@ export async function SiteFooter() {
         </div>
       </div>
 
-      <div className="flex justify-center border-t border-white/20 px-6 py-5">
-        <a
-          href="https://digital.gabansolutions.ca"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="group inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/50 transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white/80"
-        >
-          <span>{t("craftedInMontreal")}</span>
-          <Image
-            src="/images/apple-touch-icon.png"
-            alt="GABAN Solutions"
-            width={18}
-            height={18}
-            className="rounded-[4px] opacity-75 transition-opacity group-hover:opacity-100"
-          />
-          <span className="font-medium tracking-wide text-white/70 group-hover:text-white/90">
-            GABAN Solutions
-          </span>
-        </a>
-      </div>
-
       <div className="flex flex-col items-center gap-2 border-t border-white/20 px-6 py-4 text-center text-xs text-white/60 sm:flex-row sm:justify-between">
         <span>
           © {new Date().getFullYear()} Reptiles Concept — {t("rights")}
         </span>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center justify-center gap-4">
           <Link href="/legal/cookies" className="text-white/40 hover:text-white/70">
             {tLegal("cookiePolicyLink")}
           </Link>
           <NextLink href="/admin/login" className="text-white/40 hover:text-white/70">
             {t("staff")}
           </NextLink>
+          <a
+            href="https://digital.gabansolutions.ca"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-white/40 hover:text-white/70"
+          >
+            <span>
+              {t("craftedInMontreal")} GABAN Solutions
+            </span>
+          </a>
         </div>
       </div>
     </footer>
