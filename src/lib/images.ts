@@ -9,13 +9,24 @@ const speciesImages: Record<string, string> = {
   "seed-crested-gecko": `${UNSPLASH}/photo-1534188756822-dbf28bef2dad?w=600&h=450&fit=crop`,
 };
 
+const productDefaultImages = {
+  terrarium: "/images/products/default-terrarium.jpg",
+  substrate: "/images/products/default-substrate.jpg",
+  decor: "/images/products/default-decor.jpg",
+  hardware: "/images/products/default-hardware.jpg",
+  consumables: "/images/products/default-consumables.jpg",
+} as const;
+
 const categoryImages: Record<string, string> = {
-  terrarium: `${UNSPLASH}/photo-1598300042247-d088f8ab3a91?w=600&h=450&fit=crop`,
-  substrate: `${UNSPLASH}/photo-1416879595882-3373a0480b5b?w=600&h=450&fit=crop`,
-  decor: `${UNSPLASH}/photo-1466692479669-067af55c888b?w=600&h=450&fit=crop`,
-  food_live: `${UNSPLASH}/photo-1605029428217-0b04e4e0e0e0?w=600&h=450&fit=crop`,
-  food_frozen: `${UNSPLASH}/photo-1516467508483-a7212febe31a?w=600&h=450&fit=crop`,
-  food_packaged: `${UNSPLASH}/photo-1583337130417-3346a1be90dd?w=600&h=450&fit=crop`,
+  terrarium: productDefaultImages.terrarium,
+  substrate: productDefaultImages.substrate,
+  decor: productDefaultImages.decor,
+  lighting: productDefaultImages.hardware,
+  equipment: productDefaultImages.hardware,
+  food_live: productDefaultImages.consumables,
+  food_frozen: productDefaultImages.consumables,
+  food_packaged: productDefaultImages.consumables,
+  supplement: productDefaultImages.consumables,
 };
 
 export const animalPlaceholderImage = "/images/animal-placeholder.png";
@@ -29,5 +40,5 @@ export function getAnimalImageUrl(
 }
 
 export function getProductImageUrl(category: string): string {
-  return categoryImages[category] ?? categoryImages.terrarium;
+  return categoryImages[category] ?? productDefaultImages.terrarium;
 }

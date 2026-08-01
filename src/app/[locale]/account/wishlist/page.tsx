@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
 import { prisma } from "@/lib/db";
 import { getCurrentCustomer } from "@/lib/customer-auth";
-import { getAnimalImageUrl } from "@/lib/images";
+import { getAnimalImageUrl, getProductImageUrl } from "@/lib/images";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
 
 export default async function WishlistPage() {
@@ -69,10 +69,12 @@ export default async function WishlistPage() {
                   className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
                 >
                   <Link href={`/boutique/${product.id}`} className="relative aspect-[4/3] overflow-hidden bg-accent-light">
-                    {product.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={product.imageUrl} alt={name} className="h-full w-full object-cover" />
-                    ) : null}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={product.imageUrl || getProductImageUrl(product.category)}
+                      alt={name}
+                      className="h-full w-full object-cover"
+                    />
                   </Link>
                   <div className="flex flex-1 flex-col gap-1 p-4">
                     <p className="font-semibold">{name}</p>

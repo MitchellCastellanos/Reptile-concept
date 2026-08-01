@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import { getProductImageUrl } from "@/lib/images";
 import { deleteProductAction } from "./actions";
 
 export default async function AdminProductsPage() {
@@ -35,19 +36,13 @@ export default async function AdminProductsPage() {
           {products.map((product) => (
             <tr key={product.id} className="border-b border-black/5 dark:border-white/5">
               <td className="py-2">
-                {product.imageUrl ? (
-                  <Image
-                    src={product.imageUrl}
-                    alt=""
-                    width={48}
-                    height={48}
-                    className="h-12 w-12 rounded object-cover"
-                  />
-                ) : (
-                  <span className="flex h-12 w-12 items-center justify-center rounded bg-black/5 text-xs text-zinc-500 dark:bg-white/5">
-                    —
-                  </span>
-                )}
+                <Image
+                  src={product.imageUrl || getProductImageUrl(product.category)}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 rounded object-cover"
+                />
               </td>
               <td className="py-2">{product.sku}</td>
               <td className="py-2">{product.nameFr}</td>
