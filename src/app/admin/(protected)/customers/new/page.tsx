@@ -11,10 +11,10 @@ export default function NewCustomerPage() {
       </div>
 
       <div className="border-t border-black/10 pt-8 dark:border-white/10">
-        <h2 className="text-xl font-semibold">Importer plusieurs clients (CSV)</h2>
+        <h2 className="text-xl font-semibold">Importer plusieurs clients (CSV/Excel)</h2>
         <p className="mt-1 text-sm text-zinc-500">
           Pour absorber votre base de données QuickBooks existante : exportez vos contacts en
-          CSV depuis QuickBooks (ou Excel) et importez-les ici en un clic.
+          CSV ou Excel (.xlsx) depuis QuickBooks (ou Excel) et importez-les ici en un clic.
         </p>
         <div className="mt-4">
           <ImportCustomersCsvForm />

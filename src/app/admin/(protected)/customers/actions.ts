@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import ExcelJS from "exceljs";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
@@ -110,6 +111,61 @@ function parseBalanceCAD(raw: string): number | undefined {
   return Number.isFinite(n) ? n : undefined;
 }
 
+// Turns an uploaded file into rows of cell text, regardless of whether it's
+// actually a real CSV, an .xlsx workbook, or a legacy binary .xls workbook
+// wearing a .csv extension — a common export trap from QuickBooks/Excel on
+// Quebec locales, where "Enregistrer sous > CSV" can silently keep the
+// old .xls (OLE2/BIFF) format. That binary format isn't readable as text or
+// by exceljs, so it's reported as a clear error instead of silently
+// producing garbage headers.
+async function extractRows(file: File): Promise<string[][] | { error: string }> {
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const isLegacyXls =
+    buffer.length >= 4 &&
+    buffer[0] === 0xd0 &&
+    buffer[1] === 0xcf &&
+    buffer[2] === 0x11 &&
+    buffer[3] === 0xe0;
+  if (isLegacyXls) {
+    return {
+      error:
+        "Ce fichier est en fait un ancien format Excel (.xls) enregistré avec une extension " +
+        ".csv. Ouvrez-le dans Excel, faites « Enregistrer sous » et choisissez « Classeur Excel " +
+        "(.xlsx) » ou « CSV UTF-8 », puis réessayez l'import.",
+    };
+  }
+
+  const isXlsx = buffer.length >= 2 && buffer[0] === 0x50 && buffer[1] === 0x4b;
+  if (isXlsx) {
+    const workbook = new ExcelJS.Workbook();
+    // exceljs's own type declarations merge a conflicting global `Buffer`
+    // interface (extends ArrayBuffer) on top of @types/node's, making the
+    // `load(buffer: Buffer)` signature untypeable at the call site — cast
+    // to a locally-defined signature to bypass that broken declaration,
+    // not a real mismatch.
+    const xlsxReader = workbook.xlsx as unknown as { load: (buf: Buffer) => Promise<unknown> };
+    await xlsxReader.load(buffer);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) return { error: "Le classeur Excel ne contient aucune feuille." };
+    const rows: string[][] = [];
+    worksheet.eachRow((row) => {
+      const cells: string[] = [];
+      row.eachCell({ includeEmpty: true }, (cell) => {
+        cells.push((cell.text ?? "").toString().trim());
+      });
+      rows.push(cells);
+    });
+    return rows;
+  }
+
+  const text = buffer.toString("utf-8").replace(/^\uFEFF/, "");
+  return text
+    .split(/\r?\n/)
+    .filter((line) => line.trim().length > 0)
+    .map(parseCsvLine);
+}
+
 export async function importCustomersCsvAction(
   _prevState: CsvImportResult | undefined,
   formData: FormData,
@@ -119,16 +175,18 @@ export async function importCustomersCsvAction(
 
   const file = formData.get("csvFile");
   if (!(file instanceof File) || file.size === 0) {
-    return { imported: 0, skipped: 0, error: "Choisissez un fichier CSV." };
+    return { imported: 0, skipped: 0, error: "Choisissez un fichier CSV ou Excel." };
   }
 
-  const text = await file.text();
-  const lines = text.split(/\r?\n/).filter((line) => line.trim().length > 0);
-  if (lines.length === 0) {
+  const rows = await extractRows(file);
+  if ("error" in rows) {
+    return { imported: 0, skipped: 0, error: rows.error };
+  }
+  if (rows.length === 0) {
     return { imported: 0, skipped: 0, error: "Fichier vide." };
   }
 
-  const header = parseCsvLine(lines[0]).map((h) => stripAccents(h.toLowerCase()));
+  const header = rows[0].map((h) => stripAccents(h.toLowerCase()));
 
   const companyIdx = findColumnIndex(header, { includes: ["entreprise", "empresa", "company"] });
   const nameIdx = findColumnIndex(header, {
@@ -162,8 +220,7 @@ export async function importCustomersCsvAction(
   let imported = 0;
   let skipped = 0;
 
-  for (const line of lines.slice(1)) {
-    const cols = parseCsvLine(line);
+  for (const cols of rows.slice(1)) {
     const email = (emailIdx >= 0 ? cols[emailIdx] : "")?.toLowerCase();
 
     if (!email || !email.includes("@")) {
