@@ -1,6 +1,6 @@
-# Reptile Concept
+# Reptiles Concept
 
-Boutique en ligne et outils d'administration pour Reptile Concept (Lachine, QC) : reptiles, terrariums, substrats, décoration et nourriture.
+Boutique en ligne et outils d'administration pour Reptiles Concept (Lachine, QC) : reptiles, terrariums, substrats, décoration et nourriture.
 
 ## Stack
 
@@ -68,7 +68,7 @@ Identifiants admin de démonstration (créés par `npm run db:seed`) :
    - `DATABASE_URL` — la chaîne de connexion Postgres de l'étape 1
    - `SESSION_SECRET` — une valeur aléatoire (générez-en une avec la commande dans `.env.example`)
    - `RESEND_API_KEY` *(optionnel)* — pour envoyer réellement les courriels transactionnels via [Resend](https://resend.com). Sans cette clé, les courriels sont seulement journalisés.
-   - `EMAIL_FROM` *(optionnel)* — adresse d'expédition des courriels (ex. `Reptile Concept <ventes@reptileconcept.ca>`)
+   - `EMAIL_FROM` *(optionnel)* — adresse d'expédition des courriels (ex. `Reptiles Concept <ventes@reptileconcept.ca>`)
    - `NEXT_PUBLIC_SITE_URL` *(optionnel)* — URL publique du site, utilisée dans les liens des courriels (ex. lien admin, lien d'avis). Par défaut, `VERCEL_URL` est utilisé.
    - `CRON_SECRET` *(optionnel)* — si défini, protège `GET /api/cron/expire-orders` (en-tête `Authorization: Bearer <valeur>`)
 4. **Déployer** — Vercel installe les dépendances (`postinstall` génère le client Prisma), applique les migrations (`prisma migrate deploy`, inclus dans la commande `build`) puis construit le site. Vous obtenez une URL `https://votre-projet.vercel.app`.

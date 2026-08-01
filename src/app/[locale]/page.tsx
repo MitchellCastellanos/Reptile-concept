@@ -35,7 +35,7 @@ export default async function Home() {
       <section className="relative flex min-h-[420px] items-center overflow-hidden">
         <Image
           src="/images/hero.jpg"
-          alt="Reptile Concept"
+          alt="Reptiles Concept"
           fill
           priority
           className="object-cover"

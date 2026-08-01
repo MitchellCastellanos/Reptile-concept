@@ -22,7 +22,7 @@ export async function SiteFooter() {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white p-1">
               <Image src="/icon.png" alt="" width={20} height={20} className="h-full w-full" />
             </span>
-            <p className="text-lg font-semibold">Reptile Concept</p>
+            <p className="text-lg font-semibold">Reptiles Concept</p>
           </div>
           <p className="text-sm text-white/80">{t("tagline")}</p>
         </div>
@@ -70,7 +70,7 @@ export async function SiteFooter() {
 
       <div className="flex flex-col items-center gap-2 border-t border-white/20 px-6 py-4 text-center text-xs text-white/60 sm:flex-row sm:justify-between">
         <span>
-          © {new Date().getFullYear()} Reptile Concept — {t("rights")}
+          © {new Date().getFullYear()} Reptiles Concept — {t("rights")}
         </span>
         <div className="flex items-center gap-4">
           <Link href="/legal/cookies" className="text-white/40 hover:text-white/70">

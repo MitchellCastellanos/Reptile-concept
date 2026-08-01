@@ -1,4 +1,4 @@
-# Inventario Reptile Concept — Export de revisión
+# Inventario Reptiles Concept — Export de revisión
 
 Generado: 2026-08-01T01:22:06.336Z
 

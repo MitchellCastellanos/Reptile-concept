@@ -1,4 +1,4 @@
-# Reptile Concept — Document vivant : Proposition de projet
+# Reptiles Concept — Document vivant : Proposition de projet
 
 > **Comment utiliser ce fichier**
 > Ce document a deux rôles à la fois :
@@ -13,7 +13,7 @@
 
 Actúa como diseñador/a de propuestas comerciales. Genera un PDF (o HTML/diseño listo para exportar a PDF) de una propuesta comercial profesional y visualmente atractiva, usando EXACTAMENTE el contenido de la sección "📄 Contenido de la propuesta" más abajo — no inventes secciones nuevas, no cambies los montos ni el alcance descrito.
 
-**Contexto**: "Reptile Concept", tienda de reptiles en Lachine, Quebec, migrando de operar 100% por Facebook a una plataforma propia. Documento preparado por "GABAN Solutions" (Montréal, QC — gabansolutions.ca — 514-258-0648).
+**Contexto**: "Reptiles Concept", tienda de reptiles en Lachine, Quebec, migrando de operar 100% por Facebook a una plataforma propia. Documento preparado por "GABAN Solutions" (Montréal, QC — gabansolutions.ca — 514-258-0648).
 
 **Estilo**: Portada y cierre en negro/carbón (#0b0b0c) con acentos dorados (#cba135), páginas de contenido en blanco/crema (#f7f4ec) con detalles dorados, tipografía sans-serif limpia (system-ui), look premium tipo consultoría, no técnico. Usa viñetas con check dorado para listas de features. Idioma: francés. 4-8 páginas según cuánto contenido tenga la sección de abajo en ese momento — no fuerces todo a caber en un número fijo de páginas.
 
@@ -35,14 +35,14 @@ Genera el documento completo ahora, usando el contenido exacto de la sección de
 ## 📄 Contenido de la propuesta (esta sección se actualiza con el proyecto)
 
 ### Portada
-**Reptile Concept — Plateforme E-commerce & Panneau d'administration**
-Préparé pour Reptile Concept (Lachine, QC) par GABAN Solutions (Montréal, QC).
+**Reptiles Concept — Plateforme E-commerce & Panneau d'administration**
+Préparé pour Reptiles Concept (Lachine, QC) par GABAN Solutions (Montréal, QC).
 
 ### Le constat de départ
-Reptile Concept est une entreprise établie à Lachine, mais son opération reposait entièrement sur Facebook : aucun site propre, aucun paiement en ligne, aucun historique client, risque de double-vente d'un même animal, et aucune expérience de vente/livraison structurée.
+Reptiles Concept est une entreprise établie à Lachine, mais son opération reposait entièrement sur Facebook : aucun site propre, aucun paiement en ligne, aucun historique client, risque de double-vente d'un même animal, et aucune expérience de vente/livraison structurée.
 
 ### La solution proposée
-Une plateforme web sur mesure — pas un gabarit générique de type Shopify — parce que l'inventaire de Reptile Concept n'est pas du stock générique : chaque reptile est un individu unique (génétique, lignée, statut de disponibilité), vendu aux côtés d'une boutique d'accessoires classique (terrariums, substrats, décoration, nourriture).
+Une plateforme web sur mesure — pas un gabarit générique de type Shopify — parce que l'inventaire de Reptiles Concept n'est pas du stock générique : chaque reptile est un individu unique (génétique, lignée, statut de disponibilité), vendu aux côtés d'une boutique d'accessoires classique (terrariums, substrats, décoration, nourriture).
 
 ### Aperçu en direct
 Un environnement fonctionnel est déjà consultable aujourd'hui : **reptile-concept.vercel.app**

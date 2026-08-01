@@ -8,7 +8,7 @@ export default function AdminLoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-sm flex-col justify-center gap-6 px-6">
-      <h1 className="text-2xl font-semibold">Reptile Concept — Admin</h1>
+      <h1 className="text-2xl font-semibold">Reptiles Concept — Admin</h1>
       <form action={formAction} className="flex flex-col gap-4">
         <label className="flex flex-col gap-1 text-sm">
           Email

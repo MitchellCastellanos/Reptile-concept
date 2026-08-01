@@ -161,7 +161,7 @@ async function exportTriageXlsx(prisma: PrismaClient) {
   ]);
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = "Reptile Concept";
+  wb.creator = "Reptiles Concept";
 
   const lists = wb.addWorksheet("Lists", { state: "veryHidden" });
   CLOVER_DROPDOWN.forEach((v, i) => {

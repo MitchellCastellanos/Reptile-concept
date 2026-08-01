@@ -9,7 +9,7 @@ type SendEmailInput = {
 
 export async function sendEmail({ to, subject, html }: SendEmailInput) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM ?? "Reptile Concept <onboarding@resend.dev>";
+  const from = process.env.EMAIL_FROM ?? "Reptiles Concept <onboarding@resend.dev>";
 
   if (!apiKey) {
     console.log(`[email:dev] to=${to} subject="${subject}"\n${html}`);

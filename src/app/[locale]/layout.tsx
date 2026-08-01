@@ -25,14 +25,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://reptiles-concept.ca"),
-  title: "Reptile Concept",
+  title: "Reptiles Concept",
   description: "Reptiles, terrariums et accessoires — Lachine, QC",
   icons: {
     icon: "/icon.png",
     apple: "/icon.png",
   },
   openGraph: {
-    title: "Reptile Concept",
+    title: "Reptiles Concept",
     description: "Reptiles, terrariums et accessoires — Lachine, QC",
     images: ["/og-image.jpg"],
   },

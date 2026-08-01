@@ -132,7 +132,7 @@ export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
     <>
       <header className="no-print flex items-center justify-between border-b border-black/10 px-4 py-3 md:hidden">
         <Link href="/admin" className="font-semibold text-primary" onClick={() => setOpen(false)}>
-          Reptile Concept — Admin
+          Reptiles Concept — Admin
         </Link>
         <button
           type="button"
@@ -162,7 +162,7 @@ export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
 
       <aside className="no-print sticky top-0 hidden h-screen w-60 shrink-0 flex-col overflow-y-auto border-r border-black/10 px-4 py-6 md:flex">
         <Link href="/admin" className="mb-6 px-3 text-lg font-semibold text-primary">
-          Reptile Concept
+          Reptiles Concept
         </Link>
         <div className="flex-1">
           <NavLinks pathname={pathname} />

@@ -1,6 +1,6 @@
 {
   "Home": {
-    "title": "Reptile Concept",
+    "title": "Reptiles Concept",
     "tagline": "Reptiles, terrariums et accessoires — élevage responsable à Lachine, QC",
     "availableAnimals": "Animaux disponibles",
     "viewAllAnimals": "Voir tous les animaux",
@@ -116,7 +116,7 @@
     "city": "Ville",
     "province": "Province",
     "postalCode": "Code postal",
-    "healthGuarantee": "J'accepte la politique de garantie de santé et les conditions de vente de Reptile Concept.",
+    "healthGuarantee": "J'accepte la politique de garantie de santé et les conditions de vente de Reptiles Concept.",
     "placeOrder": "Payer maintenant",
     "confirmationTitle": "Merci pour votre achat!",
     "confirmationBody": "Votre paiement a été reçu pour la commande",
@@ -130,7 +130,7 @@
   },
   "Reviews": {
     "title": "Avis de nos clients",
-    "subtitle": "Ce que nos clients pensent de leur expérience chez Reptile Concept.",
+    "subtitle": "Ce que nos clients pensent de leur expérience chez Reptiles Concept.",
     "empty": "Aucun avis publié pour le moment.",
     "formTitle": "Laisser un avis",
     "formInvalid": "Ce lien d'avis n'est pas valide ou a expiré.",
@@ -171,7 +171,7 @@
     "cookieBannerLearnMore": "En savoir plus",
     "cookiePolicyLink": "Politique de témoins",
     "cookiePolicyTitle": "Politique de témoins (cookies)",
-    "cookiePolicyIntro": "Cette page explique quels témoins et technologies similaires (comme le stockage local) Reptile Concept utilise, et pourquoi.",
+    "cookiePolicyIntro": "Cette page explique quels témoins et technologies similaires (comme le stockage local) Reptiles Concept utilise, et pourquoi.",
     "cookiePolicyWhatTitle": "Que sont les témoins?",
     "cookiePolicyWhatBody": "Les témoins sont de petits fichiers texte enregistrés sur votre appareil lorsque vous visitez un site web. Ils permettent au site de se souvenir d'informations sur votre visite, comme vos préférences ou le contenu de votre panier.",
     "cookiePolicyWhyTitle": "Comment nous les utilisons",

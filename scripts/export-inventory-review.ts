@@ -230,7 +230,7 @@ async function main() {
     batches: batchRows.length,
   };
 
-  const readme = `# Inventario Reptile Concept — Export de revisión
+  const readme = `# Inventario Reptiles Concept — Export de revisión
 
 Generado: ${new Date().toISOString()}
 

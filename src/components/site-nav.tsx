@@ -20,7 +20,7 @@ export function SiteNav() {
           <Link href="/" className="flex min-w-0 shrink items-center gap-2">
             <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
             <span className="truncate whitespace-nowrap text-base font-semibold text-primary sm:text-lg">
-              Reptile Concept
+              Reptiles Concept
             </span>
           </Link>
         </div>

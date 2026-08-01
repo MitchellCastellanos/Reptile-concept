@@ -44,7 +44,7 @@ export default async function PosReceiptPage({ params }: { params: Promise<{ id:
 
       <div className="mx-auto w-full max-w-md rounded-lg border border-black/10 p-6 text-sm dark:border-white/10">
         <div className="text-center">
-          <p className="text-lg font-semibold">Reptile Concept</p>
+          <p className="text-lg font-semibold">Reptiles Concept</p>
           <p className="text-zinc-600 dark:text-zinc-400">{settings.addressFr}</p>
           <p className="text-zinc-600 dark:text-zinc-400">
             {settings.contactPhone} · {settings.contactEmail}

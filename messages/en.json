@@ -1,6 +1,6 @@
 {
   "Home": {
-    "title": "Reptile Concept",
+    "title": "Reptiles Concept",
     "tagline": "Reptiles, terrariums and supplies — responsible breeding in Lachine, QC",
     "availableAnimals": "Available animals",
     "viewAllAnimals": "View all animals",
@@ -116,7 +116,7 @@
     "city": "City",
     "province": "Province",
     "postalCode": "Postal code",
-    "healthGuarantee": "I accept Reptile Concept's health guarantee policy and terms of sale.",
+    "healthGuarantee": "I accept Reptiles Concept's health guarantee policy and terms of sale.",
     "placeOrder": "Pay now",
     "confirmationTitle": "Thank you for your purchase!",
     "confirmationBody": "Your payment has been received for order",
@@ -130,7 +130,7 @@
   },
   "Reviews": {
     "title": "Customer reviews",
-    "subtitle": "What our customers think about their experience at Reptile Concept.",
+    "subtitle": "What our customers think about their experience at Reptiles Concept.",
     "empty": "No reviews published yet.",
     "formTitle": "Leave a review",
     "formInvalid": "This review link is invalid or has expired.",
@@ -171,7 +171,7 @@
     "cookieBannerLearnMore": "Learn more",
     "cookiePolicyLink": "Cookie policy",
     "cookiePolicyTitle": "Cookie policy",
-    "cookiePolicyIntro": "This page explains what cookies and similar technologies (such as local storage) we use on Reptile Concept and why.",
+    "cookiePolicyIntro": "This page explains what cookies and similar technologies (such as local storage) we use on Reptiles Concept and why.",
     "cookiePolicyWhatTitle": "What are cookies?",
     "cookiePolicyWhatBody": "Cookies are small text files stored on your device when you visit a website. They let a site remember information about your visit, like your preferences or the contents of your cart.",
     "cookiePolicyWhyTitle": "How we use them",

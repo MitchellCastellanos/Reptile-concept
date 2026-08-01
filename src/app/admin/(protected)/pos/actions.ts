@@ -81,7 +81,7 @@ export async function recordPosSaleAction(
   if (paymentMethod === "card") {
     const result = await chargeCloverTerminal({
       amountCAD,
-      description: `Vente en magasin — Reptile Concept`,
+      description: `Vente en magasin — Reptiles Concept`,
     });
     if (!result.success) {
       await prisma.posSale.create({

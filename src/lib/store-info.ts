@@ -13,8 +13,8 @@ export type StoreContactInfo = {
 export async function getStoreContactInfo(): Promise<StoreContactInfo> {
   const settings = await getStoreSettings();
   return {
-    fr: { name: "Reptile Concept", address: settings.addressFr, hours: settings.hoursFr, phone: settings.contactPhone },
-    en: { name: "Reptile Concept", address: settings.addressEn, hours: settings.hoursEn, phone: settings.contactPhone },
+    fr: { name: "Reptiles Concept", address: settings.addressFr, hours: settings.hoursFr, phone: settings.contactPhone },
+    en: { name: "Reptiles Concept", address: settings.addressEn, hours: settings.hoursEn, phone: settings.contactPhone },
     contactEmail: settings.contactEmail,
   };
 }

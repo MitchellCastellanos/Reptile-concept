@@ -48,7 +48,7 @@ export function ComingSoonPage() {
           {imageOk ? (
             <Image
               src={IMAGE_SRC}
-              alt="Reptile Concept — coming soon"
+              alt="Reptiles Concept — coming soon"
               fill
               className="object-cover"
               priority
@@ -65,7 +65,7 @@ export function ComingSoonPage() {
         {/* Copy — scrolls on mobile, fixed viewport on desktop */}
         <div className="mt-8 flex flex-1 flex-col items-center text-center lg:mt-0 lg:min-h-0 lg:items-start lg:justify-center lg:text-left">
           <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-300/90 sm:text-sm">
-            Reptile Concept · Lachine, QC
+            Reptiles Concept · Lachine, QC
           </p>
 
           <div className="mt-5 grid w-full gap-8 lg:mt-4 lg:grid-cols-2 lg:gap-6 xl:gap-8">

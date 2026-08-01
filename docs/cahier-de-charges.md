@@ -1,4 +1,4 @@
-# Reptile Concept — Document vivant : Cahier des charges
+# Reptiles Concept — Document vivant : Cahier des charges
 
 > **Comment utiliser ce fichier**
 > Même principe que `proposal.md` : ce fichier est à la fois la source de vérité du contenu ET un prompt prêt à coller dans une IA pour générer un PDF. Copie tout le fichier tel quel. Contrairement à `proposal.md`, ce document **ne doit jamais contenir de prix** — c'est une fiche de spécifications neutre que le client peut partager avec n'importe quel fournisseur pour obtenir des soumissions comparables.
@@ -11,7 +11,7 @@
 
 Actúa como redactor/a técnico de especificaciones de proyecto. Genera un PDF (o HTML/diseño listo para exportar a PDF) con el alcance completo del proyecto, usando EXACTAMENTE el contenido de la sección "📄 Contenido du cahier des charges" más abajo. **No incluyas ningún precio, rango de costo, tarifa horaria ni nada relacionado a dinero en ningún lugar del documento** — es una hoja de especificaciones neutral para que el cliente la comparta con otros proveedores y compare cotizaciones.
 
-**Contexto**: "Reptile Concept" (Lachine, Quebec). Documento preparado por "GABAN Solutions" (Montréal, QC — gabansolutions.ca — 514-258-0648) a título de redactor, no de vendedor — el resto del contenido debe leerse neutral, como una hoja de especificaciones técnicas.
+**Contexto**: "Reptiles Concept" (Lachine, Quebec). Documento preparado por "GABAN Solutions" (Montréal, QC — gabansolutions.ca — 514-258-0648) a título de redactor, no de vendedor — el resto del contenido debe leerse neutral, como una hoja de especificaciones técnicas.
 
 **Estilo**: Portada y cierre discretos en negro/carbón con acentos dorados (#cba135) solo para el branding de quién preparó el documento; el resto del contenido en blanco/crema, formato de lista/checklist fácil de escanear, agrupado por secciones con encabezados claros. Idioma: francés. Extensión según el contenido de abajo (puede ser largo, es un documento de referencia, no una pieza de venta).
 
@@ -24,7 +24,7 @@ Genera el documento completo ahora, usando el contenido exacto de la sección de
 ## 📄 Contenido du cahier des charges (esta sección se actualiza con el proyecto)
 
 ### Portada
-**Reptile Concept — Cahier des charges du projet**
+**Reptiles Concept — Cahier des charges du projet**
 Spécifications complètes pour demande de soumissions.
 
 ### Introduction

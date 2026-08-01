@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Reptile Concept — Coming soon",
+  title: "Reptiles Concept — Coming soon",
   robots: { index: false, follow: false },
 };
 

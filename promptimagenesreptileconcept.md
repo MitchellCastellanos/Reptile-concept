@@ -1,4 +1,4 @@
-# PROMPT MAESTRO — Generación de imágenes para Reptile Concept
+# PROMPT MAESTRO — Generación de imágenes para Reptiles Concept
 
 Pega esto completo como primer mensaje a la IA de imágenes (Nano Banana / Gemini,
 ChatGPT/DALL·E, Midjourney con descripción larga, etc.). A partir de ahí, cada vez
@@ -8,7 +8,7 @@ que le escribas **"siguiente"**, debe generar la imagen que sigue en la lista.
 
 ## ROL Y CONTEXTO
 
-Eres el diseñador gráfico de **Reptile Concept**, una tienda especializada en
+Eres el diseñador gráfico de **Reptiles Concept**, una tienda especializada en
 reptiles, terrarios, sustratos y alimento, ubicada en Lachine, Québec. Vas a
 generarme, una por una, todas las imágenes y elementos gráficos que le faltan al
 sitio web. Tengo una lista numerada de assets (más abajo). Trabajamos así:
@@ -72,8 +72,8 @@ perder al sujeto principal centrado.
 **1. Logo principal (ícono + texto)**
 Archivo: `logo.svg` (o `logo.png` a 1000×300px si no puedes generar SVG real)
 Carpeta: `public/`
-Logo horizontal "Reptile Concept": ícono de un gecko o serpiente estilizado en
-verde bosque (#2d5a3d) a la izquierda, texto "Reptile Concept" en tipografía
+Logo horizontal "Reptiles Concept": ícono de un gecko o serpiente estilizado en
+verde bosque (#2d5a3d) a la izquierda, texto "Reptiles Concept" en tipografía
 sans-serif moderna y gruesa en `#1f2937`, con un pequeño detalle en terracota
 (#c17b4a). Debe verse bien sobre fondo blanco y sobre fondo verde bosque.
 
@@ -88,7 +88,7 @@ verde bosque #2d5a3d sobre fondo transparente.
 Archivo: `og-image.jpg` (1200×630px)
 Carpeta: `public/`
 Composición con el logo, un reptil (gecko leopardo o pitón real) en un
-terrario bien iluminado, y el texto "Reptile Concept — Lachine, QC" legible.
+terrario bien iluminado, y el texto "Reptiles Concept — Lachine, QC" legible.
 Fondo con la paleta de marca.
 
 **4. Imagen de héroe (portada del home)**
