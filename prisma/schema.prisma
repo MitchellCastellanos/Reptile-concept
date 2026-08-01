@@ -501,6 +501,10 @@ model StoreSettings {
   addressEn                  String   @default("Lachine, QC — by appointment")
   hoursFr                    String   @default("Lun–Sam 10h–18h")
   hoursEn                    String   @default("Mon–Sat 10am–6pm")
+  // Structured per-day schedule (open/closed + start/end time per weekday)
+  // edited in the admin via dropdowns; hoursFr/hoursEn above are generated
+  // from it on save and kept as the plain-text summary consumers display.
+  weeklyHours                Json?
   updatedAt                  DateTime @updatedAt
 }
 

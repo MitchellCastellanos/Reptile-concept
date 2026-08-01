@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import type { WeeklyHours } from "@/lib/business-hours";
 
 export async function getStoreSettings() {
   return prisma.storeSettings.upsert({
@@ -22,6 +23,7 @@ export async function updateStoreSettings(data: {
   addressEn?: string;
   hoursFr?: string;
   hoursEn?: string;
+  weeklyHours?: WeeklyHours;
 }) {
   return prisma.storeSettings.upsert({
     where: { id: "singleton" },
