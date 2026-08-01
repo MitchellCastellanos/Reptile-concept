@@ -127,11 +127,26 @@ enum CloverCategoryRuleAction {
   ignore
 }
 
+// Animal browse taxonomy for the public site (nav bubbles, filters). Values
+// match the `NavCategories` i18n keys 1:1 so no extra mapping is needed.
+// Two-level in spirit (reptiles_*/amphibians_*) but stored flat, same as
+// ProductCategory.
+enum AnimalCategory {
+  reptiles_snakes
+  reptiles_lizards
+  reptiles_turtles
+  reptiles_other
+  amphibians_frogs
+  amphibians_salamanders
+  amphibians_other
+}
+
 model Species {
   id               String           @id @default(uuid())
   commonNameFr     String
   commonNameEn     String
   scientificName   String
+  category         AnimalCategory   @default(reptiles_other)
   careSheetUrl     String?
   experienceLevel  ExperienceLevel?
   descriptionFr    String?

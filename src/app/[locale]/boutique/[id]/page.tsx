@@ -1,9 +1,9 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Link } from "@/i18n/navigation";
 import { getProductById } from "@/lib/queries";
 import { getProductImageUrl } from "@/lib/images";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
@@ -22,6 +22,7 @@ export default async function ProductDetailPage({
 
   const locale = await getLocale();
   const t = await getTranslations("Boutique");
+  const tCategories = await getTranslations("NavCategories");
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const description = locale === "en" ? product.descriptionEn : product.descriptionFr;
   const imageUrl = product.imageUrl || getProductImageUrl(product.category);
@@ -37,9 +38,13 @@ export default async function ProductDetailPage({
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
-      <Link href="/boutique" className="w-fit text-sm font-medium text-primary hover:underline">
-        &larr; {t("backToList")}
-      </Link>
+      <Breadcrumb
+        items={[
+          { label: t("title"), href: "/boutique" },
+          { label: tCategories(product.category), href: `/boutique?category=${product.category}` },
+          { label: name },
+        ]}
+      />
 
       <div className="grid gap-8 md:grid-cols-2">
         <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-accent-light shadow-sm">

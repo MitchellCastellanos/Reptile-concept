@@ -5,6 +5,7 @@ import type { Species } from "@/generated/prisma/client";
 import { SpeciesChatGptHelper } from "@/components/admin/SpeciesChatGptHelper";
 import { EXPERIENCE_LEVELS, isCareSheetIncomplete } from "@/lib/species-utils";
 import type { SpeciesFormFields } from "@/lib/species-utils";
+import { ANIMAL_CATEGORIES } from "@/lib/animal-categories";
 
 type FormState = SpeciesFormFields & {
   scientificName: string;
@@ -15,6 +16,7 @@ function toFormState(species?: Species): FormState {
   return {
     commonNameFr: species?.commonNameFr ?? "",
     commonNameEn: species?.commonNameEn ?? "",
+    category: species?.category ?? "reptiles_other",
     scientificName: species?.scientificName ?? "",
     careSheetUrl: species?.careSheetUrl ?? "",
     experienceLevel: species?.experienceLevel ?? undefined,
@@ -151,6 +153,23 @@ export function SpeciesForm({
           required
         />
       </div>
+
+      <label className="flex flex-col gap-1 text-sm">
+        Catégorie (navigation du site)
+        <select
+          name="category"
+          value={form.category ?? "reptiles_other"}
+          onChange={(e) => setField("category", e.target.value)}
+          className={inputClass}
+          required
+        >
+          {ANIMAL_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="flex flex-col gap-1 text-sm">
         Niveau d&apos;expérience

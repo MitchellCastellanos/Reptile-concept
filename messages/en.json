@@ -39,6 +39,19 @@
     "account": "Account",
     "menu": "Menu"
   },
+  "Listing": {
+    "allProducts": "All products",
+    "allAnimals": "All animals",
+    "resultCount": "{count, plural, =0 {No results} one {# result} other {# results}}",
+    "sortLabel": "Sort by",
+    "sort_newest": "Newest",
+    "sort_price_asc": "Price: low to high",
+    "sort_price_desc": "Price: high to low",
+    "stockLabel": "Availability",
+    "stock_all": "All availability",
+    "stock_in_stock": "In stock",
+    "stock_out_of_stock": "Out of stock"
+  },
   "NavCategories": {
     "reptiles": "Reptiles",
     "reptiles_snakes": "Snakes",

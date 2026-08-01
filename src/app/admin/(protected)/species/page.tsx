@@ -26,6 +26,7 @@ export default async function AdminSpeciesPage() {
           <tr className="border-b border-black/10 text-left dark:border-white/10">
             <th className="py-2">Nom scientifique</th>
             <th className="py-2">Nom commun</th>
+            <th className="py-2">Catégorie</th>
             <th className="py-2">Fiche de soins</th>
             <th className="py-2" />
           </tr>
@@ -37,6 +38,7 @@ export default async function AdminSpeciesPage() {
               <td className="py-2">
                 {s.commonNameFr} / {s.commonNameEn}
               </td>
+              <td className="py-2 text-xs text-black/60 dark:text-white/60">{s.category}</td>
               <td className="py-2">
                 {isCareSheetIncomplete(s) ? (
                   <span className="text-amber-600 dark:text-amber-400">Incomplète</span>
