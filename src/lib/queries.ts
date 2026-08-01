@@ -1,13 +1,26 @@
 import { prisma } from "@/lib/db";
 import { isProductCategory } from "@/lib/product-categories";
+import { isAnimalCategory } from "@/lib/animal-categories";
+import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
 
 export { PRODUCT_CATEGORIES, isProductCategory, type ProductCategoryValue } from "@/lib/product-categories";
+export { ANIMAL_CATEGORIES, isAnimalCategory, type AnimalCategoryValue } from "@/lib/animal-categories";
 
-export function getAvailableAnimals() {
+function orderByForSort(sort: string | undefined) {
+  const value: ListingSort = isListingSort(sort) ? sort : "newest";
+  if (value === "price_asc") return { priceCAD: "asc" as const };
+  if (value === "price_desc") return { priceCAD: "desc" as const };
+  return { createdAt: "desc" as const };
+}
+
+export function getAvailableAnimals(category?: string, sort?: string) {
   return prisma.animal.findMany({
-    where: { status: "available" },
+    where: {
+      status: "available",
+      ...(isAnimalCategory(category) ? { species: { category } } : {}),
+    },
     include: { species: true, media: { orderBy: { sortOrder: "asc" } } },
-    orderBy: { createdAt: "desc" },
+    orderBy: orderByForSort(sort),
   });
 }
 
@@ -18,13 +31,19 @@ export function getAnimalById(id: string) {
   });
 }
 
-export function getProducts(category?: string, opts?: { publishedOnly?: boolean }) {
+export function getProducts(
+  category?: string,
+  opts?: { publishedOnly?: boolean; sort?: string; stock?: string },
+) {
+  const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "all";
   return prisma.product.findMany({
     where: {
       ...(opts?.publishedOnly ? { published: true } : {}),
       ...(isProductCategory(category) ? { category } : {}),
+      ...(stock === "in_stock" ? { stockQty: { gt: 0 } } : {}),
+      ...(stock === "out_of_stock" ? { stockQty: { lte: 0 } } : {}),
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: orderByForSort(opts?.sort),
   });
 }
 

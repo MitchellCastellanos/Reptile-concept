@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
+import { isAnimalCategory } from "@/lib/animal-categories";
 
 function optional(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -12,10 +13,12 @@ function optional(formData: FormData, key: string) {
 }
 
 function readSpeciesForm(formData: FormData) {
+  const category = String(formData.get("category"));
   return {
     commonNameFr: String(formData.get("commonNameFr")),
     commonNameEn: String(formData.get("commonNameEn")),
     scientificName: String(formData.get("scientificName")),
+    category: isAnimalCategory(category) ? category : "reptiles_other",
     careSheetUrl: optional(formData, "careSheetUrl"),
     experienceLevel: optional(formData, "experienceLevel") as
       | "beginner"

@@ -1,4 +1,5 @@
 import type { Species } from "@/generated/prisma/client";
+import type { AnimalCategoryValue } from "@/lib/animal-categories";
 
 export const EXPERIENCE_LEVELS = ["beginner", "intermediate", "advanced"] as const;
 export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
@@ -6,6 +7,7 @@ export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 export interface SpeciesFormFields {
   commonNameFr?: string;
   commonNameEn?: string;
+  category?: AnimalCategoryValue;
   experienceLevel?: ExperienceLevel;
   descriptionFr?: string;
   descriptionEn?: string;

@@ -1,8 +1,7 @@
-// Static navigation taxonomy for the site menu. Animal subcategory links are
-// placeholders (no `category` query filtering yet) until Species/Animal gets
-// a real taxonomy field — see the "sin categorias / expand nav" discussion.
-// Boutique subcategory links map 1:1 to the ProductCategory enum and filter
-// for real via `getProducts(category)`.
+// Static navigation taxonomy for the site menu. Animal subcategory links map
+// 1:1 to the AnimalCategory enum (via Species.category) and filter for real
+// via `getAvailableAnimals(category)`. Boutique subcategory links map 1:1 to
+// the ProductCategory enum and filter for real via `getProducts(category)`.
 
 export type NavLeaf = { key: string; href: string };
 export type NavSection = { key: string; items: NavLeaf[] };
@@ -25,18 +24,18 @@ export const NAV_ITEMS: NavTopItem[] = [
       {
         key: "reptiles",
         items: [
-          { key: "reptiles_snakes", href: "/animals" },
-          { key: "reptiles_lizards", href: "/animals" },
-          { key: "reptiles_turtles", href: "/animals" },
-          { key: "reptiles_other", href: "/animals" },
+          { key: "reptiles_snakes", href: "/animals?category=reptiles_snakes" },
+          { key: "reptiles_lizards", href: "/animals?category=reptiles_lizards" },
+          { key: "reptiles_turtles", href: "/animals?category=reptiles_turtles" },
+          { key: "reptiles_other", href: "/animals?category=reptiles_other" },
         ],
       },
       {
         key: "amphibians",
         items: [
-          { key: "amphibians_frogs", href: "/animals" },
-          { key: "amphibians_salamanders", href: "/animals" },
-          { key: "amphibians_other", href: "/animals" },
+          { key: "amphibians_frogs", href: "/animals?category=amphibians_frogs" },
+          { key: "amphibians_salamanders", href: "/animals?category=amphibians_salamanders" },
+          { key: "amphibians_other", href: "/animals?category=amphibians_other" },
         ],
       },
     ],

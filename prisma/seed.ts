@@ -38,6 +38,7 @@ async function main() {
         commonNameFr: "Python royal",
         commonNameEn: "Ball python",
         scientificName: "Python regius",
+        category: "reptiles_snakes",
       },
     }),
     prisma.species.upsert({
@@ -48,6 +49,7 @@ async function main() {
         commonNameFr: "Caméléon de Jackson",
         commonNameEn: "Jackson's chameleon",
         scientificName: "Trioceros jacksonii xantholophus",
+        category: "reptiles_lizards",
       },
     }),
     prisma.species.upsert({
@@ -58,6 +60,7 @@ async function main() {
         commonNameFr: "Dragon barbu",
         commonNameEn: "Bearded dragon",
         scientificName: "Pogona vitticeps",
+        category: "reptiles_lizards",
       },
     }),
     prisma.species.upsert({
@@ -68,6 +71,7 @@ async function main() {
         commonNameFr: "Gecko léopard",
         commonNameEn: "Leopard gecko",
         scientificName: "Eublepharis macularius",
+        category: "reptiles_lizards",
       },
     }),
     prisma.species.upsert({
@@ -78,6 +82,7 @@ async function main() {
         commonNameFr: "Serpent des blés",
         commonNameEn: "Corn snake",
         scientificName: "Pantherophis guttatus",
+        category: "reptiles_snakes",
       },
     }),
     prisma.species.upsert({
@@ -88,6 +93,7 @@ async function main() {
         commonNameFr: "Gecko à crête",
         commonNameEn: "Crested gecko",
         scientificName: "Correlophus ciliatus",
+        category: "reptiles_lizards",
       },
     }),
   ]);
