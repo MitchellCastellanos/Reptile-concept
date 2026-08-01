@@ -15,6 +15,9 @@
     "apply:inventory-phase1": "tsx --tsconfig tsconfig.json scripts/apply-inventory-phase1.ts",
     "inventory:publish-and-triage": "tsx --tsconfig tsconfig.json scripts/inventory-publish-and-triage.ts",
     "export:uncategorized": "tsx --tsconfig tsconfig.json scripts/export-uncategorized-only.ts",
+    "export:chatgpt-v2": "tsx --tsconfig tsconfig.json scripts/build-chatgpt-v2.ts",
+    "inventory:finalize": "python scripts/finalize-inventory-triage.py",
+    "inventory:apply-triage": "tsx --tsconfig tsconfig.json scripts/apply-inventory-triage.ts",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
   },
