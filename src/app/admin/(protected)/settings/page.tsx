@@ -2,14 +2,17 @@ import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
 import { getCurrentAdmin } from "@/lib/auth";
 import { isCloverConfigured } from "@/lib/clover";
+import { parseWeeklyHours } from "@/lib/business-hours";
 import { updateSettingsAction } from "./actions";
 import { CloverSyncNowButton } from "./clover-sync-button";
 import { AccountForm } from "./account-form";
+import { BusinessHoursFields } from "./business-hours-fields";
 
 export default async function AdminSettingsPage() {
   const settings = await getStoreSettings();
   const admin = await getCurrentAdmin();
   const cloverSyncState = await prisma.cloverSyncState.findUnique({ where: { id: "singleton" } });
+  const weeklyHours = parseWeeklyHours(settings.weeklyHours);
 
   return (
     <div className="flex flex-col gap-6">
@@ -150,24 +153,16 @@ export default async function AdminSettingsPage() {
                 className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm">
-              Horaires (français)
-              <input
-                name="hoursFr"
-                required
-                defaultValue={settings.hoursFr}
-                className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
-              />
-            </label>
-            <label className="flex flex-col gap-1 text-sm">
-              Horaires (anglais)
-              <input
-                name="hoursEn"
-                required
-                defaultValue={settings.hoursEn}
-                className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
-              />
-            </label>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium">Horaires d&apos;ouverture</span>
+            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+              Réglez l&apos;heure d&apos;ouverture et de fermeture pour chaque jour, ou cochez
+              « Fermé ». Le texte affiché aux clients (pied de page, reçus, courriels) est généré
+              automatiquement à partir de cet horaire, en français et en anglais.
+            </p>
+            <BusinessHoursFields defaultWeeklyHours={weeklyHours} />
           </div>
         </fieldset>
 

@@ -9,6 +9,26 @@ import { updateStoreSettings } from "@/lib/settings";
 import { recordAudit } from "@/lib/audit";
 import { isCloverConfigured } from "@/lib/clover";
 import { pollClover } from "@/lib/clover-sync";
+import { DAY_ORDER, DAY_LABELS, isValidTime, formatWeeklyHours, type WeeklyHours } from "@/lib/business-hours";
+
+function parseWeeklyHoursFromForm(formData: FormData): WeeklyHours {
+  const weeklyHours = {} as WeeklyHours;
+  for (const day of DAY_ORDER) {
+    const closed = formData.has(`closed_${day}`);
+    const start = String(formData.get(`start_${day}`) ?? "");
+    const end = String(formData.get(`end_${day}`) ?? "");
+
+    if (!isValidTime(start) || !isValidTime(end)) {
+      throw new Error("Heures d'ouverture invalides.");
+    }
+    if (!closed && start >= end) {
+      throw new Error(`L'heure de fermeture doit être après l'heure d'ouverture (${DAY_LABELS[day].fr}).`);
+    }
+
+    weeklyHours[day] = { closed, start, end };
+  }
+  return weeklyHours;
+}
 
 export async function updateSettingsAction(formData: FormData) {
   const admin = await getCurrentAdmin();
@@ -25,11 +45,12 @@ export async function updateSettingsAction(formData: FormData) {
   const contactPhone = String(formData.get("contactPhone") ?? "").trim();
   const addressFr = String(formData.get("addressFr") ?? "").trim();
   const addressEn = String(formData.get("addressEn") ?? "").trim();
-  const hoursFr = String(formData.get("hoursFr") ?? "").trim();
-  const hoursEn = String(formData.get("hoursEn") ?? "").trim();
+  const weeklyHours = parseWeeklyHoursFromForm(formData);
+  const hoursFr = formatWeeklyHours(weeklyHours, "fr");
+  const hoursEn = formatWeeklyHours(weeklyHours, "en");
 
-  if (!contactEmail || !contactPhone || !addressFr || !addressEn || !hoursFr || !hoursEn) {
-    throw new Error("Les coordonnées (courriel, téléphone, adresse et horaires en français et anglais) sont requises.");
+  if (!contactEmail || !contactPhone || !addressFr || !addressEn) {
+    throw new Error("Les coordonnées (courriel, téléphone et adresse en français et anglais) sont requises.");
   }
 
   if (!Number.isFinite(pickupDeadlineBusinessDays) || pickupDeadlineBusinessDays < 1) {
@@ -59,6 +80,7 @@ export async function updateSettingsAction(formData: FormData) {
     addressEn,
     hoursFr,
     hoursEn,
+    weeklyHours,
   });
   await recordAudit(admin.id, "StoreSettings", "singleton", "update");
 
