@@ -1,0 +1,22 @@
+batchKey,count,recordType,suggestedCloverCategory,suggestedSiteCategory,confidence,recommendedAction
+animal|Serpent||Mantener,400,animal,Serpent,,high,Pipeline animaux — mantener categoría Clover
+review|||Revisar manual,285,review,,,low,Revisar lote manualmente
+"product|Habitat|terrarium|Asignar ""Habitat"" en Clover",117,product,Habitat,terrarium,high,"Bulk create como terrarium + opcional asignar Clover ""Habitat"""
+animal|Lezard||Mantener,105,animal,Lezard,,high,Pipeline animaux — mantener categoría Clover
+animal|Rongeur||Mantener,36,animal,Rongeur,,high,Pipeline animaux — mantener categoría Clover
+animal|Amphibien||Mantener,29,animal,Amphibien,,high,Pipeline animaux — mantener categoría Clover
+"product|Decoration|decor|Asignar ""Decoration"" en Clover",26,product,Decoration,decor,medium,"Bulk create como decor + opcional asignar Clover ""Decoration"""
+"product|Lumiere|lighting|Asignar ""Lumiere"" en Clover",26,product,Lumiere,lighting,high,"Bulk create como lighting + opcional asignar Clover ""Lumiere"""
+animal|Isopod et Araignee et Fourmis||Mantener,24,animal,Isopod et Araignee et Fourmis,,high,Pipeline animaux — mantener categoría Clover
+"product|Nourriture|food_packaged|Asignar ""Nourriture"" en Clover",22,product,Nourriture,food_packaged,high,"Bulk create como food_packaged + opcional asignar Clover ""Nourriture"""
+"animal|Lezard||Asignar ""Lezard"" en Clover",22,animal,Lezard,,medium,Pipeline animaux — mantener categoría Clover
+"animal|Serpent||Asignar ""Serpent"" en Clover",19,animal,Serpent,,medium,Pipeline animaux — mantener categoría Clover
+"product|Insecte Vivant|food_live|Asignar ""Insecte Vivant"" en Clover",17,product,Insecte Vivant,food_live,high,"Bulk create como food_live + opcional asignar Clover ""Insecte Vivant"""
+"animal|Isopod et Araignee et Fourmis||Asignar ""Isopod et Araignee et Fourmis"" en Clover",15,animal,Isopod et Araignee et Fourmis,,medium,Pipeline animaux — mantener categoría Clover
+"product|Substrat|substrate|Asignar ""Substrat"" en Clover",11,product,Substrat,substrate,high,"Bulk create como substrate + opcional asignar Clover ""Substrat"""
+"product|Piece Remplacement/ Electronique|equipment|Asignar ""Piece Remplacement/ Electronique"" en Clover",10,product,Piece Remplacement/ Electronique,equipment,medium,"Bulk create como equipment + opcional asignar Clover ""Piece Remplacement/ Electronique"""
+"animal|Rongeur||Asignar ""Rongeur"" en Clover",7,animal,Rongeur,,medium,Pipeline animaux — mantener categoría Clover
+"animal|Amphibien||Asignar ""Amphibien"" en Clover",5,animal,Amphibien,,medium,Pipeline animaux — mantener categoría Clover
+"product|Nourriture|food_frozen|Asignar ""Nourriture"" en Clover",3,product,Nourriture,food_frozen,medium,"Bulk create como food_frozen + opcional asignar Clover ""Nourriture"""
+"product|Supplement|supplement|Asignar ""Supplement"" en Clover",2,product,Supplement,supplement,medium,"Bulk create como supplement + opcional asignar Clover ""Supplement"""
+ignore|||Revisar manual,1,ignore,,,high,Bulk ignore

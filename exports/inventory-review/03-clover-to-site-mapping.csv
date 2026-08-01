@@ -1,0 +1,17 @@
+cloverCategory,siteCategory,recommendedAction,changeClover,approxPendingOrCreated
+Habitat,terrarium,auto_product,No cambiar,24
+Substrat,substrate,auto_product,No cambiar,51
+Decoration,decor,auto_product,No cambiar,114
+Roche Et Bois/Cork,decor,auto_product (regla pendiente),No cambiar,8
+Plante Vivant,decor,auto_product (regla pendiente),No cambiar,7
+Lumiere,lighting,auto_product,No cambiar,83
+Piece Remplacement/ Electronique,equipment,auto_product,No cambiar,111
+Insecte Vivant,food_live,auto_product,No cambiar,46
+Nourriture,food_packaged,auto_product,No cambiar — revisar si hay congelados,138
+Supplement,supplement,auto_product,No cambiar,14
+Serpent,(animales → /animals),crear Animal individual,No cambiar,400
+Lezard,(animales → /animals),crear Animal individual,No cambiar,105
+Rongeur,(animales → /animals),animal o food_live según item,Opcional: separar feeders (ASF) a Insecte Vivant,36
+Amphibien,(animales → /animals),crear Animal individual,No cambiar,29
+Isopod et Araignee et Fourmis,(animales → /animals),crear Animal individual,No cambiar,24
+(Sans catégorie),varía,ver CSV pendientes,Asignar categoría Clover existente (no crear nuevas),588
