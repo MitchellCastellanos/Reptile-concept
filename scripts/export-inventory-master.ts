@@ -144,7 +144,7 @@ async function main() {
         a.cloverItemId ? "site_animal_clover" : "site_animal_demo",
         a.cloverItemId ?? "",
         a.id,
-        a.species?.nameFr ?? a.id,
+        a.species?.commonNameFr ?? a.id,
         "",
         "animal",
         a.status,
