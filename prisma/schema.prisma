@@ -211,6 +211,7 @@ model Product {
   imageUrl          String?
   priceCAD          Decimal
   stockQty          Int             @default(0)
+  published         Boolean         @default(false)
   requiresColdChain Boolean         @default(false)
   weightKg          Float?
   bundleItems       BundleItem[]

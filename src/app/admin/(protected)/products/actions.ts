@@ -16,6 +16,7 @@ function readProductForm(formData: FormData) {
     imageUrl: String(formData.get("imageUrl") ?? "").trim() || null,
     priceCAD: Number(formData.get("priceCAD")),
     stockQty: Number(formData.get("stockQty")),
+    published: formData.get("published") === "on",
     requiresColdChain: formData.get("requiresColdChain") === "on",
     cloverItemId: String(formData.get("cloverItemId") ?? "").trim() || null,
   };

@@ -108,6 +108,15 @@ export function ProductForm({
         Nécessite une chaîne du froid (aliment vivant/congelé)
       </label>
 
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          name="published"
+          defaultChecked={product?.published ?? false}
+        />
+        Visible sur la boutique en ligne
+      </label>
+
       <label className="flex flex-col gap-1 text-sm">
         Clover Item ID (optionnel)
         <input

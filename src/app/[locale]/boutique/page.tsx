@@ -13,7 +13,7 @@ export default async function BoutiquePage({
   const t = await getTranslations("Boutique");
   const tCategories = await getTranslations("NavCategories");
   const locale = await getLocale();
-  const products = await getProducts(category);
+  const products = await getProducts(category, { publishedOnly: true });
   const customer = await getCurrentCustomer();
   const { productIds } = await getWishlistedIds(customer?.id);
 

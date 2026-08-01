@@ -17,7 +17,7 @@ export default async function ProductDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await getProductById(id);
+  const product = await getProductById(id, { publishedOnly: true });
   if (!product) notFound();
 
   const locale = await getLocale();

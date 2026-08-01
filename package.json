@@ -9,6 +9,9 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "db:seed": "tsx --tsconfig tsconfig.json prisma/seed.ts",
+    "export:inventory": "tsx --tsconfig tsconfig.json scripts/export-inventory-review.ts",
+    "export:inventory-master": "tsx --tsconfig tsconfig.json scripts/export-inventory-master.ts",
+    "apply:inventory-phase1": "tsx --tsconfig tsconfig.json scripts/apply-inventory-phase1.ts",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
   },

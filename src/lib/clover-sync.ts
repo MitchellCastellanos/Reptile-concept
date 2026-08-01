@@ -248,7 +248,7 @@ export async function removeCloverImportCandidate(cloverItemId: string): Promise
 // path — always uses the Clover item id as SKU (guaranteed unique) rather
 // than inventing one, and files the same French/English name from Clover
 // until staff refine them from the normal product edit form.
-async function createProductFromCloverData(params: {
+export async function createProductFromCloverData(params: {
   cloverItemId: string;
   name: string;
   priceCAD: number;
@@ -265,6 +265,7 @@ async function createProductFromCloverData(params: {
         priceCAD: params.priceCAD,
         stockQty: params.stockCount ?? 0,
         cloverItemId: params.cloverItemId,
+        published: false,
       },
     });
     return true;
@@ -276,9 +277,6 @@ async function createProductFromCloverData(params: {
 
 export type BulkIgnoreResult = { ignored: number };
 
-// Dismisses every pending candidate under one Clover category in one shot —
-// for a catalog with hundreds/thousands of queued items, reviewing each one
-// individually isn't realistic; staff triage by Clover category instead.
 export async function bulkIgnoreCandidatesByCategory(cloverCategoryName: string | null): Promise<BulkIgnoreResult> {
   const result = await prisma.cloverImportCandidate.updateMany({
     where: { status: "pending", cloverCategoryName },
@@ -289,12 +287,6 @@ export async function bulkIgnoreCandidatesByCategory(cloverCategoryName: string 
 
 export type BulkCreateResult = { created: number; skipped: number };
 
-// Turns every pending candidate under one Clover category into a real
-// Product in one shot, all filed under the same site ProductCategory.
-// Meant for generic accessories (a Clover "Substrates" category becoming a
-// batch of site products), not animals — those still need individual
-// species/genetics/description entry and go through the normal "Créer un
-// animal" link instead.
 export async function bulkCreateProductsFromCategory(
   cloverCategoryName: string | null,
   productCategory: ProductCategoryValue,

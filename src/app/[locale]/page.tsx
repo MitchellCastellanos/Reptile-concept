@@ -24,7 +24,7 @@ export default async function Home() {
   const t = await getTranslations("Home");
   const locale = await getLocale();
   const animals = await getAvailableAnimals();
-  const products = await getProducts();
+  const products = await getProducts(undefined, { publishedOnly: true });
   const featured = animals.slice(0, 6);
   const popular = products.slice(0, 4);
   const customer = await getCurrentCustomer();

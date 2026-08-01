@@ -60,7 +60,7 @@ export async function placeOrderAction(formData: FormData) {
       }
     } else {
       const product = products.find((p) => p.id === line.id);
-      if (!product || product.stockQty < line.quantity) {
+      if (!product || !product.published || product.stockQty < line.quantity) {
         throw new Error(`Stock insuffisant / Insufficient stock: ${line.id}`);
       }
     }

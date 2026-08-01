@@ -18,15 +18,23 @@ export function getAnimalById(id: string) {
   });
 }
 
-export function getProducts(category?: string) {
+export function getProducts(category?: string, opts?: { publishedOnly?: boolean }) {
   return prisma.product.findMany({
-    where: isProductCategory(category) ? { category } : undefined,
+    where: {
+      ...(opts?.publishedOnly ? { published: true } : {}),
+      ...(isProductCategory(category) ? { category } : {}),
+    },
     orderBy: { createdAt: "desc" },
   });
 }
 
-export function getProductById(id: string) {
-  return prisma.product.findUnique({ where: { id } });
+export function getProductById(id: string, opts?: { publishedOnly?: boolean }) {
+  return prisma.product.findFirst({
+    where: {
+      id,
+      ...(opts?.publishedOnly ? { published: true } : {}),
+    },
+  });
 }
 
 export async function getWishlistedIds(customerId: string | undefined) {

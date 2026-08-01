@@ -24,7 +24,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://reptile-concept.vercel.app"),
+  metadataBase: new URL("https://reptiles-concept.ca"),
   title: "Reptile Concept",
   description: "Reptiles, terrariums et accessoires — Lachine, QC",
   icons: {

@@ -87,6 +87,38 @@ export type CloverItem = {
   stockCount?: number;
 };
 
+export type CloverItemStock = {
+  item?: { id: string };
+  quantity?: number;
+};
+
+// Clover keeps per-item inventory on a separate endpoint from the item
+// record itself — listing items with expand=categories alone never populates
+// stockCount, which is why every imported product landed at stockQty=0.
+export async function fetchCloverItemStock(itemId: string): Promise<number | null> {
+  try {
+    const data = await cloverApiFetch<CloverItemStock>(`/item_stocks/${itemId}`);
+    return data.quantity ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function enrichCloverItemWithStock(item: CloverItem): Promise<CloverItem> {
+  if (item.stockCount != null) return item;
+  const quantity = await fetchCloverItemStock(item.id);
+  return { ...item, stockCount: quantity ?? undefined };
+}
+
+export async function enrichCloverItemsWithStock(items: CloverItem[]): Promise<CloverItem[]> {
+  const enriched: CloverItem[] = [];
+  for (let i = 0; i < items.length; i++) {
+    if (i > 0 && i % 10 === 0) await sleep(350);
+    enriched.push(await enrichCloverItemWithStock(items[i]));
+  }
+  return enriched;
+}
+
 export type CloverLineItem = {
   id: string;
   item?: { id: string };
@@ -106,9 +138,9 @@ export type CloverOrder = {
 };
 
 // Reference: Clover Inventory API (GET /v3/merchants/{mId}/items/{itemId}).
-// Confirm the exact expand params against the client's sandbox account.
 export async function fetchCloverItem(itemId: string): Promise<CloverItem> {
-  return cloverApiFetch<CloverItem>(`/items/${itemId}?expand=categories`);
+  const item = await cloverApiFetch<CloverItem>(`/items/${itemId}?expand=categories`);
+  return enrichCloverItemWithStock(item);
 }
 
 // Reference: Clover Orders API (GET /v3/merchants/{mId}/orders/{orderId}).
@@ -135,7 +167,7 @@ export async function listModifiedCloverItems(sinceMs: number): Promise<CloverIt
   const data = await cloverApiFetch<{ elements?: CloverItem[] }>(
     `/items?filter=modifiedTime>=${sinceMs}&expand=categories&limit=100`,
   );
-  return data.elements ?? [];
+  return enrichCloverItemsWithStock(data.elements ?? []);
 }
 
 // One-time (or on-demand) full catalog pull — unlike listModifiedCloverItems,
@@ -157,7 +189,7 @@ export async function fetchAllCloverItems(): Promise<CloverItem[]> {
       `/items?expand=categories&limit=${pageSize}&offset=${page * pageSize}`,
     );
     const batch = data.elements ?? [];
-    items.push(...batch);
+    items.push(...(await enrichCloverItemsWithStock(batch)));
     if (batch.length < pageSize) break;
   }
   return items;
