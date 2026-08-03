@@ -59,8 +59,8 @@ export async function SiteFooter() {
       </div>
 
       <div className="flex flex-col items-center gap-3 border-t border-white/20 px-6 py-6">
-        <PaymentBadges variant="onDark" className="w-fit" />
-        <div className="flex items-center gap-2">
+        <PaymentBadges variant="onDark" className="w-fit justify-center" />
+        <div className="flex items-center justify-center gap-2">
           <span className="text-xs font-medium text-white/60">{t("cardsAccepted")}</span>
           <VisaMark />
           <MastercardMark />
@@ -68,23 +68,23 @@ export async function SiteFooter() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-4 border-t border-white/20 px-6 py-6">
+      <div className="border-t border-white/20 px-6 py-8">
         <a
           href="https://digital.gabansolutions.ca"
           target="_blank"
           rel="noopener noreferrer"
-          className="group flex flex-col items-center gap-3 text-center transition-opacity hover:opacity-90 sm:flex-row sm:gap-3.5"
+          className="group mx-auto flex w-fit flex-col items-center gap-3 text-center transition-opacity hover:opacity-90"
         >
           <Image
             src="/images/apple-touch-icon.png"
             alt="GABAN Solutions"
-            width={36}
-            height={36}
-            className="rounded-lg shadow-md ring-1 ring-white/20"
+            width={52}
+            height={52}
+            className="rounded-xl shadow-lg ring-1 ring-white/25"
           />
-          <span className="text-xs text-white/50 group-hover:text-white/70">
+          <span className="max-w-xs text-sm leading-snug text-white/55 group-hover:text-white/75">
             {t("craftedInMontreal")}{" "}
-            <span className="font-medium tracking-wide text-white/75 group-hover:text-white">
+            <span className="font-semibold tracking-wide text-white/90 group-hover:text-white">
               GABAN Solutions
             </span>
           </span>
