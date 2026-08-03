@@ -53,6 +53,21 @@ export function animalCategoryGroup(category: AnimalCategoryValue): AnimalCatego
   return "invertebrates";
 }
 
+/** Flat icon shown on the subcategory buttons (/animals grouped grid). */
+export const ANIMAL_CATEGORY_ICON: Record<AnimalCategoryValue, string> = {
+  reptiles_snakes: "/images/icons/subcategory-reptiles-snakes.png",
+  reptiles_geckos: "/images/icons/subcategory-reptiles-geckos.png",
+  reptiles_lizards: "/images/icons/subcategory-reptiles-lizards.png",
+  reptiles_turtles: "/images/icons/subcategory-reptiles-turtles.png",
+  reptiles_other: "/images/icons/subcategory-reptiles-other.png",
+  amphibians_frogs: "/images/icons/subcategory-amphibians-frogs.png",
+  amphibians_salamanders: "/images/icons/subcategory-amphibians-salamanders.png",
+  amphibians_other: "/images/icons/subcategory-amphibians-other.png",
+  invertebrates_arachnids: "/images/icons/subcategory-invertebrates-arachnids.png",
+  invertebrates_insects: "/images/icons/subcategory-invertebrates-insects.png",
+  invertebrates_other: "/images/icons/subcategory-invertebrates-other.png",
+};
+
 /** Default Clover placeholder Species id per browse category. */
 export const CLOVER_SPECIES_ID_BY_CATEGORY: Record<AnimalCategoryValue, string> = {
   reptiles_snakes: "clover-species-serpent",

@@ -4,7 +4,7 @@ import { isAnimalCategory } from "@/lib/animal-categories";
 import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
 
 export { PRODUCT_CATEGORIES, isProductCategory, type ProductCategoryValue } from "@/lib/product-categories";
-export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, animalCategoryGroup, isAnimalCategory, type AnimalCategoryValue } from "@/lib/animal-categories";
+export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, ANIMAL_CATEGORY_ICON, animalCategoryGroup, isAnimalCategory, type AnimalCategoryValue } from "@/lib/animal-categories";
 
 /** Max out-of-stock items shown below the in-stock grid on /boutique. */
 export const FEATURED_OUT_OF_STOCK_LIMIT = 6;

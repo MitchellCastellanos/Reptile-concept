@@ -4,14 +4,19 @@ import { Link } from "@/i18n/navigation";
 import { AnimalCard } from "@/components/animal-card";
 import { ProductCard } from "@/components/product-card";
 import { PaymentBadges } from "@/components/payment-badges";
+import { CategoryButtonGrid } from "@/components/category-button-grid";
 import { getAvailableAnimals, getProducts, getWishlistedIds } from "@/lib/queries";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 
 const categoryIcons = [
   { key: "reptiles" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
-  { key: "terrariums" as const, href: "/boutique", image: "/images/icons/category-terrariums.png" },
-  { key: "substrates" as const, href: "/boutique", image: "/images/icons/category-substrates.png" },
+  { key: "terrariums" as const, href: "/boutique?category=terrarium", image: "/images/icons/category-terrariums.png" },
+  { key: "substrates" as const, href: "/boutique?category=substrate", image: "/images/icons/category-substrates.png" },
+  { key: "decor" as const, href: "/boutique?category=decor", image: "/images/icons/category-decor.png" },
+  { key: "lighting" as const, href: "/boutique?category=lighting", image: "/images/icons/category-lighting.png" },
+  { key: "equipment" as const, href: "/boutique?category=equipment", image: "/images/icons/category-equipment.png" },
   { key: "food" as const, href: "/boutique", image: "/images/icons/category-food.png" },
+  { key: "supplement" as const, href: "/boutique?category=supplement", image: "/images/icons/category-supplement.png" },
 ];
 
 const whyUsItems = [
@@ -71,19 +76,15 @@ export default async function Home() {
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
         <section>
           <h2 className="text-center text-2xl font-semibold text-foreground">{t("categories")}</h2>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {categoryIcons.map(({ key, href, image }) => (
-              <Link
-                key={key}
-                href={href}
-                className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-card p-6 text-center shadow-sm transition hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
-              >
-                <span className="relative h-16 w-16 overflow-hidden rounded-xl">
-                  <Image src={image} alt="" fill className="object-cover" />
-                </span>
-                <span className="text-sm font-semibold text-foreground">{t(`category_${key}`)}</span>
-              </Link>
-            ))}
+          <div className="mt-8">
+            <CategoryButtonGrid
+              items={categoryIcons.map(({ key, href, image }) => ({
+                key,
+                href,
+                image,
+                label: t(`category_${key}`),
+              }))}
+            />
           </div>
         </section>
 

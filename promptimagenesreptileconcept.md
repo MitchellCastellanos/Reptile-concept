@@ -194,7 +194,94 @@ Carpeta: `public/images/`
 Ilustración plana de un gecko despistado mirando un mapa o un cartel de
 "¿perdido?", tono divertido pero coherente con la marca.
 
+**21. Ícono de categoría — Decoración**
+Archivo: `category-decor.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Nuevo botón de categoría en el home. Ilustración plana de un tronco/roca de
+decoración de terrario con una planta artificial pequeña, mismo estilo que
+los íconos de categoría existentes (verde bosque + terracota).
+
+**22. Ícono de categoría — Iluminación y calefacción**
+Archivo: `category-lighting.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de una lámpara/foco de calor de terrario con un pequeño
+símbolo de rayo o calor, mismo estilo plano de la marca.
+
+**23. Ícono de categoría — Equipo**
+Archivo: `category-equipment.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de un termómetro/higrómetro de terrario o un temporizador,
+mismo estilo.
+
+**24. Ícono de categoría — Suplementos**
+Archivo: `category-supplement.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de un frasco/bote de suplemento en polvo (tipo calcio o
+vitaminas) con una cuchara pequeña, mismo estilo.
+
+**25. Ícono de subcategoría — Serpientes**
+Archivo: `subcategory-reptiles-snakes.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Botón de subcategoría dentro de Reptiles (/animals). Ilustración plana de
+una serpiente enroscada, verde bosque con detalle terracota, mismo estilo
+que el ícono de categoría "Reptiles".
+
+**26. Ícono de subcategoría — Geckos**
+Archivo: `subcategory-reptiles-geckos.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de un gecko leopardo estilizado, mismo estilo.
+
+**27. Ícono de subcategoría — Lagartos**
+Archivo: `subcategory-reptiles-lizards.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de un lagarto/dragón barbudo estilizado, mismo estilo.
+
+**28. Ícono de subcategoría — Tortugas**
+Archivo: `subcategory-reptiles-turtles.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de una tortuga vista desde arriba, mismo estilo.
+
+**29. Ícono de subcategoría — Otros reptiles**
+Archivo: `subcategory-reptiles-other.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana genérica de un reptil estilizado (silueta simple, sin
+especie específica), mismo estilo, para la categoría "otros".
+
+**30. Ícono de subcategoría — Ranas y sapos**
+Archivo: `subcategory-amphibians-frogs.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de una rana arbórea estilizada, mismo estilo de marca.
+
+**31. Ícono de subcategoría — Salamandras y ajolotes**
+Archivo: `subcategory-amphibians-salamanders.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de un ajolote estilizado, mismo estilo.
+
+**32. Ícono de subcategoría — Otros anfibios**
+Archivo: `subcategory-amphibians-other.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana genérica de un anfibio estilizado (silueta simple), mismo
+estilo, para la categoría "otros".
+
+**33. Ícono de subcategoría — Arácnidos**
+Archivo: `subcategory-invertebrates-arachnids.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de una tarántula estilizada vista desde arriba, mismo
+estilo (que se vea limpia, no perturbadora).
+
+**34. Ícono de subcategoría — Insectos**
+Archivo: `subcategory-invertebrates-insects.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana de un insecto tipo escarabajo o mantis estilizado, mismo
+estilo.
+
+**35. Ícono de subcategoría — Otros invertebrados**
+Archivo: `subcategory-invertebrates-other.png` (512×512px, fondo transparente)
+Carpeta: `public/images/icons/`
+Ilustración plana genérica de un invertebrado estilizado (silueta simple),
+mismo estilo, para la categoría "otros".
+
 ---
 
 Empieza esperando mi "siguiente" — no generes nada todavía, solo confirma que
-entendiste el sistema completo y la lista de 20 assets.
+entendiste el sistema completo y la lista de 35 assets.
