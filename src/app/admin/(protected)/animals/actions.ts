@@ -81,6 +81,34 @@ export async function updateAnimalAction(id: string, formData: FormData) {
   redirect("/admin/animals");
 }
 
+// For an Animal record that was actually a Product (e.g. auto-created by the
+// Clover import routing bug — "Gecko Food" landing under the "Gecko" live
+// -animal category). Frees the Clover Item ID so future Clover syncs stop
+// touching this Animal, archives it (not_for_sale, so it drops off public
+// listings) instead of deleting it outright, and hands off to the product
+// form pre-filled the same way the Clover import queue does — staff still
+// has to pick the right product category since Clover doesn't tell us that.
+export async function convertAnimalToProductAction(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const id = String(formData.get("id"));
+  const animal = await prisma.animal.findUnique({ where: { id } });
+  if (!animal) redirect("/admin/animals");
+
+  await prisma.animal.update({
+    where: { id },
+    data: { cloverItemId: null, status: "not_for_sale" },
+  });
+  await recordAudit(admin.id, "Animal", id, "update");
+
+  revalidatePath("/admin/animals");
+
+  const params = new URLSearchParams({ cloverName: animal.morph, priceCAD: String(animal.priceCAD) });
+  if (animal.cloverItemId) params.set("cloverItemId", animal.cloverItemId);
+  redirect(`/admin/products/new?${params.toString()}`);
+}
+
 export async function deleteAnimalAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");

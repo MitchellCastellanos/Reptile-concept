@@ -35,6 +35,13 @@ const FROZEN_FEEDER_NAME =
 const PACKAGED_FEEDER_NAME =
   /\b(mazuri|rat chow|rat & mouse|hamster et gerbil|nourriture isopod|ant nectar|pierre décorative|pierre decorative)/i;
 
+// Catches consumables filed under a live-animal Clover category — e.g. "Gecko
+// Food" sitting in the "Gecko" category alongside actual live geckos. Without
+// this, ANIMAL_CATEGORY_KEYWORDS below would auto-create it as a live animal
+// (see resolveCloverImportRoute) instead of routing it to staff review.
+const FOOD_OR_CONSUMABLE_NAME =
+  /\b(food|nourriture|aliment|alimentation|treat|gâterie|gaterie|vitamine?s?|calcium|repas)\b/i;
+
 const MIXED_CATEGORY_MERCH = [
   { pattern: /\b(tarantula crib|plastic plant|plante grasse)\b/i, category: "decor" as const },
   { pattern: /\b(nourriture isopod)\b/i, category: "food_packaged" as const },
@@ -99,6 +106,12 @@ export function resolveCloverImportRoute(
   }
 
   if (ANIMAL_CATEGORY_KEYWORDS.some((kw) => cat.includes(kw))) {
+    // A live-animal category name doesn't guarantee a live animal — food and
+    // supplies for that animal are often filed in the same Clover category.
+    // Queue those for manual review instead of auto-creating a fake animal.
+    if (FOOD_OR_CONSUMABLE_NAME.test(name)) {
+      return { kind: "manual" };
+    }
     return { kind: "animal" };
   }
 
