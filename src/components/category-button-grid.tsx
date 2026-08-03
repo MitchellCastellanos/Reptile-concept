@@ -21,7 +21,7 @@ export function CategoryButtonGrid({ items }: { items: CategoryButtonItem[] }) {
           }`}
         >
           <span className="relative h-16 w-16 overflow-hidden rounded-xl">
-            <Image src={image} alt="" fill className="object-cover" />
+            <Image src={image} alt="" fill className="object-contain" sizes="64px" />
           </span>
           <span className="text-sm font-semibold text-foreground">{label}</span>
         </Link>
