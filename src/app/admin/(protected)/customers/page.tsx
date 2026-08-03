@@ -2,7 +2,15 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
 
-const SORT_COLUMNS = ["fullName", "email", "preferredLang", "orders"] as const;
+const CUSTOMER_SORT_COLUMNS = [
+  "fullName",
+  "companyName",
+  "phone",
+  "email",
+  "customerType",
+] as const;
+const ADDRESS_SORT_COLUMNS = ["street", "city", "province", "country", "postalCode"] as const;
+const SORT_COLUMNS = [...CUSTOMER_SORT_COLUMNS, ...ADDRESS_SORT_COLUMNS] as const;
 type SortColumn = (typeof SORT_COLUMNS)[number];
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 200] as const;
@@ -31,6 +39,13 @@ function parsePageSize(value: string | undefined): number {
   return (PAGE_SIZE_OPTIONS as readonly number[]).includes(n) ? n : DEFAULT_PAGE_SIZE;
 }
 
+function buildOrderBy(sort: SortColumn, dir: "asc" | "desc"): Prisma.CustomerOrderByWithRelationInput {
+  if ((ADDRESS_SORT_COLUMNS as readonly string[]).includes(sort)) {
+    return { addresses: { [sort]: dir } };
+  }
+  return { [sort]: dir };
+}
+
 function buildCustomersUrl(params: CustomersUrlParams) {
   const search = new URLSearchParams();
   if (params.q) search.set("q", params.q);
@@ -48,19 +63,17 @@ function buildCustomersUrl(params: CustomersUrlParams) {
 function SortHeader({
   column,
   label,
-  align = "left",
   current,
 }: {
   column: SortColumn;
   label: string;
-  align?: "left" | "right";
   current: CustomersUrlParams;
 }) {
   const isActive = current.sort === column;
   const nextDir = isActive && current.dir === "asc" ? "desc" : "asc";
 
   return (
-    <th className={`py-2 ${align === "right" ? "text-right" : "text-left"}`}>
+    <th className="whitespace-nowrap py-2 pr-4 text-left">
       <Link
         href={buildCustomersUrl({ ...current, sort: column, dir: nextDir, page: 1 })}
         className="inline-flex items-center gap-1 rounded px-1 py-0.5 font-medium hover:bg-black/5 dark:hover:bg-white/10"
@@ -72,6 +85,10 @@ function SortHeader({
       </Link>
     </th>
   );
+}
+
+function cell(value: string | null | undefined) {
+  return value?.trim() ? value : "—";
 }
 
 export default async function AdminCustomersPage({
@@ -90,7 +107,14 @@ export default async function AdminCustomersPage({
   if (q) {
     where.OR = [
       { fullName: { contains: q, mode: "insensitive" } },
+      { companyName: { contains: q, mode: "insensitive" } },
       { email: { contains: q, mode: "insensitive" } },
+      { phone: { contains: q, mode: "insensitive" } },
+      { customerType: { contains: q, mode: "insensitive" } },
+      { addresses: { some: { street: { contains: q, mode: "insensitive" } } } },
+      { addresses: { some: { city: { contains: q, mode: "insensitive" } } } },
+      { addresses: { some: { province: { contains: q, mode: "insensitive" } } } },
+      { addresses: { some: { postalCode: { contains: q, mode: "insensitive" } } } },
     ];
   }
   if (lang) {
@@ -98,9 +122,7 @@ export default async function AdminCustomersPage({
   }
 
   const orderBy: Prisma.CustomerOrderByWithRelationInput = sort
-    ? sort === "orders"
-      ? { orders: { _count: dir } }
-      : { [sort]: dir }
+    ? buildOrderBy(sort, dir)
     : { createdAt: "desc" };
 
   const totalCount = await prisma.customer.count({ where });
@@ -109,7 +131,9 @@ export default async function AdminCustomersPage({
 
   const customers = await prisma.customer.findMany({
     where,
-    include: { _count: { select: { orders: true } } },
+    include: {
+      addresses: { take: 1, orderBy: { id: "asc" } },
+    },
     orderBy,
     skip: (page - 1) * perPage,
     take: perPage,
@@ -147,7 +171,7 @@ export default async function AdminCustomersPage({
             type="search"
             name="q"
             defaultValue={q}
-            placeholder="Nom ou courriel…"
+            placeholder="Nom, entreprise, courriel, téléphone, adresse…"
             className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
           />
         </label>
@@ -202,30 +226,45 @@ export default async function AdminCustomersPage({
       </p>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
+        <table className="w-full min-w-[1200px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-black/10 text-left dark:border-white/10">
               <SortHeader column="fullName" label="Nom" current={filterState} />
-              <SortHeader column="email" label="Email" current={filterState} />
-              <SortHeader column="preferredLang" label="Langue" current={filterState} />
-              <SortHeader column="orders" label="Commandes" align="right" current={filterState} />
-              <th className="py-2" />
+              <SortHeader column="companyName" label="Nom de l'entreprise" current={filterState} />
+              <SortHeader column="street" label="Adresse" current={filterState} />
+              <SortHeader column="city" label="Ville" current={filterState} />
+              <SortHeader column="province" label="Province" current={filterState} />
+              <SortHeader column="country" label="Pays" current={filterState} />
+              <SortHeader column="postalCode" label="Code postal" current={filterState} />
+              <SortHeader column="phone" label="Téléphone" current={filterState} />
+              <SortHeader column="email" label="Courriel" current={filterState} />
+              <SortHeader column="customerType" label="Type de client" current={filterState} />
+              <th className="whitespace-nowrap py-2" />
             </tr>
           </thead>
           <tbody>
-            {customers.map((customer) => (
-              <tr key={customer.id} className="border-b border-black/5 dark:border-white/5">
-                <td className="py-2">{customer.fullName}</td>
-                <td className="py-2">{customer.email}</td>
-                <td className="py-2">{LANG_LABELS[customer.preferredLang] ?? customer.preferredLang}</td>
-                <td className="py-2 text-right">{customer._count.orders}</td>
-                <td className="py-2">
-                  <Link href={`/admin/customers/${customer.id}`} className="underline">
-                    Détails
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {customers.map((customer) => {
+              const address = customer.addresses[0];
+              return (
+                <tr key={customer.id} className="border-b border-black/5 dark:border-white/5">
+                  <td className="py-2 pr-4">{cell(customer.fullName)}</td>
+                  <td className="py-2 pr-4">{cell(customer.companyName)}</td>
+                  <td className="py-2 pr-4">{cell(address?.street)}</td>
+                  <td className="py-2 pr-4">{cell(address?.city)}</td>
+                  <td className="py-2 pr-4">{cell(address?.province)}</td>
+                  <td className="py-2 pr-4">{cell(address?.country)}</td>
+                  <td className="py-2 pr-4 whitespace-nowrap">{cell(address?.postalCode)}</td>
+                  <td className="py-2 pr-4 whitespace-nowrap">{cell(customer.phone)}</td>
+                  <td className="py-2 pr-4">{cell(customer.email)}</td>
+                  <td className="py-2 pr-4">{cell(customer.customerType)}</td>
+                  <td className="py-2 whitespace-nowrap">
+                    <Link href={`/admin/customers/${customer.id}`} className="underline">
+                      Détails
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

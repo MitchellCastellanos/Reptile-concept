@@ -145,7 +145,10 @@
     "postalCode": "Code postal",
     "healthGuarantee": "J'accepte la politique de garantie de santé et les conditions de vente de Reptiles Concept.",
     "placeOrder": "Payer maintenant",
+    "paymentCancelled": "Paiement annulé. Votre panier est intact — vous pouvez réessayer quand vous voulez.",
     "confirmationTitle": "Merci pour votre achat!",
+    "paymentPendingTitle": "Paiement en cours de confirmation",
+    "paymentPendingBody": "Nous confirmons votre paiement pour la commande",
     "confirmationBody": "Votre paiement a été reçu pour la commande",
     "nextSteps": "Notre équipe prépare votre commande. Vous recevrez un courriel à chaque étape, puis un dernier dès qu'elle sera prête à être récupérée en boutique."
   },

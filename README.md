@@ -31,9 +31,11 @@ puis récupère sa commande en boutique :
    lien (à durée illimitée, signé avec `SESSION_SECRET`) vers `/reviews/new/[orderId]`
    pour laisser un avis. Les avis publiés apparaissent sur `/reviews`.
 
-**Paiement en ligne (Stripe + Klarna) :** pas encore branché — le paiement est enregistré
-comme réussi immédiatement (voir le commentaire MVP dans `checkout/actions.ts`). Des badges
-« bientôt disponible » font déjà la promotion de ces options dans toute l'interface.
+**Paiement en ligne (Stripe + Klarna) :** le code est prêt — sans `STRIPE_SECRET_KEY`,
+le checkout reste en mode dev (paiement « manuel », commande marquée payée tout de suite).
+Une fois les clés Stripe configurées, le client est redirigé vers Stripe Checkout (carte +
+Klarna), le webhook confirme le paiement, et l'inventaire Clover est mis à jour. Voir
+**`docs/STRIPE-SETUP.md`** pour la checklist de mise en production.
 
 **Courriels :** aucun fournisseur n'est requis pour développer — sans `RESEND_API_KEY`, les
 courriels sont simplement affichés dans la console (`src/lib/email.ts`).

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { expireOverduePickups } from "@/lib/order-expiration";
+import { expireStalePendingPaymentOrders } from "@/lib/pending-order-expiration";
 
 const STATUS_LABELS: Record<string, string> = {
+  pending_payment: "En attente de paiement",
   paid: "Payée",
   preparing: "En préparation",
   ready_for_pickup: "Prête pour retrait",
@@ -12,7 +14,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default async function AdminOrdersPage() {
-  await expireOverduePickups();
+  await Promise.all([expireOverduePickups(), expireStalePendingPaymentOrders()]);
 
   const orders = await prisma.order.findMany({
     include: { customer: true },

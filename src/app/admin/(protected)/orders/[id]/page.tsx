@@ -9,6 +9,7 @@ import {
 } from "../actions";
 
 const STATUS_LABELS: Record<string, string> = {
+  pending_payment: "En attente de paiement",
   paid: "Payée",
   preparing: "En préparation",
   ready_for_pickup: "Prête pour retrait",

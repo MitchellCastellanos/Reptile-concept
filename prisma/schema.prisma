@@ -52,6 +52,7 @@ enum ProductCategory {
 }
 
 enum OrderStatus {
+  pending_payment
   paid
   preparing
   ready_for_pickup

@@ -5,7 +5,14 @@ import { prisma } from "@/lib/db";
 import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
 import { getStoreSettings } from "@/lib/settings";
 import { computeTax } from "@/lib/tax";
-import { pushSoldItemsToClover } from "@/lib/clover-sync";
+import {
+  buildStripeLineItems,
+  createManualPaidOrder,
+  createPendingPaymentOrder,
+  pushCloverStockForOrder,
+  validateCartLines,
+} from "@/lib/order-payment";
+import { createStripeCheckoutSession, isStripeConfigured } from "@/lib/stripe";
 
 type CartLineInput = {
   type: "animal" | "product";
@@ -16,9 +23,6 @@ type CartLineInput = {
 export async function placeOrderAction(formData: FormData) {
   const cartJson = String(formData.get("cartJson") ?? "[]");
   const cart: CartLineInput[] = JSON.parse(cartJson);
-  if (cart.length === 0) {
-    throw new Error("Le panier est vide / Cart is empty");
-  }
 
   const fullName = String(formData.get("fullName") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -39,146 +43,59 @@ export async function placeOrderAction(formData: FormData) {
     );
   }
 
-  // Re-fetch canonical data server-side — never trust client-submitted prices/availability.
-  const animalIds = cart.filter((l) => l.type === "animal").map((l) => l.id);
-  const productIds = cart.filter((l) => l.type === "product").map((l) => l.id);
-
-  const [animals, products] = await Promise.all([
-    animalIds.length
-      ? prisma.animal.findMany({ where: { id: { in: animalIds } } })
-      : Promise.resolve([]),
-    productIds.length
-      ? prisma.product.findMany({ where: { id: { in: productIds } } })
-      : Promise.resolve([]),
-  ]);
-
-  for (const line of cart) {
-    if (line.type === "animal") {
-      const animal = animals.find((a) => a.id === line.id);
-      if (!animal || animal.status !== "available") {
-        throw new Error(`Animal non disponible / Animal not available: ${line.id}`);
-      }
-    } else {
-      const product = products.find((p) => p.id === line.id);
-      if (!product || !product.published || product.stockQty < line.quantity) {
-        throw new Error(`Stock insuffisant / Insufficient stock: ${line.id}`);
-      }
-    }
-  }
-
-  const subtotalCAD = cart.reduce((sum, line) => {
-    if (line.type === "animal") {
-      const animal = animals.find((a) => a.id === line.id)!;
-      return sum + Number(animal.priceCAD);
-    }
-    const product = products.find((p) => p.id === line.id)!;
-    return sum + Number(product.priceCAD) * line.quantity;
-  }, 0);
-
+  const validated = await validateCartLines(cart);
   const settings = await getStoreSettings();
-  const { gstAmountCAD, qstAmountCAD, totalCAD } = computeTax(subtotalCAD, {
+  const { gstAmountCAD, qstAmountCAD, totalCAD } = computeTax(validated.subtotalCAD, {
     gstRatePercent: Number(settings.gstRatePercent),
     qstRatePercent: Number(settings.qstRatePercent),
   });
 
-  const orderId = await prisma.$transaction(async (tx) => {
-    const customer = await tx.customer.upsert({
-      where: { email },
-      update: { fullName, phone, preferredLang },
-      create: { fullName, email, phone, preferredLang, ageVerified: true },
-    });
+  const orderInput = {
+    fullName,
+    email,
+    phone,
+    preferredLang,
+    street,
+    city,
+    province,
+    postalCode,
+    validated,
+    gstAmountCAD,
+    qstAmountCAD,
+    totalCAD,
+  };
 
-    const address = await tx.address.create({
-      data: { customerId: customer.id, street, city, province, postalCode },
-    });
+  if (!isStripeConfigured()) {
+    const orderId = await createManualPaidOrder(orderInput);
 
-    const order = await tx.order.create({
-      data: {
-        customerId: customer.id,
-        shippingAddressId: address.id,
-        status: "paid",
-        healthGuaranteeAcceptedAt: new Date(),
-        subtotalCAD,
-        gstAmountCAD,
-        qstAmountCAD,
-        totalCAD,
-      },
-    });
-
-    for (const line of cart) {
-      if (line.type === "animal") {
-        const animal = animals.find((a) => a.id === line.id)!;
-        await tx.orderItem.create({
-          data: {
-            orderId: order.id,
-            animalId: animal.id,
-            quantity: 1,
-            priceAtSaleCAD: animal.priceCAD,
-          },
-        });
-        // Marked sold immediately (not "reserved") — the item is paid for now,
-        // not held for later confirmation, so it must leave the public listing.
-        await tx.animal.update({ where: { id: animal.id }, data: { status: "sold" } });
-      } else {
-        const product = products.find((p) => p.id === line.id)!;
-        await tx.orderItem.create({
-          data: {
-            orderId: order.id,
-            productId: product.id,
-            quantity: line.quantity,
-            priceAtSaleCAD: product.priceCAD,
-          },
-        });
-        await tx.product.update({
-          where: { id: product.id },
-          data: { stockQty: { decrement: line.quantity } },
-        });
-      }
+    try {
+      await Promise.all([sendOrderConfirmationEmail(orderId), sendAdminNewSaleEmail(orderId)]);
+    } catch (err) {
+      console.error("[checkout] failed to send order notification emails:", err);
     }
 
-    // MVP placeholder: no live payment processor is wired up yet (Stripe + Klarna
-    // are coming soon — see the payment badges in the checkout UI). The order is
-    // recorded as paid immediately since customers pay directly in the portal now.
-    await tx.payment.create({
-      data: {
-        orderId: order.id,
-        amountCAD: totalCAD,
-        provider: "manual",
-        status: "succeeded",
-        paidAt: new Date(),
-      },
-    });
-
-    return order.id;
-  });
-
-  try {
-    await Promise.all([sendOrderConfirmationEmail(orderId), sendAdminNewSaleEmail(orderId)]);
-  } catch (err) {
-    console.error("[checkout] failed to send order notification emails:", err);
+    await pushCloverStockForOrder(orderId);
+    redirect(`/checkout/confirmation/${orderId}`);
   }
 
-  // Best-effort — tells the standalone Clover device to stop offering
-  // anything that just sold online. Never blocks the checkout: a failed
-  // push here just means the device shows stale stock until the next
-  // webhook/poll reconciles it.
-  await pushSoldItemsToClover([
-    ...cart
-      .filter((l) => l.type === "animal")
-      .map((l) => ({
-        cloverItemId: animals.find((a) => a.id === l.id)?.cloverItemId,
-        nextStockQty: 0,
-      })),
-    ...cart
-      .filter((l) => l.type === "product")
-      .map((l) => {
-        const product = products.find((p) => p.id === l.id)!;
-        return {
-          cloverItemId: product.cloverItemId,
-          nextStockQty: Math.max(0, product.stockQty - l.quantity),
-        };
-      }),
-  ]);
+  const orderId = await createPendingPaymentOrder(orderInput);
+  const session = await createStripeCheckoutSession({
+    orderId,
+    locale: preferredLang,
+    customerEmail: email,
+    lineItems: buildStripeLineItems(validated, preferredLang),
+    gstAmountCAD,
+    qstAmountCAD,
+  });
 
-  redirect(`/checkout/confirmation/${orderId}`);
+  await prisma.payment.updateMany({
+    where: { orderId, status: "pending" },
+    data: { providerRef: session.id },
+  });
+
+  if (!session.url) {
+    throw new Error("Stripe checkout session did not return a redirect URL");
+  }
+
+  redirect(session.url);
 }

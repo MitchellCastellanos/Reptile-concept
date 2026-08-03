@@ -13,6 +13,8 @@ import {
   sendOrderReadyForPickupEmail,
   sendOrderPickedUpEmail,
 } from "@/lib/order-notifications";
+import { issueStripeRefundForOrder } from "@/lib/stripe-refund";
+import { cancelPendingOrder } from "@/lib/order-payment";
 
 async function requireAdmin() {
   const admin = await getCurrentAdmin();
@@ -105,7 +107,16 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
   const admin = await requireAdmin();
   const applyFee = formData.get("applyFee") === "on";
 
-  await prisma.$transaction(async (tx) => {
+  const existing = await prisma.order.findUnique({ where: { id: orderId }, select: { status: true } });
+  if (!existing) throw new Error("Commande introuvable.");
+  if (existing.status === "pending_payment") {
+    await cancelPendingOrder(orderId, "Annulation manuelle — paiement non complété");
+    await recordAudit(admin.id, "Order", orderId, "update");
+    revalidateOrder(orderId);
+    return;
+  }
+
+  const refundAmount = await prisma.$transaction(async (tx) => {
     const order = await tx.order.findUniqueOrThrow({
       where: { id: orderId },
       include: { items: true },
@@ -120,7 +131,7 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
     const settings = await getStoreSettings();
     const feePercent = applyFee ? Number(settings.cancellationFeePercent) : 0;
     const feeAmount = Number(((totalCAD * feePercent) / 100).toFixed(2));
-    const refundAmount = Number((totalCAD - feeAmount).toFixed(2));
+    const amount = Number((totalCAD - feeAmount).toFixed(2));
 
     await tx.order.update({
       where: { id: orderId },
@@ -128,7 +139,7 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
         status: "refunded",
         cancelledAt: new Date(),
         cancellationFeeCAD: feeAmount,
-        refundAmountCAD: refundAmount,
+        refundAmountCAD: amount,
       },
     });
     await tx.payment.updateMany({
@@ -143,7 +154,7 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
         data: {
           orderId,
           type: "refund",
-          amountCAD: refundAmount,
+          amountCAD: amount,
           note: "Remboursement — annulation manuelle",
         },
       });
@@ -158,7 +169,14 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
         });
       }
     }
+
+    return amount;
   });
+
+  const refundResult = await issueStripeRefundForOrder(orderId, refundAmount);
+  if (refundResult.ok === false && !refundResult.skipped) {
+    console.error(`[orders] Stripe refund failed for ${orderId}:`, refundResult.error);
+  }
 
   await recordAudit(admin.id, "Order", orderId, "update");
   revalidateOrder(orderId);

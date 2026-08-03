@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
 import { restoreOrderInventory, resolveOrderAmounts } from "@/lib/orders";
 import { sendOrderExpiredEmail } from "@/lib/order-notifications";
+import { issueStripeRefundForOrder } from "@/lib/stripe-refund";
 
 // Orders past their pickup deadline are auto-cancelled and refunded (minus the
 // configured cancellation fee). Called opportunistically from the admin orders
@@ -70,6 +71,11 @@ export async function expireOrder(orderId: string) {
   });
 
   if (result) {
+    const refundResult = await issueStripeRefundForOrder(orderId, result.refundAmount);
+    if (refundResult.ok === false && !refundResult.skipped) {
+      console.error(`[order-expiration] Stripe refund failed for ${orderId}:`, refundResult.error);
+    }
+
     try {
       await sendOrderExpiredEmail(orderId, result.refundAmount, result.feeAmount);
     } catch (err) {

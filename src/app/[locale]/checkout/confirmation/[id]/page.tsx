@@ -3,14 +3,23 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { PaymentBadges } from "@/components/payment-badges";
 import { resolveOrderAmounts } from "@/lib/orders";
+import { syncOrderFromCheckoutSessionId } from "@/lib/stripe-fulfillment";
 import { ClearCartOnMount } from "./clear-cart-on-mount";
 
 export default async function CheckoutConfirmationPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ session_id?: string }>;
 }) {
   const { id } = await params;
+  const { session_id: sessionId } = await searchParams;
+
+  if (sessionId) {
+    await syncOrderFromCheckoutSessionId(sessionId);
+  }
+
   const order = await prisma.order.findUnique({
     where: { id },
     include: { items: { include: { animal: true, product: true } } },
@@ -19,13 +28,16 @@ export default async function CheckoutConfirmationPage({
 
   const t = await getTranslations("Checkout");
   const amounts = resolveOrderAmounts(order);
+  const isPending = order.status === "pending_payment";
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-6 py-12">
       <ClearCartOnMount />
-      <h1 className="text-3xl font-semibold tracking-tight">{t("confirmationTitle")}</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">
+        {isPending ? t("paymentPendingTitle") : t("confirmationTitle")}
+      </h1>
       <p className="text-zinc-600 dark:text-zinc-400">
-        {t("confirmationBody")} #{order.id.slice(0, 8)}
+        {isPending ? t("paymentPendingBody") : t("confirmationBody")} #{order.id.slice(0, 8)}
       </p>
 
       <ul className="flex flex-col gap-1 text-sm">
@@ -56,7 +68,9 @@ export default async function CheckoutConfirmationPage({
         </p>
       </div>
 
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">{t("nextSteps")}</p>
+      {!isPending ? (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">{t("nextSteps")}</p>
+      ) : null}
 
       <PaymentBadges />
     </main>

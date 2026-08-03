@@ -6,6 +6,7 @@ import { getCurrentCustomer } from "@/lib/customer-auth";
 import { logoutAction } from "./actions";
 
 const STATUS_LABELS: Record<string, { fr: string; en: string }> = {
+  pending_payment: { fr: "En attente de paiement", en: "Awaiting payment" },
   paid: { fr: "Payée", en: "Paid" },
   preparing: { fr: "En préparation", en: "Preparing" },
   ready_for_pickup: { fr: "Prête pour retrait", en: "Ready for pickup" },

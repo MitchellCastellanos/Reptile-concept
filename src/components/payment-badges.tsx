@@ -3,9 +3,8 @@
 import { useTranslations } from "next-intl";
 import { KlarnaWordmark } from "@/components/brand-marks";
 
-// Klarna isn't wired up to a real processor yet (see checkout/actions.ts) —
-// this badge promotes the payment option across the storefront ahead of
-// connecting the merchant account.
+// Klarna is offered through Stripe Checkout once STRIPE_SECRET_KEY is set — see
+// docs/STRIPE-SETUP.md for the merchant go-live checklist.
 export function PaymentBadges({
   className = "",
   variant = "light",
