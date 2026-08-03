@@ -41,4 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# species batch data (generated xlsx — keep README + prompt in git)
+exports/species-batch-in/*.xlsx
+exports/species-batch-done/*.xlsx
+exports/species-batch-out/*.xlsx
+exports/species-batch-out/_archive/
+
 /src/generated/prisma

@@ -24,6 +24,13 @@
     "inventory:bulk-import-animals": "tsx --tsconfig tsconfig.json scripts/bulk-import-clover-animals.ts",
     "inventory:fix-live-food-misimport": "tsx --tsconfig tsconfig.json scripts/fix-live-food-misimport.ts",
     "inventory:reclassify-animals": "tsx --tsconfig tsconfig.json scripts/reclassify-animal-categories.ts",
+    "export:species-batch": "tsx --tsconfig tsconfig.json scripts/export-species-batch.ts",
+    "export:species-batch-remaining": "tsx --tsconfig tsconfig.json scripts/export-species-batch-remaining.ts",
+    "export:species-batch-gaps": "tsx --tsconfig tsconfig.json scripts/export-species-batch-gaps.ts",
+    "inventory:organize-species-batch": "tsx --tsconfig tsconfig.json scripts/organize-species-batch.ts",
+    "inventory:validate-species-batch": "tsx --tsconfig tsconfig.json scripts/validate-species-batch.ts",
+    "inventory:import-species-batch": "tsx --tsconfig tsconfig.json scripts/import-species-batch.ts",
+    "inventory:link-animals-species": "tsx --tsconfig tsconfig.json scripts/link-animals-species.ts",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
   },

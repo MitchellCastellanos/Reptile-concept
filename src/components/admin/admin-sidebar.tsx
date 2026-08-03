@@ -5,8 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/admin/(protected)/actions";
 
-type NavLink = { href: string; label: string };
+type NavLink = { href: string; label: string; badgeKey?: "species" | "animals" };
 type NavSection = { title: string; links: NavLink[] };
+
+export type AdminCatalogCounts = {
+  animalsNeedingAttention: number;
+  speciesIncomplete: number;
+};
 
 const DASHBOARD_LINK: NavLink = { href: "/admin", label: "Tableau de bord" };
 
@@ -14,8 +19,8 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Catalogue",
     links: [
-      { href: "/admin/species", label: "Espèces" },
-      { href: "/admin/animals", label: "Animaux" },
+      { href: "/admin/species", label: "Espèces", badgeKey: "species" },
+      { href: "/admin/animals", label: "Animaux", badgeKey: "animals" },
       { href: "/admin/products", label: "Produits" },
       { href: "/admin/clover-import", label: "Nouveaux articles Clover" },
     ],
@@ -47,24 +52,47 @@ function isActiveLink(pathname: string, href: string) {
   return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 }
 
+function badgeCount(link: NavLink, counts?: AdminCatalogCounts) {
+  if (!counts || !link.badgeKey) return 0;
+  if (link.badgeKey === "species") return counts.speciesIncomplete;
+  if (link.badgeKey === "animals") return counts.animalsNeedingAttention;
+  return 0;
+}
+
 function NavLinkItem({
   link,
   active,
   onNavigate,
+  catalogCounts,
 }: {
   link: NavLink;
   active: boolean;
   onNavigate?: () => void;
+  catalogCounts?: AdminCatalogCounts;
 }) {
+  const count = badgeCount(link, catalogCounts);
+
   return (
     <Link
       href={link.href}
       onClick={onNavigate}
-      className={`rounded-lg px-3 py-2 text-sm transition ${
+      className={`flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm transition ${
         active ? "bg-primary/10 font-medium text-primary" : "text-foreground hover:bg-black/5"
       }`}
     >
-      {link.label}
+      <span>{link.label}</span>
+      {count > 0 ? (
+        <span
+          className="min-w-[1.25rem] rounded-full bg-amber-500 px-1.5 py-0.5 text-center text-xs font-semibold text-white"
+          title={
+            link.badgeKey === "animals"
+              ? "Animaux sans espèce réelle ou fiche incomplète"
+              : "Fiches d'espèce incomplètes"
+          }
+        >
+          {count}
+        </span>
+      ) : null}
     </Link>
   );
 }
@@ -73,10 +101,12 @@ function NavSectionGroup({
   section,
   pathname,
   onNavigate,
+  catalogCounts,
 }: {
   section: NavSection;
   pathname: string;
   onNavigate?: () => void;
+  catalogCounts?: AdminCatalogCounts;
 }) {
   const [expanded, setExpanded] = useState(true);
 
@@ -102,7 +132,13 @@ function NavSectionGroup({
       {expanded ? (
         <div className="flex flex-col gap-1">
           {section.links.map((link) => (
-            <NavLinkItem key={link.href} link={link} active={isActiveLink(pathname, link.href)} onNavigate={onNavigate} />
+            <NavLinkItem
+              key={link.href}
+              link={link}
+              active={isActiveLink(pathname, link.href)}
+              onNavigate={onNavigate}
+              catalogCounts={catalogCounts}
+            />
           ))}
         </div>
       ) : null}
@@ -110,18 +146,43 @@ function NavSectionGroup({
   );
 }
 
-function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () => void }) {
+function NavLinks({
+  pathname,
+  onNavigate,
+  catalogCounts,
+}: {
+  pathname: string;
+  onNavigate?: () => void;
+  catalogCounts?: AdminCatalogCounts;
+}) {
   return (
     <nav className="flex flex-col gap-4">
-      <NavLinkItem link={DASHBOARD_LINK} active={isActiveLink(pathname, DASHBOARD_LINK.href)} onNavigate={onNavigate} />
+      <NavLinkItem
+        link={DASHBOARD_LINK}
+        active={isActiveLink(pathname, DASHBOARD_LINK.href)}
+        onNavigate={onNavigate}
+        catalogCounts={catalogCounts}
+      />
       {NAV_SECTIONS.map((section) => (
-        <NavSectionGroup key={section.title} section={section} pathname={pathname} onNavigate={onNavigate} />
+        <NavSectionGroup
+          key={section.title}
+          section={section}
+          pathname={pathname}
+          onNavigate={onNavigate}
+          catalogCounts={catalogCounts}
+        />
       ))}
     </nav>
   );
 }
 
-export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
+export function AdminSidebar({
+  adminEmail,
+  catalogCounts,
+}: {
+  adminEmail: string;
+  catalogCounts?: AdminCatalogCounts;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -145,7 +206,7 @@ export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
 
       {open ? (
         <div className="no-print flex flex-col gap-4 border-b border-black/10 px-4 py-4 md:hidden">
-          <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} />
+          <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} catalogCounts={catalogCounts} />
           <Link
             href="/"
             onClick={() => setOpen(false)}
@@ -169,7 +230,7 @@ export function AdminSidebar({ adminEmail }: { adminEmail: string }) {
           Reptiles Concept
         </Link>
         <div className="flex-1">
-          <NavLinks pathname={pathname} />
+          <NavLinks pathname={pathname} catalogCounts={catalogCounts} />
         </div>
         <div className="mt-6 flex flex-col gap-2 border-t border-black/10 pt-4 text-sm text-zinc-600">
           <Link href="/" className="px-3 hover:underline">
