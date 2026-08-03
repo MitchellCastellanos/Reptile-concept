@@ -39,7 +39,7 @@ export function AnimalForm({
         label="Photo (téléversez un fichier ou collez une URL)"
         value={photoUrl}
         onChange={setPhotoUrl}
-        placeholder="/images/animals/seed-animal-pastel.jpg"
+        placeholder="/images/animal-placeholder.png"
       />
 
       <label className="flex flex-col gap-1 text-sm">

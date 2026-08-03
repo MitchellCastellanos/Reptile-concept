@@ -24,7 +24,7 @@ const CLOVER_SNAKE_CATEGORY = /^(serpent|snake)$/i;
 const TRADE_SPECIES_MAP: [RegExp, string][] = [
   [/python\s+royale|ball\s+python/i, "Python regius"],
   [/\bboa\b(?!\s*constrictor)/i, "Boa constrictor"],
-  [/corn\s+snake|corn\s+scaleless|shiping\s+corn/i, "Pantherophis guttatus"],
+  [/corn\s*snake|corn\s+scaleless|shiping\s+corn/i, "Pantherophis guttatus"],
   [/leopard\s+gecko/i, "Eublepharis macularius"],
   [/crested\s+gecko|gecko\s+à\s+crête|gecko a cr/i, "Correlophus ciliatus"],
   [/gargoyle\s+gecko/i, "Rhacodactylus auriculatus"],

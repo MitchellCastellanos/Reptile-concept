@@ -14,24 +14,57 @@ import { prisma } from "../src/lib/db";
 import { parseSpeciesChatGptResponse } from "../src/lib/species-chatgpt-prompt";
 import { normalizeScientificNameKey } from "../src/lib/species-candidates";
 
-/** Stub DB records → canonical scientific name for matching after import. */
-const STUB_TO_CANONICAL: Record<string, string> = {
-  couple: "oophaga pumilio",
-  "jumping spider": "phidippus audax",
-  "leachieanus bb": "rhacodactylus leachianus",
-  "madagascar spiny": "oplurus cuvieri",
-  "mante religieuse": "mantis religiosa",
-  "marginated tortoise": "testudo marginata",
-  "p. spinicornis 15+": "porcellio spinicornis",
-  "pool mix color": "dendrobates tinctorius",
-  "thamnophis cyrtopsis ocellatus": "thamnophis cyrtopsis",
-  "tinctorius yellow": "dendrobates tinctorius",
-  "tliltocatl kahlenbetgi": "tliltocatl kahlenbergi",
-};
+/** Block order must match PROMPT-species-stubs.md (11 entries). */
+const BLOCK_STUB_KEYS = [
+  "couple",
+  "jumping spider",
+  "leachieanus bb",
+  "madagascar spiny",
+  "mante religieuse",
+  "marginated tortoise",
+  "p. spinicornis 15+",
+  "pool mix color",
+  "thamnophis cyrtopsis ocellatus",
+  "tinctorius yellow",
+  "tliltocatl kahlenbetgi",
+] as const;
 
 const CATEGORY_FIX: Record<string, string> = {
   "porcellio spinicornis": "invertebrates_other",
 };
+
+function buildUpdateData(
+  canonical: string,
+  fields: ReturnType<typeof parseSpeciesChatGptResponse>,
+  categoryFix?: string,
+) {
+  return {
+    scientificName: canonical,
+    commonNameFr: fields.commonNameFr!,
+    commonNameEn: fields.commonNameEn!,
+    experienceLevel: fields.experienceLevel ?? undefined,
+    descriptionFr: fields.descriptionFr,
+    descriptionEn: fields.descriptionEn,
+    adultSizeFr: fields.adultSizeFr,
+    adultSizeEn: fields.adultSizeEn,
+    lifespanFr: fields.lifespanFr,
+    lifespanEn: fields.lifespanEn,
+    temperamentFr: fields.temperamentFr,
+    temperamentEn: fields.temperamentEn,
+    dietFr: fields.dietFr,
+    dietEn: fields.dietEn,
+    humidity: fields.humidity,
+    tempDay: fields.tempDay,
+    tempNight: fields.tempNight,
+    uvbNeeds: fields.uvbNeeds,
+    enclosureMinSize: fields.enclosureMinSize,
+    substrate: fields.substrate,
+    feedingFrequency: fields.feedingFrequency,
+    handlingFr: fields.handlingFr,
+    handlingEn: fields.handlingEn,
+    ...(categoryFix ? { category: categoryFix as never } : {}),
+  };
+}
 
 function parseBlocks(raw: string) {
   return raw
@@ -76,7 +109,8 @@ async function main() {
   let updated = 0;
   let skipped = 0;
 
-  for (const block of blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
     const canonical = speciesLine(block);
     const fields = parseSpeciesChatGptResponse(block);
     if (!canonical || !fields.commonNameFr || !fields.commonNameEn) {
@@ -84,56 +118,24 @@ async function main() {
       continue;
     }
 
-    const canonicalKey = normalizeScientificNameKey(canonical);
-
-    let target = stubByKey.get(canonicalKey);
-    if (!target) {
-      for (const [stubKey, canon] of Object.entries(STUB_TO_CANONICAL)) {
-        if (canon === canonicalKey && stubByKey.has(stubKey)) {
-          target = stubByKey.get(stubKey);
-          break;
-        }
-      }
-    }
+    const stubKey = BLOCK_STUB_KEYS[i];
+    const target = stubKey
+      ? stubByKey.get(normalizeScientificNameKey(stubKey))
+      : undefined;
 
     if (!target) {
-      console.warn(`No stub match for ${canonical}`);
+      console.warn(`No stub match for block ${i + 1} (${canonical})`);
       skipped++;
       continue;
     }
 
-    const categoryFix = CATEGORY_FIX[canonicalKey];
+    const categoryFix = CATEGORY_FIX[normalizeScientificNameKey(canonical)];
 
     await prisma.species.update({
       where: { id: target.id },
-      data: {
-        scientificName: canonical,
-        commonNameFr: fields.commonNameFr,
-        commonNameEn: fields.commonNameEn,
-        experienceLevel: fields.experienceLevel ?? undefined,
-        descriptionFr: fields.descriptionFr,
-        descriptionEn: fields.descriptionEn,
-        adultSizeFr: fields.adultSizeFr,
-        adultSizeEn: fields.adultSizeEn,
-        lifespanFr: fields.lifespanFr,
-        lifespanEn: fields.lifespanEn,
-        temperamentFr: fields.temperamentFr,
-        temperamentEn: fields.temperamentEn,
-        dietFr: fields.dietFr,
-        dietEn: fields.dietEn,
-        humidity: fields.humidity,
-        tempDay: fields.tempDay,
-        tempNight: fields.tempNight,
-        uvbNeeds: fields.uvbNeeds,
-        enclosureMinSize: fields.enclosureMinSize,
-        substrate: fields.substrate,
-        feedingFrequency: fields.feedingFrequency,
-        handlingFr: fields.handlingFr,
-        handlingEn: fields.handlingEn,
-        ...(categoryFix ? { category: categoryFix as never } : {}),
-      },
+      data: buildUpdateData(canonical, fields, categoryFix),
     });
-    console.log(`Updated: ${target.scientificName} → ${canonical}`);
+    console.log(`Updated [${i + 1}]: ${target.scientificName} → ${canonical}`);
     updated++;
   }
 
