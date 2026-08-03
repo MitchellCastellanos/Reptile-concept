@@ -1,10 +1,10 @@
 import { prisma } from "@/lib/db";
 import { isProductCategory } from "@/lib/product-categories";
-import { isAnimalCategory } from "@/lib/animal-categories";
+import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
 import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
 
 export { PRODUCT_CATEGORIES, isProductCategory, type ProductCategoryValue } from "@/lib/product-categories";
-export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, ANIMAL_CATEGORY_ICON, animalCategoryGroup, isAnimalCategory, type AnimalCategoryValue } from "@/lib/animal-categories";
+export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, ANIMAL_CATEGORY_ICON, animalCategoryGroup, isAnimalCategory, isAnimalCategoryGroup, type AnimalCategoryValue } from "@/lib/animal-categories";
 
 /** Max out-of-stock items shown below the in-stock grid on /boutique. */
 export const FEATURED_OUT_OF_STOCK_LIMIT = 6;
@@ -23,7 +23,11 @@ export async function getAvailableAnimals(
 ) {
   const where = {
     status: "available" as const,
-    ...(isAnimalCategory(category) ? { species: { category } } : {}),
+    ...(isAnimalCategory(category)
+      ? { species: { category } }
+      : isAnimalCategoryGroup(category)
+        ? { species: { category: { in: animalCategoriesInGroup(category) } } }
+        : {}),
   };
   const [items, total] = await Promise.all([
     prisma.animal.findMany({

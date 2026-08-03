@@ -12,6 +12,7 @@ import {
   getAvailableAnimals,
   getWishlistedIds,
   isAnimalCategory,
+  isAnimalCategoryGroup,
 } from "@/lib/queries";
 import { parsePageNumber, parsePageSize } from "@/lib/listing";
 import { getCurrentCustomer } from "@/lib/customer-auth";
@@ -35,7 +36,8 @@ export default async function AnimalsPage({
   const { animalIds } = await getWishlistedIds(customer?.id);
 
   const activeCategory = isAnimalCategory(category) ? category : undefined;
-  const activeGroup = activeCategory ? animalCategoryGroup(activeCategory) : undefined;
+  const activeGroupOnly = !activeCategory && isAnimalCategoryGroup(category) ? category : undefined;
+  const activeGroup = activeCategory ? animalCategoryGroup(activeCategory) : activeGroupOnly;
 
   const navSections = ANIMAL_CATEGORY_GROUPS.map((group) => ({
     groupKey: group.key,
@@ -62,14 +64,21 @@ export default async function AnimalsPage({
       <div className="flex flex-col gap-3">
         <Breadcrumb
           items={[
-            { label: t("availableAnimals"), href: activeCategory ? "/animals" : undefined },
-            ...(activeGroup && activeCategory ? [{ label: tCategories(activeGroup) }] : []),
+            { label: t("availableAnimals"), href: activeGroup ? "/animals" : undefined },
+            ...(activeGroup
+              ? [
+                  {
+                    label: tCategories(activeGroup),
+                    href: activeCategory ? `/animals?category=${activeGroup}` : undefined,
+                  },
+                ]
+              : []),
             ...(activeCategory ? [{ label: tCategories(activeCategory) }] : []),
           ]}
         />
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            {activeCategory ? tCategories(activeCategory) : t("availableAnimals")}
+            {activeCategory ? tCategories(activeCategory) : activeGroup ? tCategories(activeGroup) : t("availableAnimals")}
           </h1>
           <p className="mt-2 text-muted">{t("animalsSubtitle")}</p>
         </div>
@@ -77,7 +86,7 @@ export default async function AnimalsPage({
 
       <GroupedCategoryButtonGrid
         allLabel={tListing("allAnimals")}
-        activeValue={activeCategory}
+        activeValue={activeCategory ?? activeGroupOnly}
         sections={navSections}
       />
 

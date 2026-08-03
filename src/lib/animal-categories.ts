@@ -47,6 +47,14 @@ export function isAnimalCategory(value: string | undefined): value is AnimalCate
   return !!value && (ANIMAL_CATEGORIES as readonly string[]).includes(value);
 }
 
+export function isAnimalCategoryGroup(value: string | undefined): value is AnimalCategoryGroupKey {
+  return !!value && ANIMAL_CATEGORY_GROUPS.some((group) => group.key === value);
+}
+
+export function animalCategoriesInGroup(group: AnimalCategoryGroupKey): AnimalCategoryValue[] {
+  return ANIMAL_CATEGORY_GROUPS.find((g) => g.key === group)!.categories;
+}
+
 export function animalCategoryGroup(category: AnimalCategoryValue): AnimalCategoryGroupKey {
   if (category.startsWith("reptiles")) return "reptiles";
   if (category.startsWith("amphibians")) return "amphibians";

@@ -45,9 +45,13 @@ function AccordionTopItem({ item, onNavigate }: { item: NavTopItem; onNavigate: 
           <div className="flex flex-col gap-0.5 py-1 pl-3">
             {item.sections?.map((section) => (
               <div key={section.key} className="flex flex-col pt-2 first:pt-0">
-                <span className="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-muted">
+                <Link
+                  href={section.href}
+                  onClick={onNavigate}
+                  className="rounded-lg px-3 py-1.5 text-base font-bold text-foreground hover:bg-accent-light hover:text-primary"
+                >
                   {tCategories(section.key)}
-                </span>
+                </Link>
                 {section.items.map((leaf) => (
                   <Link
                     key={leaf.key}

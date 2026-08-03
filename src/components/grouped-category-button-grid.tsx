@@ -17,7 +17,7 @@ export function GroupedCategoryButtonGrid({
   allLabel,
 }: {
   sections: GroupedCategoryButtonSection[];
-  activeValue?: AnimalCategoryValue;
+  activeValue?: AnimalCategoryValue | AnimalCategoryGroupKey;
   allLabel: string;
 }) {
   const pathname = usePathname();

@@ -4,7 +4,7 @@
 // the ProductCategory enum and filter for real via `getProducts(category)`.
 
 export type NavLeaf = { key: string; href: string };
-export type NavSection = { key: string; items: NavLeaf[] };
+export type NavSection = { key: string; href: string; items: NavLeaf[] };
 
 export type NavTopItem = {
   key: "home" | "animals" | "boutique" | "reviews";
@@ -23,6 +23,7 @@ export const NAV_ITEMS: NavTopItem[] = [
     sections: [
       {
         key: "reptiles",
+        href: "/animals?category=reptiles",
         items: [
           { key: "reptiles_snakes", href: "/animals?category=reptiles_snakes" },
           { key: "reptiles_geckos", href: "/animals?category=reptiles_geckos" },
@@ -33,6 +34,7 @@ export const NAV_ITEMS: NavTopItem[] = [
       },
       {
         key: "amphibians",
+        href: "/animals?category=amphibians",
         items: [
           { key: "amphibians_frogs", href: "/animals?category=amphibians_frogs" },
           { key: "amphibians_salamanders", href: "/animals?category=amphibians_salamanders" },
@@ -41,6 +43,7 @@ export const NAV_ITEMS: NavTopItem[] = [
       },
       {
         key: "invertebrates",
+        href: "/animals?category=invertebrates",
         items: [
           { key: "invertebrates_arachnids", href: "/animals?category=invertebrates_arachnids" },
           { key: "invertebrates_insects", href: "/animals?category=invertebrates_insects" },
