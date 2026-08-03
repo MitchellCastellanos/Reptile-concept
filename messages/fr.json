@@ -11,6 +11,7 @@
     "available": "Disponible",
     "inStock": "En stock",
     "outOfStock": "Rupture de stock",
+    "backInStock": "De retour en stock",
     "ctaAnimals": "Voir les animaux",
     "ctaShop": "Boutique d'accessoires",
     "categories": "Nos catégories",
@@ -28,7 +29,7 @@
     "why_shipping_body": "Payez en ligne et venez récupérer votre commande à notre boutique de Lachine.",
     "ctaTitle": "Prêt à accueillir votre prochain compagnon?",
     "ctaBody": "Parcourez notre sélection de reptiles et d'accessoires pour créer l'habitat parfait.",
-    "animalsSubtitle": "Découvrez nos reptiles disponibles, élevés avec soin à Lachine."
+    "animalsSubtitle": "Reptiles, amphibiens et invertébrés disponibles — élevés et sélectionnés avec soin à Lachine."
   },
   "Nav": {
     "animals": "Animaux",
@@ -55,13 +56,18 @@
   "NavCategories": {
     "reptiles": "Reptiles",
     "reptiles_snakes": "Serpents",
-    "reptiles_lizards": "Lézards et geckos",
+    "reptiles_geckos": "Geckos",
+    "reptiles_lizards": "Lézards",
     "reptiles_turtles": "Tortues",
     "reptiles_other": "Autres reptiles",
     "amphibians": "Amphibiens",
     "amphibians_frogs": "Grenouilles et crapauds",
     "amphibians_salamanders": "Salamandres et axolotls",
     "amphibians_other": "Autres amphibiens",
+    "invertebrates": "Invertébrés",
+    "invertebrates_arachnids": "Arachnides",
+    "invertebrates_insects": "Insectes",
+    "invertebrates_other": "Autres invertébrés",
     "viewAllAnimals": "Voir tous les animaux",
     "terrarium": "Terrariums et habitats",
     "substrate": "Substrats",
@@ -105,6 +111,9 @@
     "subtitle": "Terrariums, substrats, décoration et nourriture pour vos reptiles.",
     "inStock": "En stock",
     "outOfStock": "Rupture de stock",
+    "backInStock": "De retour en stock",
+    "featuredOutOfStock": "Populaires — temporairement en rupture",
+    "featuredOutOfStockHint": "Quelques articles qu'on a habituellement — revenez bientôt ou demandez en magasin.",
     "noProducts": "Aucun produit disponible pour le moment.",
     "backToList": "Retour à la boutique"
   },

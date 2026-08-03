@@ -10,6 +10,7 @@ import {
   importFullCloverCatalog,
   bulkIgnoreCandidatesByCategory,
   bulkCreateProductsFromCategory,
+  bulkCreateAnimalsFromCategory,
   saveCloverCategoryRule,
   deleteCloverCategoryRule,
 } from "@/lib/clover-sync";
@@ -40,6 +41,7 @@ export type FullImportActionResult = {
   queued?: number;
   alreadyLinked?: number;
   autoCreated?: number;
+  autoCreatedAnimals?: number;
 };
 
 // One-time (repeatable) backfill of Clover's existing catalog — the
@@ -131,6 +133,32 @@ export async function bulkCreateProductsCategoryAction(
   revalidatePath("/admin/products");
   revalidatePath("/boutique");
   return { created, skipped };
+}
+
+export type BulkCreateAnimalsActionResult = { error?: string; created?: number; skipped?: number };
+
+export async function bulkCreateAnimalsCategoryAction(
+  _prevState: BulkCreateAnimalsActionResult | undefined,
+  formData: FormData,
+): Promise<BulkCreateAnimalsActionResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const cloverCategoryName = decodeCloverCategory(formData);
+  if (!looksLikeAnimalCategory(cloverCategoryName)) {
+    return { error: "Cette catégorie ne ressemble pas à des animaux." };
+  }
+
+  try {
+    const { created, skipped } = await bulkCreateAnimalsFromCategory(cloverCategoryName);
+    await recordAudit(admin.id, "Animal", "bulk-create-from-clover", "create");
+    revalidatePath("/admin/clover-import");
+    revalidatePath("/admin/animals");
+    revalidatePath("/animals");
+    return { created, skipped };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Erreur lors de la création en bloc." };
+  }
 }
 
 export async function deleteCategoryRuleAction(formData: FormData) {

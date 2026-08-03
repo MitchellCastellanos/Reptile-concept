@@ -18,11 +18,11 @@ export function ListingToolbar({
   const searchParams = useSearchParams();
 
   const sort = (searchParams.get("sort") as ListingSort) || "newest";
-  const stock = (searchParams.get("stock") as StockFilter) || "all";
+  const stock = (searchParams.get("stock") as StockFilter) || "in_stock";
 
   function update(key: "sort" | "stock", value: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (value === "newest" || value === "all") {
+    if (value === "newest" || value === "in_stock") {
       params.delete(key);
     } else {
       params.set(key, value);

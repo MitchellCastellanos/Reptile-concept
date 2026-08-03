@@ -21,12 +21,8 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Ventes",
-    links: [
-      { href: "/admin/orders", label: "Commandes" },
-      { href: "/admin/pos", label: "Vente en magasin" },
-      { href: "/admin/finance", label: "Finances" },
-    ],
+    title: "Commandes",
+    links: [{ href: "/admin/orders", label: "Commandes en ligne" }],
   },
   {
     title: "Clients",

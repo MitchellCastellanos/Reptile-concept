@@ -49,7 +49,18 @@ export async function updateProductAction(id: string, formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
-  await prisma.product.update({ where: { id }, data: readProductForm(formData) });
+  const existing = await prisma.product.findUniqueOrThrow({ where: { id } });
+  const data = readProductForm(formData);
+  const restocked = existing.stockQty <= 0 && data.stockQty > 0;
+
+  await prisma.product.update({
+    where: { id },
+    data: {
+      ...data,
+      ...(restocked ? { stockRestockedAt: new Date() } : {}),
+      ...(data.stockQty <= 0 ? { stockRestockedAt: null } : {}),
+    },
+  });
   await recordAudit(admin.id, "Product", id, "update");
 
   revalidatePath("/admin/products");

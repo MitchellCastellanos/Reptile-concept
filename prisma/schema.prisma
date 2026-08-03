@@ -133,12 +133,16 @@ enum CloverCategoryRuleAction {
 // ProductCategory.
 enum AnimalCategory {
   reptiles_snakes
+  reptiles_geckos
   reptiles_lizards
   reptiles_turtles
   reptiles_other
   amphibians_frogs
   amphibians_salamanders
   amphibians_other
+  invertebrates_arachnids
+  invertebrates_insects
+  invertebrates_other
 }
 
 model Species {
@@ -226,6 +230,9 @@ model Product {
   imageUrl          String?
   priceCAD          Decimal
   stockQty          Int             @default(0)
+  // Set when stock goes from 0 → >0 (Clover sync or manual edit) — powers the
+  // "Back in stock" badge on the storefront for BACK_IN_STOCK_WINDOW_DAYS.
+  stockRestockedAt  DateTime?
   published         Boolean         @default(false)
   requiresColdChain Boolean         @default(false)
   weightKg          Float?

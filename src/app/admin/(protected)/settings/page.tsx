@@ -15,9 +15,9 @@ export default async function AdminSettingsPage() {
       <fieldset className="flex max-w-2xl flex-col gap-2 rounded-lg border border-black/10 p-4 dark:border-white/10">
         <legend className="px-1 text-sm font-medium">Synchronisation Clover</legend>
         <p className="text-xs text-zinc-600 dark:text-zinc-400">
-          Ventes faites directement sur l&apos;appareil Clover (magasin ou expo), reflétées ici via
-          webhook (temps réel) et un sondage de secours (variables d&apos;environnement
-          CLOVER_MERCHANT_ID / CLOVER_API_TOKEN / CLOVER_WEBHOOK_SECRET).
+          Inventaire et ventes en magasin/expo passent par l&apos;appareil Clover. Le site reçoit les
+          mises à jour d&apos;articles (prix, stock, nouveaux SKUs) via webhook et sondage de secours
+          (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN / CLOVER_WEBHOOK_SECRET).
         </p>
         <p className="text-sm">
           Identifiants configurés :{" "}
@@ -42,9 +42,8 @@ export default async function AdminSettingsPage() {
         </p>
         <CloverSyncNowButton />
         <p className="text-xs text-zinc-500">
-          Force la vérification immédiate des ventes Clover, sans attendre le sondage automatique
-          (toutes les 10 minutes) ou un webhook manqué. Ne crée pas de nouvelles fiches — met à jour
-          uniquement les animaux/produits déjà reliés à un article Clover.
+          Met à jour prix/stock et la file d&apos;import pour les articles Clover déjà reliés ou
+          couverts par une règle de catégorie. Les ventes comptoir restent dans Clover uniquement.
         </p>
       </fieldset>
 

@@ -71,7 +71,7 @@ async function main() {
         commonNameFr: "Gecko léopard",
         commonNameEn: "Leopard gecko",
         scientificName: "Eublepharis macularius",
-        category: "reptiles_lizards",
+        category: "reptiles_geckos",
       },
     }),
     prisma.species.upsert({
@@ -93,7 +93,7 @@ async function main() {
         commonNameFr: "Gecko à crête",
         commonNameEn: "Crested gecko",
         scientificName: "Correlophus ciliatus",
-        category: "reptiles_lizards",
+        category: "reptiles_geckos",
       },
     }),
   ]);

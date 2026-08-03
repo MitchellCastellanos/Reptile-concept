@@ -2,17 +2,17 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 
 export default async function AdminDashboard() {
-  const [animalCount, productCount, orderCount, customerCount] = await Promise.all([
+  const [animalCount, productCount, pendingImport, customerCount] = await Promise.all([
     prisma.animal.count({ where: { status: "available" } }),
-    prisma.product.count(),
-    prisma.order.count(),
+    prisma.product.count({ where: { published: true } }),
+    prisma.cloverImportCandidate.count({ where: { status: "pending" } }),
     prisma.customer.count(),
   ]);
 
   const cards = [
     { href: "/admin/animals", label: "Animaux disponibles", value: animalCount },
-    { href: "/admin/products", label: "Produits", value: productCount },
-    { href: "/admin/orders", label: "Commandes", value: orderCount },
+    { href: "/admin/products", label: "Produits publiés", value: productCount },
+    { href: "/admin/clover-import", label: "En attente (Clover)", value: pendingImport },
     { href: "/admin/customers", label: "Clients", value: customerCount },
   ];
 

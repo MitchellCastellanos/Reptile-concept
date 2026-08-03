@@ -17,7 +17,13 @@
     "export:uncategorized": "tsx --tsconfig tsconfig.json scripts/export-uncategorized-only.ts",
     "export:chatgpt-v2": "tsx --tsconfig tsconfig.json scripts/build-chatgpt-v2.ts",
     "inventory:finalize": "python scripts/finalize-inventory-triage.py",
+    "inventory:clover-import-csv": "python scripts/generate-clover-import-csv.py",
+    "inventory:clover-import-fr": "python scripts/build-clover-import-fr.py",
+    "inventory:launch-online": "tsx --tsconfig tsconfig.json scripts/launch-inventory-online.ts",
     "inventory:apply-triage": "tsx --tsconfig tsconfig.json scripts/apply-inventory-triage.ts",
+    "inventory:bulk-import-animals": "tsx --tsconfig tsconfig.json scripts/bulk-import-clover-animals.ts",
+    "inventory:fix-live-food-misimport": "tsx --tsconfig tsconfig.json scripts/fix-live-food-misimport.ts",
+    "inventory:reclassify-animals": "tsx --tsconfig tsconfig.json scripts/reclassify-animal-categories.ts",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
   },

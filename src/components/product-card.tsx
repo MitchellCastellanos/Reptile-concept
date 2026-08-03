@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { getProductImageUrl } from "@/lib/images";
+import { isBackInStock } from "@/lib/product-stock";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
@@ -13,6 +14,7 @@ type ProductCardProduct = {
   imageUrl?: string | null;
   priceCAD: { toString(): string } | number;
   stockQty: number;
+  stockRestockedAt?: Date | null;
 };
 
 export function ProductCard({
@@ -20,6 +22,7 @@ export function ProductCard({
   locale,
   inStockLabel,
   outOfStockLabel,
+  backInStockLabel,
   showWishlist = false,
   inWishlist = false,
 }: {
@@ -27,11 +30,13 @@ export function ProductCard({
   locale: string;
   inStockLabel: string;
   outOfStockLabel: string;
+  backInStockLabel?: string;
   showWishlist?: boolean;
   inWishlist?: boolean;
 }) {
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const imageUrl = product.imageUrl || getProductImageUrl(product.category);
+  const showBackInStock = backInStockLabel && isBackInStock(product);
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md">
@@ -44,6 +49,11 @@ export function ProductCard({
             className="object-cover transition duration-300 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
+          {showBackInStock ? (
+            <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+              {backInStockLabel}
+            </span>
+          ) : null}
           {showWishlist ? (
             <span className="absolute right-3 top-3">
               <WishlistToggleButton type="product" itemId={product.id} initialActive={inWishlist} variant="icon" />

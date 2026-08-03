@@ -4,7 +4,10 @@ import { isAnimalCategory } from "@/lib/animal-categories";
 import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
 
 export { PRODUCT_CATEGORIES, isProductCategory, type ProductCategoryValue } from "@/lib/product-categories";
-export { ANIMAL_CATEGORIES, isAnimalCategory, type AnimalCategoryValue } from "@/lib/animal-categories";
+export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, animalCategoryGroup, isAnimalCategory, type AnimalCategoryValue } from "@/lib/animal-categories";
+
+/** Max out-of-stock items shown below the in-stock grid on /boutique. */
+export const FEATURED_OUT_OF_STOCK_LIMIT = 6;
 
 function orderByForSort(sort: string | undefined) {
   const value: ListingSort = isListingSort(sort) ? sort : "newest";
@@ -35,7 +38,7 @@ export function getProducts(
   category?: string,
   opts?: { publishedOnly?: boolean; sort?: string; stock?: string },
 ) {
-  const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "all";
+  const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "in_stock";
   return prisma.product.findMany({
     where: {
       ...(opts?.publishedOnly ? { published: true } : {}),
@@ -44,6 +47,19 @@ export function getProducts(
       ...(stock === "out_of_stock" ? { stockQty: { lte: 0 } } : {}),
     },
     orderBy: orderByForSort(opts?.sort),
+  });
+}
+
+/** A handful of recently-updated OOS products — shown under the in-stock grid only. */
+export function getFeaturedOutOfStockProducts(category?: string, limit = FEATURED_OUT_OF_STOCK_LIMIT) {
+  return prisma.product.findMany({
+    where: {
+      published: true,
+      stockQty: { lte: 0 },
+      ...(isProductCategory(category) ? { category } : {}),
+    },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
   });
 }
 

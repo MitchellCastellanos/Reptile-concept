@@ -25,6 +25,7 @@ export const NAV_ITEMS: NavTopItem[] = [
         key: "reptiles",
         items: [
           { key: "reptiles_snakes", href: "/animals?category=reptiles_snakes" },
+          { key: "reptiles_geckos", href: "/animals?category=reptiles_geckos" },
           { key: "reptiles_lizards", href: "/animals?category=reptiles_lizards" },
           { key: "reptiles_turtles", href: "/animals?category=reptiles_turtles" },
           { key: "reptiles_other", href: "/animals?category=reptiles_other" },
@@ -36,6 +37,14 @@ export const NAV_ITEMS: NavTopItem[] = [
           { key: "amphibians_frogs", href: "/animals?category=amphibians_frogs" },
           { key: "amphibians_salamanders", href: "/animals?category=amphibians_salamanders" },
           { key: "amphibians_other", href: "/animals?category=amphibians_other" },
+        ],
+      },
+      {
+        key: "invertebrates",
+        items: [
+          { key: "invertebrates_arachnids", href: "/animals?category=invertebrates_arachnids" },
+          { key: "invertebrates_insects", href: "/animals?category=invertebrates_insects" },
+          { key: "invertebrates_other", href: "/animals?category=invertebrates_other" },
         ],
       },
     ],

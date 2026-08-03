@@ -11,6 +11,7 @@
     "available": "Available",
     "inStock": "In stock",
     "outOfStock": "Out of stock",
+    "backInStock": "Back in stock",
     "ctaAnimals": "Browse animals",
     "ctaShop": "Shop supplies",
     "categories": "Our categories",
@@ -28,7 +29,7 @@
     "why_shipping_body": "Pay online and swing by our Lachine location to pick up your order.",
     "ctaTitle": "Ready for your next companion?",
     "ctaBody": "Browse our selection of reptiles and supplies to build the perfect habitat.",
-    "animalsSubtitle": "Discover our available reptiles, carefully bred in Lachine."
+    "animalsSubtitle": "Discover our reptiles, amphibians and invertebrates — carefully bred and sourced in Lachine."
   },
   "Nav": {
     "animals": "Animals",
@@ -55,13 +56,18 @@
   "NavCategories": {
     "reptiles": "Reptiles",
     "reptiles_snakes": "Snakes",
-    "reptiles_lizards": "Lizards & geckos",
+    "reptiles_geckos": "Geckos",
+    "reptiles_lizards": "Lizards",
     "reptiles_turtles": "Turtles & tortoises",
     "reptiles_other": "Other reptiles",
     "amphibians": "Amphibians",
     "amphibians_frogs": "Frogs & toads",
     "amphibians_salamanders": "Salamanders & axolotls",
     "amphibians_other": "Other amphibians",
+    "invertebrates": "Invertebrates",
+    "invertebrates_arachnids": "Arachnids",
+    "invertebrates_insects": "Insects",
+    "invertebrates_other": "Other invertebrates",
     "viewAllAnimals": "View all animals",
     "terrarium": "Terrariums & habitats",
     "substrate": "Substrates",
@@ -105,6 +111,9 @@
     "subtitle": "Terrariums, substrates, décor and food for your reptiles.",
     "inStock": "In stock",
     "outOfStock": "Out of stock",
+    "backInStock": "Back in stock",
+    "featuredOutOfStock": "Popular — temporarily out of stock",
+    "featuredOutOfStockHint": "A few items we usually carry — check back soon or ask in store.",
     "noProducts": "No products available right now.",
     "backToList": "Back to shop"
   },

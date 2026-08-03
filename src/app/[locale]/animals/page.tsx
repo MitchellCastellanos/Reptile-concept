@@ -2,9 +2,9 @@ import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
 import { AnimalCard } from "@/components/animal-card";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { CategoryPillNav } from "@/components/category-pill-nav";
+import { GroupedCategoryPillNav } from "@/components/grouped-category-pill-nav";
 import { ListingToolbar } from "@/components/listing-toolbar";
-import { ANIMAL_CATEGORIES, getAvailableAnimals, getWishlistedIds, isAnimalCategory } from "@/lib/queries";
+import { ANIMAL_CATEGORY_GROUPS, animalCategoryGroup, getAvailableAnimals, getWishlistedIds, isAnimalCategory } from "@/lib/queries";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 
 export default async function AnimalsPage({
@@ -23,6 +23,13 @@ export default async function AnimalsPage({
   const { animalIds } = await getWishlistedIds(customer?.id);
 
   const activeCategory = isAnimalCategory(category) ? category : undefined;
+  const activeGroup = activeCategory ? animalCategoryGroup(activeCategory) : undefined;
+
+  const navSections = ANIMAL_CATEGORY_GROUPS.map((group) => ({
+    groupKey: group.key,
+    groupLabel: tCategories(group.key),
+    items: group.categories.map((value) => ({ value, label: tCategories(value) })),
+  }));
 
   return (
     <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-6 py-12">
@@ -30,6 +37,7 @@ export default async function AnimalsPage({
         <Breadcrumb
           items={[
             { label: t("availableAnimals"), href: activeCategory ? "/animals" : undefined },
+            ...(activeGroup && activeCategory ? [{ label: tCategories(activeGroup) }] : []),
             ...(activeCategory ? [{ label: tCategories(activeCategory) }] : []),
           ]}
         />
@@ -41,10 +49,10 @@ export default async function AnimalsPage({
         </div>
       </div>
 
-      <CategoryPillNav
+      <GroupedCategoryPillNav
         allLabel={tListing("allAnimals")}
         activeValue={activeCategory}
-        items={ANIMAL_CATEGORIES.map((value) => ({ value, label: tCategories(value) }))}
+        sections={navSections}
       />
 
       <ListingToolbar resultCount={animals.length} />

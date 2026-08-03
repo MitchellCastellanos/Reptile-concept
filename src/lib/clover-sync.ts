@@ -23,7 +23,8 @@ import {
   type CloverItem,
 } from "@/lib/clover";
 import type { ProductCategoryValue } from "@/lib/product-categories";
-import { looksLikeAnimalCategory } from "@/lib/clover-category-mapping";
+import { looksLikeAnimalCategory, resolveCloverImportRoute } from "@/lib/clover-category-mapping";
+import { createAnimalFromCloverData } from "@/lib/clover-animal-import";
 
 function resolvePaymentMethod(order: CloverOrder): "cash" | "card" | undefined {
   const tenderLabel = order.payments?.elements?.[0]?.tender?.label?.toLowerCase();
@@ -139,17 +140,35 @@ async function syncLinkedAnimalFromItem(animalId: string, item: CloverItem) {
 }
 
 async function syncLinkedProductFromItem(productId: string, item: CloverItem) {
+  const existing = await prisma.product.findUniqueOrThrow({ where: { id: productId } });
+  const nextStockQty =
+    item.stockCount != null ? Math.max(0, item.stockCount) : existing.stockQty;
+  const restocked = existing.stockQty <= 0 && nextStockQty > 0;
+
   await prisma.product.update({
     where: { id: productId },
     data: {
       priceCAD: item.price / 100,
-      ...(item.stockCount != null ? { stockQty: Math.max(0, item.stockCount) } : {}),
+      ...(item.stockCount != null
+        ? {
+            stockQty: nextStockQty,
+            ...(restocked ? { stockRestockedAt: new Date() } : {}),
+            ...(nextStockQty <= 0 ? { stockRestockedAt: null } : {}),
+          }
+        : {}),
     },
   });
 }
 
 export type ProcessItemResult = {
-  action: "linked-animal" | "linked-product" | "queued" | "skipped" | "rule-auto-created" | "rule-ignored";
+  action:
+    | "linked-animal"
+    | "linked-product"
+    | "queued"
+    | "skipped"
+    | "rule-auto-created"
+    | "rule-auto-created-animal"
+    | "rule-ignored";
 };
 
 // Category name as stored in CloverCategoryRule — "" stands in for "no
@@ -178,6 +197,44 @@ export async function processCloverItem(item: CloverItem): Promise<ProcessItemRe
   if (product) {
     await syncLinkedProductFromItem(product.id, item);
     return { action: "linked-product" };
+  }
+
+  const cloverCategoryName = item.categories?.elements?.[0]?.name ?? null;
+  const route = resolveCloverImportRoute(cloverCategoryName, item.name);
+
+  if (route.kind === "auto_product") {
+    const created = await createProductFromCloverData({
+      cloverItemId: item.id,
+      name: item.name,
+      priceCAD: item.price / 100,
+      stockCount: item.stockCount,
+      productCategory: route.productCategory,
+      published: route.published,
+    });
+    if (created) {
+      await prisma.cloverImportCandidate.updateMany({
+        where: { cloverItemId: item.id },
+        data: { status: "created" },
+      });
+      return { action: "rule-auto-created" };
+    }
+  }
+
+  if (route.kind === "animal") {
+    const created = await createAnimalFromCloverData({
+      cloverItemId: item.id,
+      name: item.name,
+      priceCAD: item.price / 100,
+      stockCount: item.stockCount,
+      cloverCategoryName,
+    });
+    if (created) {
+      await prisma.cloverImportCandidate.updateMany({
+        where: { cloverItemId: item.id },
+        data: { status: "created" },
+      });
+      return { action: "rule-auto-created-animal" };
+    }
   }
 
   const rule = await prisma.cloverCategoryRule.findUnique({ where: { cloverCategoryName: ruleKeyFor(item) } });
@@ -254,6 +311,7 @@ export async function createProductFromCloverData(params: {
   priceCAD: number;
   stockCount?: number | null;
   productCategory: ProductCategoryValue;
+  published?: boolean;
 }): Promise<boolean> {
   try {
     await prisma.product.create({
@@ -265,7 +323,7 @@ export async function createProductFromCloverData(params: {
         priceCAD: params.priceCAD,
         stockQty: params.stockCount ?? 0,
         cloverItemId: params.cloverItemId,
-        published: false,
+        published: params.published ?? false,
       },
     });
     return true;
@@ -286,6 +344,40 @@ export async function bulkIgnoreCandidatesByCategory(cloverCategoryName: string 
 }
 
 export type BulkCreateResult = { created: number; skipped: number };
+
+export async function bulkCreateAnimalsFromCategory(
+  cloverCategoryName: string | null,
+): Promise<BulkCreateResult> {
+  if (!looksLikeAnimalCategory(cloverCategoryName)) {
+    throw new Error(`Not an animal Clover category: ${cloverCategoryName}`);
+  }
+
+  const candidates = await prisma.cloverImportCandidate.findMany({
+    where: { status: "pending", cloverCategoryName },
+  });
+
+  let created = 0;
+  let skipped = 0;
+  for (const candidate of candidates) {
+    const ok = await createAnimalFromCloverData({
+      cloverItemId: candidate.cloverItemId,
+      name: candidate.name,
+      priceCAD: Number(candidate.priceCAD),
+      stockCount: candidate.stockCount,
+      cloverCategoryName: candidate.cloverCategoryName,
+    });
+    if (ok) {
+      await prisma.cloverImportCandidate.update({
+        where: { id: candidate.id },
+        data: { status: "created" },
+      });
+      created++;
+    } else {
+      skipped++;
+    }
+  }
+  return { created, skipped };
+}
 
 export async function bulkCreateProductsFromCategory(
   cloverCategoryName: string | null,
@@ -365,6 +457,7 @@ export type FullImportResult = {
   queued: number;
   alreadyLinked: number;
   autoCreated: number;
+  autoCreatedAnimals: number;
 };
 
 // One-time (repeatable) backfill for a merchant's pre-existing Clover
@@ -380,13 +473,15 @@ export async function importFullCloverCatalog(): Promise<FullImportResult> {
   let queued = 0;
   let alreadyLinked = 0;
   let autoCreated = 0;
+  let autoCreatedAnimals = 0;
   for (const item of items) {
     const result = await processCloverItem(item);
     if (result.action === "queued") queued++;
     if (result.action === "linked-animal" || result.action === "linked-product") alreadyLinked++;
     if (result.action === "rule-auto-created") autoCreated++;
+    if (result.action === "rule-auto-created-animal") autoCreatedAnimals++;
   }
-  return { totalItems: items.length, queued, alreadyLinked, autoCreated };
+  return { totalItems: items.length, queued, alreadyLinked, autoCreated, autoCreatedAnimals };
 }
 
 export type PollResult = {
@@ -395,6 +490,7 @@ export type PollResult = {
   itemsChecked: number;
   itemsQueued: number;
   itemsAutoCreated: number;
+  itemsAutoCreatedAnimals: number;
 };
 
 // Polling fallback — catches anything a missed/failed webhook delivery
@@ -415,10 +511,12 @@ export async function pollClover(): Promise<PollResult> {
 
   let itemsQueued = 0;
   let itemsAutoCreated = 0;
+  let itemsAutoCreatedAnimals = 0;
   for (const item of items) {
     const result = await processCloverItem(item);
     if (result.action === "queued") itemsQueued++;
     if (result.action === "rule-auto-created") itemsAutoCreated++;
+    if (result.action === "rule-auto-created-animal") itemsAutoCreatedAnimals++;
   }
 
   await prisma.cloverSyncState.upsert({
@@ -433,6 +531,7 @@ export async function pollClover(): Promise<PollResult> {
     itemsChecked: items.length,
     itemsQueued,
     itemsAutoCreated,
+    itemsAutoCreatedAnimals,
   };
 }
 
