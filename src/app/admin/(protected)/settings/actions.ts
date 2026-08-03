@@ -9,14 +9,26 @@ import { updateStoreSettings } from "@/lib/settings";
 import { recordAudit } from "@/lib/audit";
 import { isCloverConfigured } from "@/lib/clover";
 import { pollClover } from "@/lib/clover-sync";
-import { DAY_ORDER, DAY_LABELS, isValidTime, formatWeeklyHours, type WeeklyHours } from "@/lib/business-hours";
+import {
+  DAY_ORDER,
+  DAY_LABELS,
+  DEFAULT_WEEKLY_HOURS,
+  isValidTime,
+  formatWeeklyHours,
+  type WeeklyHours,
+} from "@/lib/business-hours";
 
 function parseWeeklyHoursFromForm(formData: FormData): WeeklyHours {
   const weeklyHours = {} as WeeklyHours;
   for (const day of DAY_ORDER) {
     const closed = formData.has(`closed_${day}`);
-    const start = String(formData.get(`start_${day}`) ?? "");
-    const end = String(formData.get(`end_${day}`) ?? "");
+    // The start/end <select> elements are disabled (and so absent from
+    // FormData) when a day is marked closed — fall back to the default
+    // times rather than rejecting the submission.
+    const rawStart = formData.get(`start_${day}`);
+    const rawEnd = formData.get(`end_${day}`);
+    const start = closed && rawStart === null ? DEFAULT_WEEKLY_HOURS[day].start : String(rawStart ?? "");
+    const end = closed && rawEnd === null ? DEFAULT_WEEKLY_HOURS[day].end : String(rawEnd ?? "");
 
     if (!isValidTime(start) || !isValidTime(end)) {
       throw new Error("Heures d'ouverture invalides.");
