@@ -51,7 +51,11 @@
     "stockLabel": "Availability",
     "stock_all": "All availability",
     "stock_in_stock": "In stock",
-    "stock_out_of_stock": "Out of stock"
+    "stock_out_of_stock": "Out of stock",
+    "perPageLabel": "Items per page",
+    "perPageOption": "Show {count}",
+    "paginationPrevious": "Previous",
+    "paginationNext": "Next"
   },
   "NavCategories": {
     "reptiles": "Reptiles",

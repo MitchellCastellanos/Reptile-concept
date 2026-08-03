@@ -3,7 +3,14 @@
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
-import { LISTING_SORTS, STOCK_FILTERS, type ListingSort, type StockFilter } from "@/lib/listing";
+import {
+  DEFAULT_LISTING_PAGE_SIZE,
+  LISTING_PAGE_SIZES,
+  LISTING_SORTS,
+  STOCK_FILTERS,
+  type ListingSort,
+  type StockFilter,
+} from "@/lib/listing";
 
 export function ListingToolbar({
   resultCount,
@@ -19,14 +26,21 @@ export function ListingToolbar({
 
   const sort = (searchParams.get("sort") as ListingSort) || "newest";
   const stock = (searchParams.get("stock") as StockFilter) || "in_stock";
+  const perPage = Number(searchParams.get("perPage")) || DEFAULT_LISTING_PAGE_SIZE;
 
-  function update(key: "sort" | "stock", value: string) {
+  function update(key: "sort" | "stock" | "perPage", value: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (value === "newest" || value === "in_stock") {
+    if (
+      (key === "sort" && value === "newest") ||
+      (key === "stock" && value === "in_stock") ||
+      (key === "perPage" && Number(value) === DEFAULT_LISTING_PAGE_SIZE)
+    ) {
       params.delete(key);
     } else {
       params.set(key, value);
     }
+    // Any filter change invalidates the current page number.
+    params.delete("page");
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname);
   }
@@ -61,6 +75,18 @@ export function ListingToolbar({
           {LISTING_SORTS.map((value) => (
             <option key={value} value={value}>
               {t(`sort_${value}`)}
+            </option>
+          ))}
+        </select>
+        <select
+          aria-label={t("perPageLabel")}
+          value={perPage}
+          onChange={(e) => update("perPage", e.target.value)}
+          className={selectClass}
+        >
+          {LISTING_PAGE_SIZES.map((value) => (
+            <option key={value} value={value}>
+              {t("perPageOption", { count: value })}
             </option>
           ))}
         </select>

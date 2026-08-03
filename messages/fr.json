@@ -51,7 +51,11 @@
     "stockLabel": "Disponibilité",
     "stock_all": "Toute disponibilité",
     "stock_in_stock": "En stock",
-    "stock_out_of_stock": "Rupture de stock"
+    "stock_out_of_stock": "Rupture de stock",
+    "perPageLabel": "Articles par page",
+    "perPageOption": "Afficher {count}",
+    "paginationPrevious": "Précédent",
+    "paginationNext": "Suivant"
   },
   "NavCategories": {
     "reptiles": "Reptiles",

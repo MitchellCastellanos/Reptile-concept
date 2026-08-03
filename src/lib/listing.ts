@@ -14,3 +14,19 @@ export type StockFilter = (typeof STOCK_FILTERS)[number];
 export function isStockFilter(value: string | undefined): value is StockFilter {
   return !!value && (STOCK_FILTERS as readonly string[]).includes(value);
 }
+
+export const LISTING_PAGE_SIZES = [25, 50, 100] as const;
+export type ListingPageSize = (typeof LISTING_PAGE_SIZES)[number];
+export const DEFAULT_LISTING_PAGE_SIZE: ListingPageSize = 25;
+
+export function parsePageSize(value: string | undefined): ListingPageSize {
+  const num = Number(value);
+  return (LISTING_PAGE_SIZES as readonly number[]).includes(num)
+    ? (num as ListingPageSize)
+    : DEFAULT_LISTING_PAGE_SIZE;
+}
+
+export function parsePageNumber(value: string | undefined): number {
+  const num = Number(value);
+  return Number.isInteger(num) && num > 0 ? num : 1;
+}
