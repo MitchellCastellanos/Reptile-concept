@@ -11,7 +11,17 @@ export default async function AdminCustomerDetailPage({
   const { id } = await params;
   const customer = await prisma.customer.findUnique({
     where: { id },
-    include: { orders: { orderBy: { createdAt: "desc" } }, addresses: true },
+    include: {
+      orders: { orderBy: { createdAt: "desc" } },
+      addresses: true,
+      wishlistItems: {
+        include: {
+          animal: { include: { species: true } },
+          product: true,
+        },
+        orderBy: { createdAt: "desc" },
+      },
+    },
   });
   if (!customer) notFound();
 
@@ -43,6 +53,48 @@ export default async function AdminCustomerDetailPage({
           Pièces jointes: {customer.attachmentsNote}
         </p>
       ) : null}
+
+      <section>
+        <h2 className="font-medium">Liste de souhaits</h2>
+        {customer.wishlistItems.length === 0 ? (
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Aucun article enregistré.</p>
+        ) : (
+          <ul className="mt-2 flex flex-col gap-2 text-sm">
+            {customer.wishlistItems.map((item) => {
+              const animal = item.animal;
+              const product = item.product;
+              const label = animal
+                ? `${animal.species.commonNameFr} — ${animal.morph}`
+                : product
+                  ? product.nameFr
+                  : "—";
+              const price = animal ? animal.priceCAD : product ? product.priceCAD : null;
+              const adminHref = animal
+                ? `/admin/animals/${animal.id}/edit`
+                : product
+                  ? `/admin/products/${product.id}/edit`
+                  : null;
+
+              return (
+                <li key={item.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <span>{label}</span>
+                  {price != null ? (
+                    <span className="text-zinc-500">({Number(price).toFixed(2)} $)</span>
+                  ) : null}
+                  <span className="text-zinc-500">
+                    — ajouté le {item.createdAt.toLocaleDateString("fr-CA")}
+                  </span>
+                  {adminHref ? (
+                    <Link href={adminHref} className="underline">
+                      Voir fiche
+                    </Link>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
 
       <section>
         <h2 className="font-medium">Historique des commandes</h2>

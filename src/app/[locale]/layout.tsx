@@ -4,7 +4,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
-import { SiteNav } from "@/components/site-nav";
+import { SiteNavWrapper } from "@/components/site-nav-wrapper";
 import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BnplBanner } from "@/components/bnpl-banner";
@@ -66,7 +66,7 @@ export default async function RootLayout({
             <PageViewTracker />
             <BnplBanner />
             <AnnouncementBanner />
-            <SiteNav />
+            <SiteNavWrapper />
             {children}
             <SiteFooter />
             <CookieConsentBanner />

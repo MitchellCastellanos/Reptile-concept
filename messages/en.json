@@ -38,6 +38,7 @@
     "cart": "Cart",
     "reviews": "Reviews",
     "account": "Account",
+    "wishlist": "Wishlist",
     "menu": "Menu"
   },
   "Listing": {
@@ -190,6 +191,8 @@
     "noWishlist": "Your wishlist is empty.",
     "addToWishlist": "Add to wishlist",
     "removeFromWishlist": "Remove from wishlist",
+    "backToAccount": "Back to my account",
+    "wishlistItemCount": "{count, plural, one {# item} other {# items}}",
     "welcomeBack": "Welcome back",
     "orderNumber": "Order",
     "status": "Status"

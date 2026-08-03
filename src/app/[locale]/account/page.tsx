@@ -28,6 +28,8 @@ export default async function AccountPage() {
     orderBy: { createdAt: "desc" },
   });
 
+  const wishlistCount = await prisma.wishlistItem.count({ where: { customerId: customer.id } });
+
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-6 py-12">
       <div className="flex items-center justify-between">
@@ -42,8 +44,22 @@ export default async function AccountPage() {
         </form>
       </div>
 
-      <Link href="/account/wishlist" className="w-fit text-sm font-medium text-primary hover:underline">
-        {t("myWishlist")} &rarr;
+      <Link
+        href="/account/wishlist"
+        className="flex w-fit items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm transition hover:border-primary/30"
+      >
+        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 21s-7-4.35-9.33-8.5C.67 9.15 2.73 5.5 6.5 5.5c2.04 0 3.28 1.18 3.78 2.22C10.78 6.68 12.02 5.5 14.06 5.5 17.83 5.5 19.89 9.15 21.33 12.5 19 16.65 12 21 12 21z" />
+        </svg>
+        <div>
+          <p className="font-semibold">{t("myWishlist")}</p>
+          <p className="text-sm text-muted">
+            {wishlistCount === 0
+              ? t("noWishlist")
+              : t("wishlistItemCount", { count: wishlistCount })}
+          </p>
+        </div>
+        <span className="ml-2 text-primary">&rarr;</span>
       </Link>
 
       <section className="flex flex-col gap-4">

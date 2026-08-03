@@ -25,7 +25,15 @@ export default async function WishlistPage() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-8 px-6 py-12">
-      <h1 className="text-2xl font-bold tracking-tight">{t("myWishlist")}</h1>
+      <div className="flex flex-col gap-2">
+        <Link href="/account" className="w-fit text-sm font-medium text-primary hover:underline">
+          &larr; {t("backToAccount")}
+        </Link>
+        <h1 className="text-2xl font-bold tracking-tight">{t("myWishlist")}</h1>
+        {items.length > 0 ? (
+          <p className="text-sm text-muted">{t("wishlistItemCount", { count: items.length })}</p>
+        ) : null}
+      </div>
 
       {items.length === 0 ? (
         <p className="text-muted">{t("noWishlist")}</p>

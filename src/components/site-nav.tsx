@@ -7,7 +7,13 @@ import { useCart } from "@/lib/cart-context";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { CategoryMenu } from "@/components/category-menu";
 
-export function SiteNav() {
+export function SiteNav({
+  isLoggedIn = false,
+  wishlistCount = 0,
+}: {
+  isLoggedIn?: boolean;
+  wishlistCount?: number;
+}) {
   const t = useTranslations("Nav");
   const { items } = useCart();
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -27,6 +33,22 @@ export function SiteNav() {
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:ml-0 sm:gap-3">
           <LocaleSwitcher />
+          {isLoggedIn ? (
+            <Link
+              href="/account/wishlist"
+              className="relative flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent-light hover:text-primary sm:px-3"
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 21s-7-4.35-9.33-8.5C.67 9.15 2.73 5.5 6.5 5.5c2.04 0 3.28 1.18 3.78 2.22C10.78 6.68 12.02 5.5 14.06 5.5 17.83 5.5 19.89 9.15 21.33 12.5 19 16.65 12 21 12 21z" />
+              </svg>
+              <span className="hidden sm:inline">{t("wishlist")}</span>
+              {wishlistCount > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-xs text-white">
+                  {wishlistCount}
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
           <Link
             href="/account"
             className="flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent-light hover:text-primary sm:px-3"

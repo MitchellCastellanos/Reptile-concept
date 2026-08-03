@@ -38,6 +38,7 @@
     "cart": "Panier",
     "reviews": "Avis clients",
     "account": "Compte",
+    "wishlist": "Liste de souhaits",
     "menu": "Menu"
   },
   "Listing": {
@@ -190,6 +191,8 @@
     "noWishlist": "Votre liste de souhaits est vide.",
     "addToWishlist": "Ajouter à ma liste",
     "removeFromWishlist": "Retirer de ma liste",
+    "backToAccount": "Retour à mon compte",
+    "wishlistItemCount": "{count, plural, one {# article} other {# articles}}",
     "welcomeBack": "Content de vous revoir",
     "orderNumber": "Commande",
     "status": "Statut"
