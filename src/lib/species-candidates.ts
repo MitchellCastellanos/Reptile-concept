@@ -21,7 +21,7 @@ const BALL_PYTHON_MORPH_RE =
 
 const CLOVER_SNAKE_CATEGORY = /^(serpent|snake)$/i;
 
-const TRADE_SPECIES_MAP: { pattern: RegExp; scientificName: string }[] = [
+const TRADE_SPECIES_MAP: [RegExp, string][] = [
   [/python\s+royale|ball\s+python/i, "Python regius"],
   [/\bboa\b(?!\s*constrictor)/i, "Boa constrictor"],
   [/corn\s+snake|corn\s+scaleless|shiping\s+corn/i, "Pantherophis guttatus"],
