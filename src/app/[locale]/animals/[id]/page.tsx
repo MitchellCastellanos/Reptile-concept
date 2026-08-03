@@ -8,6 +8,7 @@ import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { SpeciesCareSheet } from "@/components/species-care-sheet";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
 
@@ -101,6 +102,8 @@ export default async function AnimalDetailPage({
           <WishlistToggleButton type="animal" itemId={animal.id} initialActive={isWishlisted} />
         </div>
       </div>
+
+      <SpeciesCareSheet species={animal.species} locale={locale} t={t} />
     </main>
   );
 }

@@ -13,7 +13,13 @@ const FEEDER_RE =
   /\b(ASF|grillon|cricket|vers de|mealworm|superworm|dubia|roach|blaptica|blatte|feeder|nourriture vivante|bruche du haricot)\b/i;
 
 const MERCH_IN_ANIMAL_CATEGORY_RE =
-  /\b(repashy|pangea|gecko diet|beardie|hikari|exo terra|pt\d|dr\d|z77|z99|bol gecko|grotte pour gecko|terrarium équipé|complete gecko diet|mulberry madness|pineapple express|mango tango|gourmet bearded)\b/i;
+  /\b(repashy|pangea|gecko diet|beardie|hikari|exo terra|pt\d{3}|dr\d{3}|z\d{3}|bol gecko|grotte pour gecko|terrarium équipé|complete gecko diet|mulberry madness|pineapple express|mango tango|gourmet bearded|frog pond|dart frog terrarium|liquid feeder|super hatch|incubation|aquatic newt food|terrestrial isopod kit)\b/i;
+
+/** Clover snake-morph listings without "python" in the title (batch imports). */
+const BALL_PYTHON_MORPH_RE =
+  /\b(banana|het|pied|enchi|pinstripe|mojave|pastel|clown|spider|bamboo|yellowbelly|yellow belly|\byb\b|\bod\b|axanthic|ghost|lesser|super|piebald|pinstripe|dm\b)\b/i;
+
+const CLOVER_SNAKE_CATEGORY = /^(serpent|snake)$/i;
 
 const TRADE_SPECIES_MAP: { pattern: RegExp; scientificName: string }[] = [
   [/python\s+royale|ball\s+python/i, "Python regius"],
@@ -42,6 +48,12 @@ const TRADE_SPECIES_MAP: { pattern: RegExp; scientificName: string }[] = [
   [/madagascar\s+spiny/i, "Oplurus cuvieri"],
   [/lacerta\s+m[ée]lanique/i, "Timon lepidus"],
   [/agame\s+peint/i, "Pogona henrylawsoni"],
+  [/tinctorius/i, "Dendrobates tinctorius"],
+  [/dendrobates\s+oophaga|oophaga\s+paru/i, "Oophaga pumilio"],
+  [/tliltocatl/i, "Tliltocatl kahlenbergi"],
+  [/jumping\s+spider|araignée\s+sauteuse/i, "Phidippus audax"],
+  [/mante\s+religieuse/i, "Mantis religiosa"],
+  [/tad-?pool/i, "Dendrobates tinctorius"],
 ];
 
 const COMMON_WORDS = new Set([
@@ -98,6 +110,12 @@ export function extractScientificName(name: string): string | null {
   );
   if (paren) return normalizeSci(paren[1]);
 
+  // Unclosed paren: "Garter Snake ( Thamnophis cyrtopsis ocellatus"
+  const afterOpenParen = name.match(/\(\s*([A-Z][a-z]+\s+[a-z]+(?:\s+[a-z]+)?)\s*$/);
+  if (afterOpenParen && isLikelyGenus(afterOpenParen[1].split(/\s+/)[0])) {
+    return normalizeSci(afterOpenParen[1]);
+  }
+
   const abbrev = name.match(/\b([A-Z]\.\s+[a-z]+(?:\s+[a-z]+)?)\b/);
   if (abbrev) return normalizeSci(abbrev[1]);
 
@@ -114,8 +132,12 @@ export function extractScientificName(name: string): string | null {
   return null;
 }
 
+export function isMerchandiseMisimportedAsAnimal(name: string) {
+  return MERCH_IN_ANIMAL_CATEGORY_RE.test(name);
+}
+
 export function shouldSkipAnimalName(name: string) {
-  return FEEDER_RE.test(name) || MERCH_IN_ANIMAL_CATEGORY_RE.test(name);
+  return FEEDER_RE.test(name) || isMerchandiseMisimportedAsAnimal(name);
 }
 
 export function inferSpeciesCandidate(
@@ -125,6 +147,12 @@ export function inferSpeciesCandidate(
   if (shouldSkipAnimalName(name)) return null;
 
   const category = inferAnimalCategoryFromMorph(name, cloverCategoryName);
+  const cloverKey = cloverCategoryName?.trim().toLowerCase() ?? "";
+
+  if (CLOVER_SNAKE_CATEGORY.test(cloverKey) && BALL_PYTHON_MORPH_RE.test(name)) {
+    return { scientificName: "Python regius", category: "reptiles_snakes", source: "trade-map" };
+  }
+
   const sci = extractScientificName(name);
   if (sci) {
     return { scientificName: sci, category, source: "scientific" };
@@ -191,6 +219,9 @@ const CANONICAL_SCIENTIFIC_NAMES: Record<string, string> = {
   "boa constrictor": "Boa constrictor",
   "correlophus ciliatus": "Correlophus ciliatus",
   "pantherophis guttatus": "Pantherophis guttatus",
+  "testudo marginata": "Testudo marginata",
+  "oplurus cuvieri": "Oplurus cuvieri",
+  "timon lepidus": "Timon lepidus",
 };
 
 export function normalizeScientificNameKey(name: string) {
@@ -205,6 +236,15 @@ export function normalizeScientificNameKey(name: string) {
     "gecko à crête": "correlophus ciliatus",
     "boa régulier": "boa constrictor",
     "boa regulier": "boa constrictor",
+    "timon lepidus": "timon lepidus",
+    "jeweled lacerta": "timon lepidus",
+    "dendrobates tinctorius": "dendrobates tinctorius",
+    "dendrobate tinctorius": "dendrobates tinctorius",
+    "oophaga pumilio": "oophaga pumilio",
+    "dendrobate oophaga": "oophaga pumilio",
+    "porcellio spinicornis": "porcellio spinicornis",
+    "isopod porcellio": "porcellio spinicornis",
+    "thamnophis cyrtopsis ocellatus": "thamnophis cyrtopsis",
   };
   return aliases[lower] ?? lower;
 }
