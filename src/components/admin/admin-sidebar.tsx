@@ -5,12 +5,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/app/admin/(protected)/actions";
 
-type NavLink = { href: string; label: string; badgeKey?: "species" | "animals" };
+type NavLink = { href: string; label: string; badgeKey?: "species" | "animals" | "products" };
 type NavSection = { title: string; links: NavLink[] };
 
 export type AdminCatalogCounts = {
   animalsNeedingAttention: number;
   speciesIncomplete: number;
+  productsUnpublishedInStock: number;
 };
 
 const DASHBOARD_LINK: NavLink = { href: "/admin", label: "Tableau de bord" };
@@ -21,7 +22,7 @@ const NAV_SECTIONS: NavSection[] = [
     links: [
       { href: "/admin/species", label: "Espèces", badgeKey: "species" },
       { href: "/admin/animals", label: "Animaux", badgeKey: "animals" },
-      { href: "/admin/products", label: "Produits" },
+      { href: "/admin/products", label: "Produits", badgeKey: "products" },
       { href: "/admin/clover-import", label: "Nouveaux articles Clover" },
     ],
   },
@@ -56,6 +57,7 @@ function badgeCount(link: NavLink, counts?: AdminCatalogCounts) {
   if (!counts || !link.badgeKey) return 0;
   if (link.badgeKey === "species") return counts.speciesIncomplete;
   if (link.badgeKey === "animals") return counts.animalsNeedingAttention;
+  if (link.badgeKey === "products") return counts.productsUnpublishedInStock;
   return 0;
 }
 
@@ -87,7 +89,9 @@ function NavLinkItem({
           title={
             link.badgeKey === "animals"
               ? "Animaux sans espèce réelle ou fiche incomplète"
-              : "Fiches d'espèce incomplètes"
+              : link.badgeKey === "products"
+                ? "Produits en stock non publiés"
+                : "Fiches d'espèce incomplètes"
           }
         >
           {count}

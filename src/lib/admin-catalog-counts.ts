@@ -30,5 +30,9 @@ export async function getAdminCatalogCounts() {
     (s) => !isCloverPlaceholderSpeciesId(s.id) && isCareSheetIncomplete(s),
   ).length;
 
-  return { animalsNeedingAttention, speciesIncomplete };
+  const productsUnpublishedInStock = await prisma.product.count({
+    where: { published: false, stockQty: { gt: 0 } },
+  });
+
+  return { animalsNeedingAttention, speciesIncomplete, productsUnpublishedInStock };
 }
