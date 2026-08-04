@@ -25,8 +25,9 @@ puis récupère sa commande en boutique :
 4. Si le client ne récupère pas sa commande avant la date limite, elle est automatiquement
    annulée et remboursée (moins les frais d'annulation configurables, 15 % par défaut) —
    voir `src/lib/order-expiration.ts`. Ce contrôle tourne à chaque chargement de
-   `/admin/orders` ; pour un contrôle fiable en production, planifiez un appel régulier
-   (Vercel Cron ou autre) sur `GET /api/cron/expire-orders`.
+   `/admin/orders`, et en production via le cron planifié `/api/cron/expire-pending-orders`
+   (voir ci-dessous — le plan Vercel Hobby limite à 2 crons, donc ce contrôle est combiné
+   avec celui-ci plutôt que d'avoir son propre créneau sur `/api/cron/expire-orders`).
 5. L'admin clique sur **Marquer récupérée** → statut `picked_up`, courriel final avec un
    lien (à durée illimitée, signé avec `SESSION_SECRET`) vers `/reviews/new/[orderId]`
    pour laisser un avis. Les avis publiés apparaissent sur `/reviews`.
@@ -82,7 +83,7 @@ Chaque futur `git push` sur la branche connectée redéploie automatiquement.
 
 - `src/app/[locale]/` — site public bilingue (catalogue d'animaux, fiches, boutique d'accessoires, avis)
 - `src/app/admin/` — panel d'administration (CRUD animaux/produits/commandes/clients/annonces/avis, finances, réglages)
-- `src/app/api/cron/expire-orders/` — endpoint à planifier pour annuler les commandes non récupérées à temps
+- `src/app/api/cron/expire-orders/` — annule les commandes non récupérées à temps ; appelé automatiquement par le cron `expire-pending-orders` en production (voir plus haut), reste aussi appelable directement
 - `src/lib/email.ts`, `src/lib/email-templates.ts`, `src/lib/order-notifications.ts` — envoi des courriels transactionnels
 - `src/lib/order-expiration.ts` — annulation/remboursement automatique des commandes expirées
 - `prisma/schema.prisma` — modèle de données (Animal, Species, Product, Bundle, Order, Payment, FinancialRecord, Review, StoreSettings, AdminUser, Announcement, etc.)
