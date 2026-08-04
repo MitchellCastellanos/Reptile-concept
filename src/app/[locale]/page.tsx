@@ -42,13 +42,13 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative flex min-h-[420px] items-center overflow-hidden">
+      <section className="relative flex min-h-[420px] items-center overflow-hidden xl:min-h-[480px] 2xl:min-h-[540px]">
         <Image
           src="/images/hero.jpg"
           alt="Reptiles Concept"
           fill
           priority
-          className="object-cover object-center lg:object-[center_52%] xl:object-[center_60%] 2xl:object-[center_70%]"
+          className="object-cover object-center xl:object-[center_42%] 2xl:object-[center_34%]"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/30" />
