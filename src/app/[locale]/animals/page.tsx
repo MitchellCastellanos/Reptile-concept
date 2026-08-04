@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { AnimalCard } from "@/components/animal-card";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { GroupedCategoryButtonGrid } from "@/components/grouped-category-button-grid";
+import { ListingScrollAnchor } from "@/components/listing-scroll-anchor";
 import { ListingToolbar } from "@/components/listing-toolbar";
 import { Pagination } from "@/components/pagination";
 import {
@@ -91,6 +92,8 @@ export default async function AnimalsPage({
       />
 
       <ListingToolbar resultCount={total} />
+
+      <ListingScrollAnchor />
 
       <p className="rounded-xl border border-border bg-accent-light px-4 py-3 text-sm text-foreground/80">
         {tAnimal("researchDisclaimer")}

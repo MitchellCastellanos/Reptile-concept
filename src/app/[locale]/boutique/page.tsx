@@ -10,6 +10,7 @@ import { isStockFilter, parsePageNumber, parsePageSize } from "@/lib/listing";
 import { ProductCard } from "@/components/product-card";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CategoryPillNav } from "@/components/category-pill-nav";
+import { ListingScrollAnchor } from "@/components/listing-scroll-anchor";
 import { ListingToolbar } from "@/components/listing-toolbar";
 import { Pagination } from "@/components/pagination";
 import { getCurrentCustomer } from "@/lib/customer-auth";
@@ -80,6 +81,8 @@ export default async function BoutiquePage({
       />
 
       <ListingToolbar resultCount={total + (showFeaturedOos ? featuredOnly.length : 0)} showStockFilter />
+
+      <ListingScrollAnchor />
 
       {products.length === 0 && featuredOnly.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center">
