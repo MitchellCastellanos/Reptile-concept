@@ -9,7 +9,7 @@ import {
 import { animalNeedsAttention } from "@/lib/admin-catalog-attention";
 import { isCloverPlaceholderSpeciesId } from "@/lib/admin-catalog-counts";
 import { isCareSheetIncomplete } from "@/lib/species-utils";
-import { animalPlaceholderImage } from "@/lib/images";
+import { getAnimalImageUrl } from "@/lib/images";
 import { AdminCatalogAlertBanner } from "@/components/admin/admin-catalog-alert-banner";
 import {
   AdminAlertRowLink,
@@ -211,7 +211,7 @@ export default async function AdminAnimalsPage({
                     <AdminPhotoCell
                       id={animal.id}
                       currentUrl={animal.media[0]?.url ?? null}
-                      defaultUrl={animalPlaceholderImage}
+                      defaultUrl={getAnimalImageUrl(animal.species.category)}
                       action={updateAnimalPhotoAction}
                     />
                   </td>
