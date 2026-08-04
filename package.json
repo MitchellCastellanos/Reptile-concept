@@ -23,6 +23,7 @@
     "inventory:apply-triage": "tsx --tsconfig tsconfig.json scripts/apply-inventory-triage.ts",
     "inventory:bulk-import-animals": "tsx --tsconfig tsconfig.json scripts/bulk-import-clover-animals.ts",
     "inventory:fix-live-food-misimport": "tsx --tsconfig tsconfig.json scripts/fix-live-food-misimport.ts",
+    "inventory:fix-animal-category-food-misimport": "tsx --tsconfig tsconfig.json scripts/fix-animal-category-food-misimport.ts",
     "inventory:reclassify-animals": "tsx --tsconfig tsconfig.json scripts/reclassify-animal-categories.ts",
     "export:species-batch": "tsx --tsconfig tsconfig.json scripts/export-species-batch.ts",
     "export:species-batch-remaining": "tsx --tsconfig tsconfig.json scripts/export-species-batch-remaining.ts",

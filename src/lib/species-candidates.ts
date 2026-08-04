@@ -13,7 +13,10 @@ const FEEDER_RE =
   /\b(ASF|grillon|cricket|vers de|mealworm|superworm|dubia|roach|blaptica|blatte|feeder|nourriture vivante|bruche du haricot)\b/i;
 
 const MERCH_IN_ANIMAL_CATEGORY_RE =
-  /\b(repashy|pangea|gecko diet|beardie|hikari|exo terra|pt\d{3}|dr\d{3}|z\d{3}|bol gecko|grotte pour gecko|terrarium équipé|complete gecko diet|mulberry madness|pineapple express|mango tango|gourmet bearded|frog pond|dart frog terrarium|liquid feeder|super hatch|incubation|aquatic newt food|terrestrial isopod kit)\b/i;
+  /\b(repashy|pangea|gecko diet|beardie|hikari|exo terra|pt\d{3}|dr\d{3}|z\d{3}|bol gecko|grotte pour gecko|terrarium équipé|complete gecko diet|mulberry madness|pineapple express|mango tango|gourmet bearded|frog pond|dart frog terrarium|liquid feeder|super hatch|incubation|aquatic newt food|terrestrial isopod kit|terrarium kit|frog terrarium)\b/i;
+
+const FOOD_OR_CONSUMABLE_NAME =
+  /\b(food|nourriture|aliment|alimentation|treat|gâterie|gaterie|vitamine?s?|calcium|repas|diet)\b/i;
 
 /** Clover snake-morph listings without "python" in the title (batch imports). */
 const BALL_PYTHON_MORPH_RE =
@@ -137,7 +140,11 @@ export function isMerchandiseMisimportedAsAnimal(name: string) {
 }
 
 export function shouldSkipAnimalName(name: string) {
-  return FEEDER_RE.test(name) || isMerchandiseMisimportedAsAnimal(name);
+  return (
+    FEEDER_RE.test(name) ||
+    isMerchandiseMisimportedAsAnimal(name) ||
+    FOOD_OR_CONSUMABLE_NAME.test(name.trim())
+  );
 }
 
 export function inferSpeciesCandidate(

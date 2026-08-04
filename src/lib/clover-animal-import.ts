@@ -8,6 +8,7 @@ import {
 } from "@/lib/animal-categories";
 import { inferAnimalCategoryFromMorph } from "@/lib/animal-category-inference";
 import { looksLikeAnimalCategory } from "@/lib/clover-category-mapping";
+import { shouldSkipAnimalName } from "@/lib/species-candidates";
 
 const PET_ARACHNID_NAME =
   /\b(araignée|araignee|spider|tarantula|tliltocatl|acanthoscurria|mante religieuse|jumping spider)/i;
@@ -96,6 +97,7 @@ async function ensureSpecies(speciesId: string): Promise<void> {
 }
 
 function resolveCategory(cloverCategoryName: string | null, itemName: string): AnimalCategoryValue | null {
+  if (shouldSkipAnimalName(itemName)) return null;
   if (itemName && PET_ARACHNID_NAME.test(itemName)) {
     return "invertebrates_arachnids";
   }

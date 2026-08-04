@@ -15,7 +15,7 @@ import {
   deleteCloverCategoryRule,
 } from "@/lib/clover-sync";
 import { PRODUCT_CATEGORIES } from "@/lib/product-categories";
-import { looksLikeAnimalCategory } from "@/lib/clover-category-mapping";
+import { isMixedLiveAnimalCloverCategory, looksLikeAnimalCategory } from "@/lib/clover-category-mapping";
 
 // The category filter forms use "__none__" as a stand-in for "no Clover
 // category" (a real null can't travel through a form field).
@@ -147,6 +147,12 @@ export async function bulkCreateAnimalsCategoryAction(
   const cloverCategoryName = decodeCloverCategory(formData);
   if (!looksLikeAnimalCategory(cloverCategoryName)) {
     return { error: "Cette catégorie ne ressemble pas à des animaux." };
+  }
+  if (isMixedLiveAnimalCloverCategory(cloverCategoryName)) {
+    return {
+      error:
+        "Catégorie mixte (animaux + nourriture/accessoires) — créez les animaux un par un depuis la file d'attente.",
+    };
   }
 
   try {

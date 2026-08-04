@@ -2,6 +2,7 @@
 // ProductCategory or Animal pipeline — informed by the client's real Clover
 // catalog (~1800 items across ~16 categories).
 import type { ProductCategoryValue } from "@/lib/product-categories";
+import { isMerchandiseMisimportedAsAnimal } from "@/lib/species-candidates";
 
 export type CloverImportRoute =
   | { kind: "animal" }
@@ -56,10 +57,15 @@ function isMixedInvertebrateCategory(cat: string): boolean {
   return cat.includes("isopod") || cat.includes("araignee") || cat.includes("araignée") || cat.includes("fourmis");
 }
 
-function productCategoryForRongeurItem(name: string): ProductCategoryValue {
+export function productCategoryForRongeurItem(name: string): ProductCategoryValue {
   if (FROZEN_FEEDER_NAME.test(name)) return "food_frozen";
   if (PACKAGED_FEEDER_NAME.test(name)) return "food_packaged";
   return "food_live";
+}
+
+/** True when an item name looks like food/supplies misfiled under a live-animal Clover category. */
+export function matchesFoodOrConsumableName(name: string): boolean {
+  return FOOD_OR_CONSUMABLE_NAME.test(name.trim());
 }
 
 function productCategoryForMixedInvertebrateItem(name: string): ProductCategoryValue | null {
@@ -106,10 +112,11 @@ export function resolveCloverImportRoute(
   }
 
   if (ANIMAL_CATEGORY_KEYWORDS.some((kw) => cat.includes(kw))) {
-    // A live-animal category name doesn't guarantee a live animal — food and
-    // supplies for that animal are often filed in the same Clover category.
-    // Queue those for manual review instead of auto-creating a fake animal.
-    if (FOOD_OR_CONSUMABLE_NAME.test(name)) {
+    // A live-animal category name doesn't guarantee a live animal — food,
+    // habitat merch, and supplements for that animal are often filed in the
+    // same Clover category. Queue those for manual review instead of
+    // auto-creating a fake animal (see species-candidates merch patterns).
+    if (FOOD_OR_CONSUMABLE_NAME.test(name) || isMerchandiseMisimportedAsAnimal(name)) {
       return { kind: "manual" };
     }
     return { kind: "animal" };
@@ -135,6 +142,12 @@ export function looksLikeLiveFoodCategory(cloverCategoryName: string | null): bo
 /** True for Clover's mixed isopod/spider/ant bucket (needs per-item routing). */
 export function isMixedInvertebrateCloverCategory(cloverCategoryName: string | null): boolean {
   return isMixedInvertebrateCategory(normalizeCategory(cloverCategoryName));
+}
+
+/** Live-pet Clover buckets that also contain food, terrariums, and decor — no bulk animal create. */
+export function isMixedLiveAnimalCloverCategory(cloverCategoryName: string | null): boolean {
+  const cat = normalizeCategory(cloverCategoryName);
+  return ANIMAL_CATEGORY_KEYWORDS.some((kw) => cat.includes(kw));
 }
 
 // Exact Clover category names (lowercased) seen in the client's real

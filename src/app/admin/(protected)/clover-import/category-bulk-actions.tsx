@@ -7,6 +7,7 @@ import {
   looksLikeAnimalCategory,
   looksLikeLiveFoodCategory,
   isMixedInvertebrateCloverCategory,
+  isMixedLiveAnimalCloverCategory,
   suggestProductCategory,
 } from "@/lib/clover-category-mapping";
 
@@ -16,13 +17,18 @@ export function CategoryBulkActions({ cloverCategoryName }: { cloverCategoryName
   const [animalState, animalAction, animalPending] = useActionState(bulkCreateAnimalsCategoryAction, undefined);
   const key = cloverCategoryName ?? "__none__";
   const isAnimalCategory = looksLikeAnimalCategory(cloverCategoryName);
+  const isMixedLiveAnimal = isMixedLiveAnimalCloverCategory(cloverCategoryName);
   const isLiveFood = looksLikeLiveFoodCategory(cloverCategoryName);
   const isMixedInvertebrate = isMixedInvertebrateCloverCategory(cloverCategoryName);
   const suggested = suggestProductCategory(cloverCategoryName);
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {isAnimalCategory ? (
+      {isMixedLiveAnimal ? (
+        <span className="whitespace-nowrap text-xs text-amber-700 dark:text-amber-500">
+          Catégorie mixte — nourriture et accessoires vont en révision ; créez les animaux un par un.
+        </span>
+      ) : isAnimalCategory ? (
         <>
           <form action={animalAction} className="flex flex-wrap items-center gap-2">
             <input type="hidden" name="cloverCategoryName" value={key} />

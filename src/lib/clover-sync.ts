@@ -23,7 +23,11 @@ import {
   type CloverItem,
 } from "@/lib/clover";
 import type { ProductCategoryValue } from "@/lib/product-categories";
-import { looksLikeAnimalCategory, resolveCloverImportRoute } from "@/lib/clover-category-mapping";
+import {
+  isMixedLiveAnimalCloverCategory,
+  looksLikeAnimalCategory,
+  resolveCloverImportRoute,
+} from "@/lib/clover-category-mapping";
 import { createAnimalFromCloverData } from "@/lib/clover-animal-import";
 
 function resolvePaymentMethod(order: CloverOrder): "cash" | "card" | undefined {
@@ -350,6 +354,11 @@ export async function bulkCreateAnimalsFromCategory(
 ): Promise<BulkCreateResult> {
   if (!looksLikeAnimalCategory(cloverCategoryName)) {
     throw new Error(`Not an animal Clover category: ${cloverCategoryName}`);
+  }
+  if (isMixedLiveAnimalCloverCategory(cloverCategoryName)) {
+    throw new Error(
+      `Mixed live-animal Clover category — create animals one by one from the queue: ${cloverCategoryName}`,
+    );
   }
 
   const candidates = await prisma.cloverImportCandidate.findMany({
