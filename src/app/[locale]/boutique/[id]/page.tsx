@@ -13,6 +13,7 @@ import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { ShareButton } from "@/components/share-button";
 import { NotifyMeForm } from "./notify-me-form";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
@@ -154,7 +155,10 @@ export default async function ProductDetailPage({
           )}
 
           <PaymentBadges />
-          <WishlistToggleButton type="product" itemId={product.id} initialActive={isWishlisted} />
+          <div className="flex items-center gap-3">
+            <WishlistToggleButton type="product" itemId={product.id} initialActive={isWishlisted} />
+            <ShareButton title={name} url={`${getSiteUrl()}/${locale}/boutique/${product.id}`} />
+          </div>
         </div>
       </div>
 

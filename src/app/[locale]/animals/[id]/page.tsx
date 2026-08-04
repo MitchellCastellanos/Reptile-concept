@@ -13,6 +13,7 @@ import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { ShareButton } from "@/components/share-button";
 import { SpeciesCareSheet } from "@/components/species-care-sheet";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
@@ -163,7 +164,13 @@ export default async function AnimalDetailPage({
               <PaymentBadges />
             </>
           ) : null}
-          <WishlistToggleButton type="animal" itemId={animal.id} initialActive={isWishlisted} />
+          <div className="flex items-center gap-3">
+            <WishlistToggleButton type="animal" itemId={animal.id} initialActive={isWishlisted} />
+            <ShareButton
+              title={`${speciesName} — ${animal.morph}`}
+              url={`${getSiteUrl()}/${locale}/animals/${animal.id}`}
+            />
+          </div>
         </div>
       </div>
 

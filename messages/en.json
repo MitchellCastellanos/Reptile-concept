@@ -259,6 +259,14 @@
     "timeline_ready_for_pickup": "Ready for pickup",
     "timeline_picked_up": "Picked up"
   },
+  "Share": {
+    "share": "Share",
+    "facebook": "Share on Facebook",
+    "whatsapp": "Share on WhatsApp",
+    "x": "Share on X",
+    "copyLink": "Copy link",
+    "copied": "Link copied!"
+  },
   "Legal": {
     "cookieBannerText": "We use cookies to keep our store running (cart, sign-in) and to understand how visitors use our site. See our cookie policy for details.",
     "cookieBannerAccept": "Got it",
