@@ -29,6 +29,8 @@ import {
   resolveCloverImportRoute,
 } from "@/lib/clover-category-mapping";
 import { createAnimalFromCloverData } from "@/lib/clover-animal-import";
+import { getStoreSettings } from "@/lib/settings";
+import { estimateTaxFromTaxInclusiveTotal } from "@/lib/tax";
 
 function resolvePaymentMethod(order: CloverOrder): "cash" | "card" | undefined {
   const tenderLabel = order.payments?.elements?.[0]?.tender?.label?.toLowerCase();
@@ -53,6 +55,15 @@ export async function processCloverOrder(order: CloverOrder): Promise<ProcessOrd
   const amountCAD = order.total / 100;
   const paymentMethod = resolvePaymentMethod(order);
   const lineItems = order.lineItems?.elements ?? [];
+
+  // Clover doesn't report its own GST/QST split back through the sync, so
+  // we back it out from the same rates the site's own checkout uses — the
+  // in-person sale was subject to the same TPS/TVQ as everything else.
+  const settings = await getStoreSettings();
+  const { gstAmountCAD, qstAmountCAD } = estimateTaxFromTaxInclusiveTotal(amountCAD, {
+    gstRatePercent: Number(settings.gstRatePercent),
+    qstRatePercent: Number(settings.qstRatePercent),
+  });
 
   const cloverItemIds = lineItems.map((li) => li.item?.id).filter((id): id is string => Boolean(id));
   const [animals, products] = await Promise.all([
@@ -115,7 +126,9 @@ export async function processCloverOrder(order: CloverOrder): Promise<ProcessOrd
         channel: "clover_pos",
         paymentMethod,
         amountCAD,
-        note: "Vente Clover (magasin ou expo)",
+        gstAmountCAD,
+        qstAmountCAD,
+        note: "Vente Clover (magasin ou expo) — TPS/TVQ estimées à partir du total, Clover ne renvoie pas le détail",
       },
     });
   });

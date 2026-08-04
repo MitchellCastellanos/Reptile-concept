@@ -30,3 +30,14 @@ export function computeTax(subtotalCAD: number, rates: TaxRates): TaxBreakdown {
     totalCAD: round2(subtotal + gstAmountCAD + qstAmountCAD),
   };
 }
+
+// Clover's Orders API only gives us the final tax-inclusive total the
+// customer paid at the register, not a subtotal/tax breakdown — the
+// standalone device doesn't send one back through the sync. Back out the
+// same GST/QST split computeTax() would have produced by inverting its
+// formula: total = subtotal * (1 + gstRate/100 + qstRate/100).
+export function estimateTaxFromTaxInclusiveTotal(totalCAD: number, rates: TaxRates): TaxBreakdown {
+  const combinedRate = (rates.gstRatePercent + rates.qstRatePercent) / 100;
+  const subtotal = totalCAD / (1 + combinedRate);
+  return computeTax(subtotal, rates);
+}
