@@ -58,7 +58,15 @@ export async function SiteFooter() {
 
         <div className="flex flex-col gap-2 text-sm">
           <p className="font-semibold">{t("visit")}</p>
-          <p className="text-white/80">{address}</p>
+          <a
+            href="https://maps.app.goo.gl/EBqcSSgk7hRtST8Z6?g_st=ic"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t("getDirections")}
+            className="text-white/80 underline decoration-white/30 underline-offset-2 hover:text-white hover:decoration-white/60"
+          >
+            {address}
+          </a>
           <p className="text-white/80">{hours}</p>
         </div>
 
