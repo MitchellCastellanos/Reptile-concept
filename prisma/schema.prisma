@@ -200,6 +200,7 @@ model Animal {
   orderItems    OrderItem[]
   wishlistItems WishlistItem[]
   posSaleItems  PosSaleItem[]
+  reviews       Review[]
   // Links this record to its counterpart Clover inventory item. Set the
   // first time it's synced from Clover (new item created there) or the
   // first time it's pushed to Clover (new animal created on the site).
@@ -247,6 +248,7 @@ model Product {
   posSaleItems      PosSaleItem[]
   media             Media[]
   stockNotifications StockNotification[]
+  reviews           Review[]
   cloverItemId      String?         @unique
   cloverSaleItems   CloverSaleItem[]
   createdAt         DateTime        @default(now())
@@ -519,6 +521,16 @@ model Review {
   customerId String
   rating     Int
   comment    String?
+  // Set only when the customer flagged which item a <=3-star review on a
+  // multi-item order was about (see /reviews/new/[orderId]). Null means the
+  // review applies to the whole order — src/lib/ratings.ts dilutes it
+  // across every item in that order when computing per-item averages.
+  // SetNull (not Cascade) so deleting the item later doesn't delete the
+  // review itself, just detaches the pointer.
+  animal     Animal?  @relation(fields: [animalId], references: [id], onDelete: SetNull)
+  animalId   String?
+  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productId  String?
   published  Boolean  @default(false)
   createdAt  DateTime @default(now())
 }

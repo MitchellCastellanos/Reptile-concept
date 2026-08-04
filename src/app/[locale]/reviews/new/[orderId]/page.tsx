@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { verifyReviewToken } from "@/lib/review-token";
 import { submitReviewAction } from "./actions";
-import { StarRatingInput } from "./star-rating-input";
+import { ReviewRatingSection, type ReviewableItem } from "./review-rating-section";
 
 export default async function NewReviewPage({
   params,
@@ -27,7 +27,10 @@ export default async function NewReviewPage({
 
   const order = await prisma.order.findUnique({
     where: { id: orderId },
-    include: { review: true },
+    include: {
+      review: true,
+      items: { include: { animal: { include: { species: true } }, product: true } },
+    },
   });
   if (!order) notFound();
 
@@ -40,6 +43,15 @@ export default async function NewReviewPage({
     );
   }
 
+  const reviewableItems: ReviewableItem[] = order.items.map((item) => {
+    if (item.animal) {
+      const speciesName = locale === "en" ? item.animal.species.commonNameEn : item.animal.species.commonNameFr;
+      return { type: "animal", id: item.animal.id, label: `${speciesName} — ${item.animal.morph}` };
+    }
+    const name = locale === "en" ? item.product!.nameEn : item.product!.nameFr;
+    return { type: "product", id: item.product!.id, label: name };
+  });
+
   const boundAction = submitReviewAction.bind(null, orderId);
 
   return (
@@ -50,7 +62,7 @@ export default async function NewReviewPage({
         <input type="hidden" name="locale" value={locale} />
         <div className="flex flex-col gap-1 text-sm">
           {t("ratingLabel")}
-          <StarRatingInput name="rating" />
+          <ReviewRatingSection items={reviewableItems} />
         </div>
         <label className="flex flex-col gap-1 text-sm">
           {t("commentLabel")}

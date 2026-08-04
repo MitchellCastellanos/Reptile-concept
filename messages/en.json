@@ -217,6 +217,8 @@
     "ratingLabel": "Rating",
     "commentLabel": "Comment (optional)",
     "commentPlaceholder": "Anything you'd like to add?",
+    "targetPrompt": "Which item is this about? (optional)",
+    "targetWholeOrder": "My whole order",
     "submit": "Submit",
     "thankYou": "Thanks for your review!"
   },
