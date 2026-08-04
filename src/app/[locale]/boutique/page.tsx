@@ -12,6 +12,7 @@ import { ProductCard } from "@/components/product-card";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CategoryPillNav } from "@/components/category-pill-nav";
 import { ListingScrollAnchor } from "@/components/listing-scroll-anchor";
+import { ListingSearch } from "@/components/listing-search";
 import { ListingToolbar } from "@/components/listing-toolbar";
 import { Pagination } from "@/components/pagination";
 import { getCurrentCustomer } from "@/lib/customer-auth";
@@ -19,16 +20,16 @@ import { getCurrentCustomer } from "@/lib/customer-auth";
 export default async function BoutiquePage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; sort?: string; stock?: string; page?: string; perPage?: string }>;
+  searchParams: Promise<{ category?: string; sort?: string; stock?: string; page?: string; perPage?: string; q?: string }>;
 }) {
-  const { category, sort, stock, page: pageParam, perPage: perPageParam } = await searchParams;
+  const { category, sort, stock, page: pageParam, perPage: perPageParam, q } = await searchParams;
   const t = await getTranslations("Boutique");
   const tListing = await getTranslations("Listing");
   const tCategories = await getTranslations("NavCategories");
   const locale = await getLocale();
   const activeCategory = isProductCategory(category) ? category : undefined;
   const stockFilter = isStockFilter(stock) ? stock : "in_stock";
-  const showFeaturedOos = stockFilter === "in_stock" && stock === undefined;
+  const showFeaturedOos = stockFilter === "in_stock" && stock === undefined && !q?.trim();
   const page = parsePageNumber(pageParam);
   const pageSize = parsePageSize(perPageParam);
 
@@ -38,6 +39,7 @@ export default async function BoutiquePage({
       sort,
       stock: stockFilter,
       pagination: { page, pageSize },
+      q,
     }),
     showFeaturedOos ? getFeaturedOutOfStockProducts(category) : Promise.resolve([]),
   ]);
@@ -54,6 +56,7 @@ export default async function BoutiquePage({
     if (sort) params.set("sort", sort);
     if (stock && stock !== "in_stock") params.set("stock", stock);
     if (perPageParam) params.set("perPage", perPageParam);
+    if (q) params.set("q", q);
     if (targetPage > 1) params.set("page", String(targetPage));
     const query = params.toString();
     return query ? `/boutique?${query}` : "/boutique";
@@ -81,6 +84,8 @@ export default async function BoutiquePage({
         activeValue={activeCategory}
         items={PRODUCT_CATEGORIES.map((value) => ({ value, label: tCategories(value) }))}
       />
+
+      <ListingSearch scope="products" category={category} stock={stockFilter} />
 
       <ListingToolbar resultCount={total + (showFeaturedOos ? featuredOnly.length : 0)} showStockFilter />
 

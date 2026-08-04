@@ -4,6 +4,7 @@ import { AnimalCard } from "@/components/animal-card";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { GroupedCategoryButtonGrid } from "@/components/grouped-category-button-grid";
 import { ListingScrollAnchor } from "@/components/listing-scroll-anchor";
+import { ListingSearch } from "@/components/listing-search";
 import { ListingToolbar } from "@/components/listing-toolbar";
 import { Pagination } from "@/components/pagination";
 import {
@@ -22,9 +23,9 @@ import { getAnimalRatings } from "@/lib/ratings";
 export default async function AnimalsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; sort?: string; page?: string; perPage?: string }>;
+  searchParams: Promise<{ category?: string; sort?: string; page?: string; perPage?: string; q?: string }>;
 }) {
-  const { category, sort, page: pageParam, perPage: perPageParam } = await searchParams;
+  const { category, sort, page: pageParam, perPage: perPageParam, q } = await searchParams;
   const t = await getTranslations("Home");
   const tAnimal = await getTranslations("Animal");
   const tListing = await getTranslations("Listing");
@@ -32,7 +33,7 @@ export default async function AnimalsPage({
   const locale = await getLocale();
   const page = parsePageNumber(pageParam);
   const pageSize = parsePageSize(perPageParam);
-  const { items: animals, total } = await getAvailableAnimals(category, sort, { page, pageSize });
+  const { items: animals, total } = await getAvailableAnimals(category, sort, { page, pageSize }, q);
   const totalPages = Math.ceil(total / pageSize);
   const customer = await getCurrentCustomer();
   const { animalIds } = await getWishlistedIds(customer?.id);
@@ -57,6 +58,7 @@ export default async function AnimalsPage({
     if (category) params.set("category", category);
     if (sort) params.set("sort", sort);
     if (perPageParam) params.set("perPage", perPageParam);
+    if (q) params.set("q", q);
     if (targetPage > 1) params.set("page", String(targetPage));
     const query = params.toString();
     return query ? `/animals?${query}` : "/animals";
@@ -92,6 +94,8 @@ export default async function AnimalsPage({
         activeValue={activeCategory ?? activeGroupOnly}
         sections={navSections}
       />
+
+      <ListingSearch scope="animals" category={category} />
 
       <ListingToolbar resultCount={total} />
 

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { isProductCategory } from "@/lib/product-categories";
 import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
 import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
+import { animalTextSearchWhere, productTextSearchWhere } from "@/lib/search";
 
 export { PRODUCT_CATEGORIES, isProductCategory, type ProductCategoryValue } from "@/lib/product-categories";
 export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, ANIMAL_CATEGORY_ICON, animalCategoryGroup, isAnimalCategory, isAnimalCategoryGroup, type AnimalCategoryValue } from "@/lib/animal-categories";
@@ -20,7 +21,9 @@ export async function getAvailableAnimals(
   category?: string,
   sort?: string,
   pagination?: { page: number; pageSize: number },
+  q?: string,
 ) {
+  const search = q?.trim();
   const where = {
     status: "available" as const,
     ...(isAnimalCategory(category)
@@ -28,6 +31,7 @@ export async function getAvailableAnimals(
       : isAnimalCategoryGroup(category)
         ? { species: { category: { in: animalCategoriesInGroup(category) } } }
         : {}),
+    ...(search ? animalTextSearchWhere(search) : {}),
   };
   const [items, total] = await Promise.all([
     prisma.animal.findMany({
@@ -57,14 +61,17 @@ export async function getProducts(
     sort?: string;
     stock?: string;
     pagination?: { page: number; pageSize: number };
+    q?: string;
   },
 ) {
   const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "in_stock";
+  const search = opts?.q?.trim();
   const where = {
     ...(opts?.publishedOnly ? { published: true } : {}),
     ...(isProductCategory(category) ? { category } : {}),
     ...(stock === "in_stock" ? { stockQty: { gt: 0 } } : {}),
     ...(stock === "out_of_stock" ? { stockQty: { lte: 0 } } : {}),
+    ...(search ? productTextSearchWhere(search) : {}),
   };
   const [items, total] = await Promise.all([
     prisma.product.findMany({

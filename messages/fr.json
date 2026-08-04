@@ -72,7 +72,12 @@
     "perPageLabel": "Articles par page",
     "perPageOption": "Afficher {count}",
     "paginationPrevious": "Précédent",
-    "paginationNext": "Suivant"
+    "paginationNext": "Suivant",
+    "searchLabel": "Rechercher dans cette liste",
+    "searchPlaceholder": "Rechercher par nom, espèce ou mot-clé…",
+    "searchSubmit": "Rechercher",
+    "searchLoading": "Recherche…",
+    "searchNoSuggestions": "Aucune correspondance dans cette liste"
   },
   "NavCategories": {
     "reptiles": "Reptiles",
