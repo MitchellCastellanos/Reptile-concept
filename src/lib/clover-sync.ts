@@ -141,19 +141,18 @@ export async function syncCloverOrderById(orderId: string): Promise<ProcessOrder
   return processCloverOrder(order);
 }
 
-// Only auto-flip an animal between available <-> sold based on Clover's
-// stock count — never touch reserved/on_hold/not_for_sale, those are staff
-// decisions that have nothing to do with Clover's stock count.
+// Only price syncs from the catalog here — animal status is never derived
+// from Clover's stock count. This merchant's animal items are set to
+// "Manually manage availability" in Clover, where the stock count field and
+// the Available toggle are edited independently by staff (a live animal
+// routinely sits at stockCount=0 while still genuinely for sale), so the
+// count can't be trusted as an availability signal. The only thing that
+// should ever flip an animal available -> sold is an actual sale
+// (processCloverOrder above) — never touch reserved/on_hold/not_for_sale
+// either way, those are staff decisions made on the site.
 async function syncLinkedAnimalFromItem(animalId: string, item: CloverItem) {
   const priceCAD = item.price / 100;
   await prisma.animal.update({ where: { id: animalId }, data: { priceCAD } });
-
-  if (item.stockCount == null) return;
-  if (item.stockCount <= 0) {
-    await prisma.animal.updateMany({ where: { id: animalId, status: "available" }, data: { status: "sold" } });
-  } else {
-    await prisma.animal.updateMany({ where: { id: animalId, status: "sold" }, data: { status: "available" } });
-  }
 }
 
 async function syncLinkedProductFromItem(productId: string, item: CloverItem) {
@@ -242,7 +241,6 @@ export async function processCloverItem(item: CloverItem): Promise<ProcessItemRe
       cloverItemId: item.id,
       name: item.name,
       priceCAD: item.price / 100,
-      stockCount: item.stockCount,
       cloverCategoryName,
     });
     if (created) {
@@ -385,7 +383,6 @@ export async function bulkCreateAnimalsFromCategory(
       cloverItemId: candidate.cloverItemId,
       name: candidate.name,
       priceCAD: Number(candidate.priceCAD),
-      stockCount: candidate.stockCount,
       cloverCategoryName: candidate.cloverCategoryName,
     });
     if (ok) {

@@ -109,7 +109,6 @@ export async function createAnimalFromCloverData(params: {
   cloverItemId: string;
   name: string;
   priceCAD: number;
-  stockCount?: number | null;
   cloverCategoryName: string | null;
 }): Promise<boolean> {
   const category = resolveCategory(params.cloverCategoryName, params.name);
@@ -118,8 +117,6 @@ export async function createAnimalFromCloverData(params: {
   const speciesId = CLOVER_SPECIES_ID_BY_CATEGORY[category];
   await ensureSpecies(speciesId);
 
-  const status = (params.stockCount ?? 0) > 0 ? "available" : "sold";
-
   try {
     await prisma.animal.create({
       data: {
@@ -127,7 +124,14 @@ export async function createAnimalFromCloverData(params: {
         morph: params.name,
         sex: parseSex(params.name),
         priceCAD: params.priceCAD,
-        status,
+        // Clover's item stock count is a manual, independently-edited field
+        // on this merchant's items (see "Manually manage availability" in
+        // Clover's item tracking settings) — staff toggle "Available" on/off
+        // by hand without keeping the count field current, so a live animal
+        // routinely shows stockCount=0 while still genuinely for sale.
+        // A newly-captured Clover item is available by default; only an
+        // actual sale (processCloverOrder) should ever mark it sold.
+        status: "available",
         descriptionFr: params.name,
         descriptionEn: params.name,
         cloverItemId: params.cloverItemId,
