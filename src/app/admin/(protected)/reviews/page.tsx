@@ -22,7 +22,11 @@ export default async function AdminReviewsPage() {
                 Commande #{review.orderId.slice(0, 8)}
               </span>
             </div>
-            <p className="mt-2 text-sm">{review.comment}</p>
+            {review.comment ? (
+              <p className="mt-2 text-sm">{review.comment}</p>
+            ) : (
+              <p className="mt-2 text-sm italic text-zinc-500">Aucun commentaire — note seulement.</p>
+            )}
             <div className="mt-3 flex items-center gap-3 text-sm">
               <form action={togglePublishReviewAction}>
                 <input type="hidden" name="id" value={review.id} />

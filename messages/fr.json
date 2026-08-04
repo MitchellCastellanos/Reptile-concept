@@ -215,7 +215,8 @@
     "formInvalid": "Ce lien d'avis n'est pas valide ou a expiré.",
     "alreadySubmitted": "Vous avez déjà laissé un avis pour cette commande. Merci!",
     "ratingLabel": "Note",
-    "commentLabel": "Votre commentaire",
+    "commentLabel": "Commentaire (optionnel)",
+    "commentPlaceholder": "Un commentaire à ajouter?",
     "submit": "Envoyer",
     "thankYou": "Merci pour votre avis!"
   },

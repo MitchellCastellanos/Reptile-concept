@@ -215,7 +215,8 @@
     "formInvalid": "This review link is invalid or has expired.",
     "alreadySubmitted": "You've already left a review for this order. Thank you!",
     "ratingLabel": "Rating",
-    "commentLabel": "Your comment",
+    "commentLabel": "Comment (optional)",
+    "commentPlaceholder": "Anything you'd like to add?",
     "submit": "Submit",
     "thankYou": "Thanks for your review!"
   },

@@ -27,7 +27,9 @@ export default async function ReviewsPage() {
               className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
               <RatingStars rating={review.rating} />
-              <p className="text-sm leading-relaxed text-foreground">{review.comment}</p>
+              {review.comment ? (
+                <p className="text-sm leading-relaxed text-foreground">{review.comment}</p>
+              ) : null}
               <p className="mt-auto pt-2 text-xs font-medium uppercase tracking-wide text-muted">
                 {review.customer.fullName}
               </p>

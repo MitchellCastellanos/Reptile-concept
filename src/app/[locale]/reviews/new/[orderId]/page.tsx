@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { verifyReviewToken } from "@/lib/review-token";
 import { submitReviewAction } from "./actions";
+import { StarRatingInput } from "./star-rating-input";
 
 export default async function NewReviewPage({
   params,
@@ -47,26 +48,16 @@ export default async function NewReviewPage({
       <form action={boundAction} className="flex flex-col gap-4">
         <input type="hidden" name="token" value={token} />
         <input type="hidden" name="locale" value={locale} />
-        <label className="flex flex-col gap-1 text-sm">
+        <div className="flex flex-col gap-1 text-sm">
           {t("ratingLabel")}
-          <select
-            name="rating"
-            defaultValue="5"
-            className="rounded-lg border border-border bg-background px-3 py-2"
-          >
-            {[5, 4, 3, 2, 1].map((n) => (
-              <option key={n} value={n}>
-                {n} / 5
-              </option>
-            ))}
-          </select>
-        </label>
+          <StarRatingInput name="rating" />
+        </div>
         <label className="flex flex-col gap-1 text-sm">
           {t("commentLabel")}
           <textarea
             name="comment"
-            required
             rows={4}
+            placeholder={t("commentPlaceholder")}
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>

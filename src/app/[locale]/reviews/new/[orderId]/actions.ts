@@ -21,10 +21,7 @@ export async function submitReviewAction(orderId: string, formData: FormData) {
   }
 
   const rating = Math.min(5, Math.max(1, Number(formData.get("rating")) || 5));
-  const comment = String(formData.get("comment") ?? "").trim();
-  if (!comment) {
-    throw new Error("A comment is required");
-  }
+  const comment = String(formData.get("comment") ?? "").trim() || null;
   const locale = String(formData.get("locale") ?? "fr");
 
   await prisma.review.create({
