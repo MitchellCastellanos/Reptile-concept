@@ -20,19 +20,18 @@ export function SiteNav({
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/95 shadow-sm backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-4 sm:px-6">
-        <div className="flex shrink-0 items-center">
+      <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-1 sm:gap-2">
           <CategoryMenu />
+          <Link href="/" className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
+            <span className="hidden whitespace-nowrap text-base font-semibold text-primary sm:inline sm:text-lg">
+              Reptiles Concept
+            </span>
+          </Link>
         </div>
 
-        <Link href="/" className="flex min-w-0 flex-1 items-center justify-center gap-2">
-          <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
-          <span className="hidden whitespace-nowrap text-base font-semibold text-primary sm:inline sm:text-lg">
-            Reptiles Concept
-          </span>
-        </Link>
-
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-3">
           <Link
             href="/search"
             aria-label={t("search")}
