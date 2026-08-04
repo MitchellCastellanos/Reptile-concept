@@ -95,8 +95,6 @@ export default async function AnimalsPage({
         sections={navSections}
       />
 
-      <ListingSearch scope="animals" category={category} />
-
       <ListingToolbar resultCount={total} />
 
       <ListingScrollAnchor />
@@ -104,6 +102,8 @@ export default async function AnimalsPage({
       <p className="rounded-xl border border-border bg-accent-light px-4 py-3 text-sm text-foreground/80">
         {tAnimal("researchDisclaimer")}
       </p>
+
+      <ListingSearch scope="animals" category={category} />
 
       {animals.length === 0 ? (
         <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card p-12 text-center">
