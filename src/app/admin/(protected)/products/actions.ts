@@ -67,6 +67,18 @@ export async function updateProductAction(id: string, formData: FormData) {
   redirect("/admin/products");
 }
 
+export async function updateProductPhotoAction(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const id = String(formData.get("id"));
+  const imageUrl = String(formData.get("photoUrl") ?? "").trim() || null;
+  await prisma.product.update({ where: { id }, data: { imageUrl } });
+  await recordAudit(admin.id, "Product", id, "update");
+
+  revalidatePath("/admin/products");
+}
+
 export async function deleteProductAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");

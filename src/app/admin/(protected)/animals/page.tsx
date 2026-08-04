@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { isAnimalCategory } from "@/lib/animal-categories";
@@ -10,6 +9,7 @@ import {
 import { animalNeedsAttention } from "@/lib/admin-catalog-attention";
 import { isCloverPlaceholderSpeciesId } from "@/lib/admin-catalog-counts";
 import { isCareSheetIncomplete } from "@/lib/species-utils";
+import { animalPlaceholderImage } from "@/lib/images";
 import { AdminCatalogAlertBanner } from "@/components/admin/admin-catalog-alert-banner";
 import {
   AdminAlertRowLink,
@@ -18,7 +18,8 @@ import {
 import { AdminCatalogFilters } from "@/components/admin/admin-catalog-filters";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { AdminSortableTh } from "@/components/admin/admin-sortable-th";
-import { deleteAnimalAction } from "./actions";
+import { AdminPhotoCell } from "@/components/admin/admin-photo-cell";
+import { deleteAnimalAction, updateAnimalPhotoAction } from "./actions";
 
 const BASE_ANIMALS = "/admin/animals";
 
@@ -207,19 +208,12 @@ export default async function AdminAnimalsPage({
                   className={`border-b border-black/5 dark:border-white/5 ${alert ? "bg-amber-50/80 dark:bg-amber-950/15" : ""}`}
                 >
                   <td className="py-2 pr-3">
-                    {animal.media[0]?.url ? (
-                      <Image
-                        src={animal.media[0].url}
-                        alt=""
-                        width={48}
-                        height={48}
-                        className="h-12 w-12 rounded object-cover"
-                      />
-                    ) : (
-                      <span className="flex h-12 w-12 items-center justify-center rounded bg-black/5 text-xs text-zinc-500 dark:bg-white/5">
-                        —
-                      </span>
-                    )}
+                    <AdminPhotoCell
+                      id={animal.id}
+                      currentUrl={animal.media[0]?.url ?? null}
+                      defaultUrl={animalPlaceholderImage}
+                      action={updateAnimalPhotoAction}
+                    />
                   </td>
                   <td className="py-2 pr-3">
                     {animal.species.commonNameFr}
