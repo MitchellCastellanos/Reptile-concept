@@ -31,6 +31,13 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Reptiles Concept",
     description: "Reptiles, terrariums et accessoires — Lachine, QC",
+    siteName: "Reptiles Concept",
+    images: ["/og-image.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Reptiles Concept",
+    description: "Reptiles, terrariums et accessoires — Lachine, QC",
     images: ["/og-image.jpg"],
   },
 };

@@ -29,7 +29,11 @@ export async function generateMetadata({
 
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const description = locale === "en" ? product.descriptionEn : product.descriptionFr;
-  const imageUrl = product.imageUrl || getProductImageUrl(product.category);
+  const priceLabel = `${Number(product.priceCAD)} $ CAD`;
+  const ogTitle = `${name} — ${priceLabel}`;
+  const ogDescription = `${priceLabel} — ${description ?? ""}`.slice(0, 160);
+  const imageUrl =
+    product.imageUrl || product.media[0]?.url || getProductImageUrl(product.category);
   const url = `${getSiteUrl()}/${locale}/boutique/${product.id}`;
 
   return {
@@ -37,11 +41,18 @@ export async function generateMetadata({
     description: description?.slice(0, 160),
     alternates: { canonical: url },
     openGraph: {
-      title: name,
-      description: description?.slice(0, 160),
+      title: ogTitle,
+      description: ogDescription,
       url,
-      images: [{ url: imageUrl }],
+      siteName: "Reptiles Concept",
+      images: [{ url: imageUrl, alt: name }],
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: ogDescription,
+      images: [imageUrl],
     },
   };
 }

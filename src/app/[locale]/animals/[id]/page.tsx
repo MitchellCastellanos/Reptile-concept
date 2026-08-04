@@ -28,8 +28,12 @@ export async function generateMetadata({
   if (!animal) return {};
 
   const speciesName = locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
-  const title = `${speciesName} — ${animal.morph} | Reptiles Concept`;
+  const name = `${speciesName} — ${animal.morph}`;
+  const title = `${name} | Reptiles Concept`;
   const description = locale === "en" ? animal.descriptionEn : animal.descriptionFr;
+  const priceLabel = `${Number(animal.priceCAD)} $ CAD`;
+  const ogTitle = `${name} — ${priceLabel}`;
+  const ogDescription = `${priceLabel} — ${description ?? ""}`.slice(0, 160);
   const imageUrl = getAnimalImageUrl(animal.species.category, animal.media);
   const url = `${getSiteUrl()}/${locale}/animals/${animal.id}`;
 
@@ -38,11 +42,18 @@ export async function generateMetadata({
     description: description?.slice(0, 160),
     alternates: { canonical: url },
     openGraph: {
-      title,
-      description: description?.slice(0, 160),
+      title: ogTitle,
+      description: ogDescription,
       url,
-      images: [{ url: imageUrl }],
+      siteName: "Reptiles Concept",
+      images: [{ url: imageUrl, alt: name }],
       type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: ogDescription,
+      images: [imageUrl],
     },
   };
 }
