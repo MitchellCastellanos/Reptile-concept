@@ -109,6 +109,17 @@ export async function convertAnimalToProductAction(formData: FormData) {
   redirect(`/admin/products/new?${params.toString()}`);
 }
 
+export async function updateAnimalPhotoAction(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const id = String(formData.get("id"));
+  await savePrimaryPhoto(id, formData);
+  await recordAudit(admin.id, "Animal", id, "update");
+
+  revalidatePath("/admin/animals");
+}
+
 export async function deleteAnimalAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");

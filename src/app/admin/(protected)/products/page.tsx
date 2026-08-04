@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { isProductCategory, PRODUCT_CATEGORIES } from "@/lib/product-categories";
@@ -13,7 +12,8 @@ import {
 import { AdminCatalogFilters } from "@/components/admin/admin-catalog-filters";
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { AdminSortableTh } from "@/components/admin/admin-sortable-th";
-import { deleteProductAction } from "./actions";
+import { AdminPhotoCell } from "@/components/admin/admin-photo-cell";
+import { deleteProductAction, updateProductPhotoAction } from "./actions";
 
 const BASE = "/admin/products";
 
@@ -183,12 +183,11 @@ export default async function AdminProductsPage({
                   className={`border-b border-black/5 dark:border-white/5 ${alert ? "bg-amber-50/80 dark:bg-amber-950/15" : ""}`}
                 >
                   <td className="py-2 pr-3">
-                    <Image
-                      src={product.imageUrl || getProductImageUrl(product.category)}
-                      alt=""
-                      width={48}
-                      height={48}
-                      className="h-12 w-12 rounded object-cover"
+                    <AdminPhotoCell
+                      id={product.id}
+                      currentUrl={product.imageUrl}
+                      defaultUrl={getProductImageUrl(product.category)}
+                      action={updateProductPhotoAction}
                     />
                   </td>
                   <td className="py-2 pr-3 font-mono text-xs">{product.sku}</td>
