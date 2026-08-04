@@ -28,7 +28,7 @@ export default async function AnimalDetailPage({
   const description = locale === "en" ? animal.descriptionEn : animal.descriptionFr;
   const speciesName =
     locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
-  const imageUrl = getAnimalImageUrl(animal.species.id, animal.media);
+  const imageUrl = getAnimalImageUrl(animal.species.category, animal.media);
 
   const customer = await getCurrentCustomer();
   const isWishlisted = customer
