@@ -3,7 +3,11 @@ import { togglePublishReviewAction, deleteReviewAction } from "./actions";
 
 export default async function AdminReviewsPage() {
   const reviews = await prisma.review.findMany({
-    include: { customer: true, order: true, animal: { include: { species: true } }, product: true },
+    include: {
+      customer: true,
+      order: true,
+      itemRatings: { include: { animal: { include: { species: true } }, product: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -22,10 +26,17 @@ export default async function AdminReviewsPage() {
                 Commande #{review.orderId.slice(0, 8)}
               </span>
             </div>
-            {review.animal || review.product ? (
-              <p className="mt-1 text-xs font-medium text-amber-700 dark:text-amber-500">
-                À propos de : {review.animal ? `${review.animal.species.commonNameFr} — ${review.animal.morph}` : review.product?.nameFr}
-              </p>
+            {review.itemRatings.length > 0 ? (
+              <ul className="mt-1 flex flex-col gap-0.5 text-xs font-medium text-amber-700 dark:text-amber-500">
+                {review.itemRatings.map((itemRating) => (
+                  <li key={itemRating.id}>
+                    {itemRating.animal
+                      ? `${itemRating.animal.species.commonNameFr} — ${itemRating.animal.morph}`
+                      : itemRating.product?.nameFr}{" "}
+                    : {itemRating.rating}/5
+                  </li>
+                ))}
+              </ul>
             ) : null}
             {review.comment ? (
               <p className="mt-2 text-sm">{review.comment}</p>

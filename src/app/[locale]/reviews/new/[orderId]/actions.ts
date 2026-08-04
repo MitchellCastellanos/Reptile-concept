@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { verifyReviewToken } from "@/lib/review-token";
 
+type ItemRatingInput = { type?: string; id?: string; rating?: number };
+
 export async function submitReviewAction(orderId: string, formData: FormData) {
   const token = String(formData.get("token") ?? "");
   if (!verifyReviewToken(orderId, token)) {
@@ -27,20 +29,36 @@ export async function submitReviewAction(orderId: string, formData: FormData) {
   const comment = String(formData.get("comment") ?? "").trim() || null;
   const locale = String(formData.get("locale") ?? "fr");
 
-  // Trust nothing from the client beyond "which item" — cross-check the
-  // chosen target actually belongs to this order before tagging the review.
-  const targetType = String(formData.get("targetType") ?? "");
-  const targetId = String(formData.get("targetId") ?? "");
-  let animalId: string | null = null;
-  let productId: string | null = null;
-  if (targetType === "animal" && order.items.some((item) => item.animalId === targetId)) {
-    animalId = targetId;
-  } else if (targetType === "product" && order.items.some((item) => item.productId === targetId)) {
-    productId = targetId;
+  // Trust nothing from the client beyond "which items got which stars" —
+  // cross-check every entry actually belongs to this order before saving it.
+  let rawItemRatings: ItemRatingInput[] = [];
+  try {
+    rawItemRatings = JSON.parse(String(formData.get("itemRatingsJson") ?? "[]"));
+  } catch {
+    rawItemRatings = [];
   }
 
+  const itemRatings = rawItemRatings
+    .filter((entry): entry is Required<ItemRatingInput> => {
+      if (!entry.id || !entry.type || !entry.rating) return false;
+      if (entry.type === "animal") return order.items.some((item) => item.animalId === entry.id);
+      if (entry.type === "product") return order.items.some((item) => item.productId === entry.id);
+      return false;
+    })
+    .map((entry) => ({
+      rating: Math.min(5, Math.max(1, Number(entry.rating) || rating)),
+      animalId: entry.type === "animal" ? entry.id : undefined,
+      productId: entry.type === "product" ? entry.id : undefined,
+    }));
+
   await prisma.review.create({
-    data: { orderId, customerId: order.customerId, rating, comment, animalId, productId },
+    data: {
+      orderId,
+      customerId: order.customerId,
+      rating,
+      comment,
+      itemRatings: itemRatings.length > 0 ? { create: itemRatings } : undefined,
+    },
   });
 
   redirect(`/${locale}/reviews/new/${orderId}?token=${token}&submitted=1`);

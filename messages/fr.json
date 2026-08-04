@@ -217,8 +217,8 @@
     "ratingLabel": "Note",
     "commentLabel": "Commentaire (optionnel)",
     "commentPlaceholder": "Un commentaire à ajouter?",
-    "targetPrompt": "De quel article s'agit-il? (optionnel)",
-    "targetWholeOrder": "Toute ma commande",
+    "itemRatingsPrompt": "Notez chaque article (optionnel)",
+    "showMoreItems": "Afficher {count, plural, one {# autre article} other {# autres articles}}",
     "submit": "Envoyer",
     "thankYou": "Merci pour votre avis!"
   },

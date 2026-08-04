@@ -12,8 +12,7 @@ async function ratingsFor(pick: "animalId" | "productId", ids: string[]): Promis
     },
     select: {
       rating: true,
-      animalId: true,
-      productId: true,
+      itemRatings: { select: { animalId: true, productId: true, rating: true } },
       order: { select: { items: { select: { animalId: true, productId: true } } } },
     },
   });
@@ -27,22 +26,22 @@ async function ratingsFor(pick: "animalId" | "productId", ids: string[]): Promis
   }
 
   for (const review of reviews) {
-    const isTagged = review.animalId !== null || review.productId !== null;
-
-    if (isTagged) {
-      // Customer flagged a specific item (see /reviews/new/[orderId]) — only
-      // that exact item gets this rating, never diluted across siblings.
-      const taggedId = pick === "animalId" ? review.animalId : review.productId;
-      if (taggedId && ids.includes(taggedId)) add(taggedId, review.rating);
-      continue;
+    // Items the customer explicitly rated (see /reviews/new/[orderId]) get
+    // that exact rating — never diluted by the overall score.
+    const explicit = new Set<string>();
+    for (const itemRating of review.itemRatings) {
+      const id = pick === "animalId" ? itemRating.animalId : itemRating.productId;
+      if (!id) continue;
+      explicit.add(id);
+      if (ids.includes(id)) add(id, itemRating.rating);
     }
 
-    // Untagged: applies to every item in the order (single-item orders are
-    // the common case, so this is exact there — multi-item orders share it).
-    const itemIds = new Set(
-      review.order.items.map((item) => item[pick]).filter((id): id is string => id !== null && ids.includes(id)),
-    );
-    for (const id of itemIds) add(id, review.rating);
+    // Everything else in the order (the common case: no breakdown at all,
+    // or items the customer didn't get to) falls back to the overall rating.
+    const orderItemIds = review.order.items
+      .map((item) => item[pick])
+      .filter((id): id is string => id !== null && ids.includes(id) && !explicit.has(id));
+    for (const id of new Set(orderItemIds)) add(id, review.rating);
   }
 
   const result = new Map<string, RatingSummary>();
