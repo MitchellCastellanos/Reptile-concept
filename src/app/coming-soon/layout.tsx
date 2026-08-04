@@ -14,6 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Reptiles Concept — Coming soon",
+  description: "Reptiles, terrariums et accessoires — Lachine, QC",
   robots: { index: false, follow: false },
 };
 

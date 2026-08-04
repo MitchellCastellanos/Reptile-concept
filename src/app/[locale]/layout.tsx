@@ -28,10 +28,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://reptiles-concept.ca"),
   title: "Reptiles Concept",
   description: "Reptiles, terrariums et accessoires — Lachine, QC",
-  icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
-  },
   openGraph: {
     title: "Reptiles Concept",
     description: "Reptiles, terrariums et accessoires — Lachine, QC",

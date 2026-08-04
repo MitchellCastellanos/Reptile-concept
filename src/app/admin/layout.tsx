@@ -3,9 +3,6 @@ import "../globals.css";
 
 export const metadata: Metadata = {
   title: "Reptiles Concept — Admin",
-  icons: {
-    icon: "/icon.png",
-  },
 };
 
 export default function AdminRootLayout({

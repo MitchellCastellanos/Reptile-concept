@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { CategoryMenu } from "@/components/category-menu";
+import { SITE_ICON_PATH } from "@/lib/site-branding";
 
 export function SiteNav({
   isLoggedIn = false,
@@ -24,7 +25,7 @@ export function SiteNav({
         <div className="flex min-w-0 items-center gap-1 sm:gap-2">
           <CategoryMenu />
           <Link href="/" className="flex min-w-0 items-center gap-1.5 sm:gap-2">
-            <Image src="/icon.png" alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
+            <Image src={SITE_ICON_PATH} alt="" width={32} height={32} className="h-8 w-8 shrink-0" priority />
             <span className="hidden whitespace-nowrap text-base font-semibold text-primary sm:inline sm:text-lg">
               Reptiles Concept
             </span>

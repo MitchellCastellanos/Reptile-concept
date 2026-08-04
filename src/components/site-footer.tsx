@@ -6,6 +6,7 @@ import { PaymentBadges } from "@/components/payment-badges";
 import { AmexMark, FacebookMark, MastercardMark, VisaMark } from "@/components/brand-marks";
 import { getStoreSettings } from "@/lib/settings";
 import { NewsletterSignupForm } from "@/components/newsletter-signup-form";
+import { SITE_ICON_PATH } from "@/lib/site-branding";
 
 export async function SiteFooter() {
   const t = await getTranslations("Footer");
@@ -27,7 +28,7 @@ export async function SiteFooter() {
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white p-1">
-              <Image src="/icon.png" alt="" width={20} height={20} className="h-full w-full" />
+              <Image src={SITE_ICON_PATH} alt="" width={20} height={20} className="h-full w-full" />
             </span>
             <p className="text-lg font-semibold">Reptiles Concept</p>
           </div>
