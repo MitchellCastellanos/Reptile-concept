@@ -9,7 +9,7 @@ import { getAvailableAnimals, getProducts, getWishlistedIds } from "@/lib/querie
 import { getCurrentCustomer } from "@/lib/customer-auth";
 
 const categoryIcons = [
-  { key: "reptiles" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
+  { key: "animals" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
   { key: "terrariums" as const, href: "/boutique?category=terrarium", image: "/images/icons/category-terrariums.png" },
   { key: "substrates" as const, href: "/boutique?category=substrate", image: "/images/icons/category-substrates.png" },
   { key: "decor" as const, href: "/boutique?category=decor", image: "/images/icons/category-decor.png" },
