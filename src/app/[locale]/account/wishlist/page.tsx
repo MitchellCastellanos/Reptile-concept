@@ -52,7 +52,7 @@ export default async function WishlistPage() {
                   <Link href={`/animals/${animal.id}`} className="relative aspect-[4/3] overflow-hidden bg-accent-light">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={getAnimalImageUrl(animal.speciesId, animal.media)}
+                      src={getAnimalImageUrl(animal.species.category, animal.media)}
                       alt={name}
                       className="h-full w-full object-cover"
                     />

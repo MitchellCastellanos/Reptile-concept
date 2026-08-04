@@ -8,7 +8,7 @@ type AnimalCardAnimal = {
   id: string;
   morph: string;
   priceCAD: { toString(): string } | number;
-  species: { id: string; commonNameFr: string; commonNameEn: string };
+  species: { id: string; commonNameFr: string; commonNameEn: string; category: string };
   media: { url: string }[];
 };
 
@@ -29,7 +29,7 @@ export function AnimalCard({
 }) {
   const speciesName =
     locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
-  const imageUrl = getAnimalImageUrl(animal.species.id, animal.media);
+  const imageUrl = getAnimalImageUrl(animal.species.category, animal.media);
 
   return (
     <Link
