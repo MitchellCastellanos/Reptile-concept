@@ -18,23 +18,25 @@ export default async function CloverImportPage({
   const categoryFilter = params.category;
   const page = Math.max(1, Number(params.page) || 1);
 
+  // The detail table only renders once a category is selected (see below), so
+  // skip fetching individual candidates entirely when browsing the overview.
   const [grouped, candidates, totalPending, rules] = await Promise.all([
     prisma.cloverImportCandidate.groupBy({
       by: ["cloverCategoryName"],
       where: { status: "pending" },
       _count: { _all: true },
     }),
-    prisma.cloverImportCandidate.findMany({
-      where: {
-        status: "pending",
-        ...(categoryFilter !== undefined
-          ? { cloverCategoryName: categoryFilter === "__none__" ? null : categoryFilter }
-          : {}),
-      },
-      orderBy: { firstSeenAt: "desc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
+    categoryFilter !== undefined
+      ? prisma.cloverImportCandidate.findMany({
+          where: {
+            status: "pending",
+            cloverCategoryName: categoryFilter === "__none__" ? null : categoryFilter,
+          },
+          orderBy: { firstSeenAt: "desc" },
+          skip: (page - 1) * PAGE_SIZE,
+          take: PAGE_SIZE,
+        })
+      : Promise.resolve([]),
     prisma.cloverImportCandidate.count({ where: { status: "pending" } }),
     listCloverCategoryRules(),
   ]);
@@ -106,58 +108,15 @@ export default async function CloverImportPage({
         </p>
       )}
 
-      {rules.length > 0 ? (
-        <div className="overflow-x-auto">
-          <h2 className="mb-2 text-lg font-medium">Règles enregistrées</h2>
-          <p className="mb-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Appliquées automatiquement à chaque nouvel article Clover, sans passer par la file
-            ci-dessus.
-          </p>
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-black/10 text-left dark:border-white/10">
-                <th className="py-2">Catégorie Clover</th>
-                <th className="py-2">Règle</th>
-                <th className="py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {rules.map((rule) => (
-                <tr key={rule.cloverCategoryName} className="border-b border-black/5 dark:border-white/5">
-                  <td className="py-2">{rule.cloverCategoryName || "Sans catégorie"}</td>
-                  <td className="py-2">
-                    {rule.action === "auto_product" ? `Créer comme produit — ${rule.productCategory}` : "Ignorer automatiquement"}
-                  </td>
-                  <td className="py-2">
-                    <form action={deleteCategoryRuleAction}>
-                      <input
-                        type="hidden"
-                        name="cloverCategoryName"
-                        value={rule.cloverCategoryName || "__none__"}
-                      />
-                      <button type="submit" className="text-zinc-500 underline">
-                        Supprimer
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
-
-      {candidates.length > 0 ? (
+      {categoryFilter !== undefined && candidates.length > 0 ? (
         <div className="overflow-x-auto">
           <div className="mb-2 flex items-center justify-between">
             <h2 className="text-lg font-medium">
-              Détail {categoryFilter !== undefined ? `— ${categoryFilter === "__none__" ? "sans catégorie" : categoryFilter}` : ""}
+              Détail — {categoryFilter === "__none__" ? "sans catégorie" : categoryFilter}
             </h2>
-            {categoryFilter !== undefined ? (
-              <Link href="/admin/clover-import" className="text-sm underline">
-                Voir toutes les catégories
-              </Link>
-            ) : null}
+            <Link href="/admin/clover-import" className="text-sm underline">
+              Voir toutes les catégories
+            </Link>
           </div>
           <table className="w-full border-collapse text-sm">
             <thead>
@@ -230,6 +189,51 @@ export default async function CloverImportPage({
             ) : null}
           </div>
         </div>
+      ) : null}
+
+      {rules.length > 0 ? (
+        <details className="rounded-lg border border-black/10 p-4 text-sm dark:border-white/10">
+          <summary className="cursor-pointer select-none font-medium text-zinc-600 dark:text-zinc-400">
+            Zone technique — règles automatiques ({rules.length})
+          </summary>
+          <p className="mb-3 mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            Appliquées automatiquement à chaque nouvel article Clover, sans passer par la file
+            ci-dessus. Réservé aux réglages avancés.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b border-black/10 text-left dark:border-white/10">
+                  <th className="py-2">Catégorie Clover</th>
+                  <th className="py-2">Règle</th>
+                  <th className="py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {rules.map((rule) => (
+                  <tr key={rule.cloverCategoryName} className="border-b border-black/5 dark:border-white/5">
+                    <td className="py-2">{rule.cloverCategoryName || "Sans catégorie"}</td>
+                    <td className="py-2">
+                      {rule.action === "auto_product" ? `Créer comme produit — ${rule.productCategory}` : "Ignorer automatiquement"}
+                    </td>
+                    <td className="py-2">
+                      <form action={deleteCategoryRuleAction}>
+                        <input
+                          type="hidden"
+                          name="cloverCategoryName"
+                          value={rule.cloverCategoryName || "__none__"}
+                        />
+                        <button type="submit" className="text-zinc-500 underline">
+                          Supprimer
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
       ) : null}
     </div>
   );
