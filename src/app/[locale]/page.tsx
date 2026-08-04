@@ -7,6 +7,7 @@ import { PaymentBadges } from "@/components/payment-badges";
 import { CategoryButtonGrid } from "@/components/category-button-grid";
 import { getAvailableAnimals, getProducts, getWishlistedIds } from "@/lib/queries";
 import { getCurrentCustomer } from "@/lib/customer-auth";
+import { getAnimalRatings, getProductRatings } from "@/lib/ratings";
 
 const categoryIcons = [
   { key: "animals" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
@@ -34,6 +35,10 @@ export default async function Home() {
   const popular = products.slice(0, 4);
   const customer = await getCurrentCustomer();
   const { animalIds, productIds } = await getWishlistedIds(customer?.id);
+  const [animalRatings, productRatings] = await Promise.all([
+    getAnimalRatings(featured.map((a) => a.id)),
+    getProductRatings(popular.map((p) => p.id)),
+  ]);
 
   return (
     <>
@@ -109,6 +114,7 @@ export default async function Home() {
                   availableLabel={t("available")}
                   showWishlist
                   inWishlist={animalIds.has(animal.id)}
+                  rating={animalRatings.get(animal.id)}
                 />
               ))}
             </div>
@@ -134,6 +140,7 @@ export default async function Home() {
                   backInStockLabel={t("backInStock")}
                   showWishlist
                   inWishlist={productIds.has(product.id)}
+                  rating={productRatings.get(product.id)}
                 />
               ))}
             </div>

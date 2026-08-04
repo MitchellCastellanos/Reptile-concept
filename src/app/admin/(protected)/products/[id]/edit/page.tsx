@@ -9,7 +9,10 @@ export default async function EditProductPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const product = await prisma.product.findUnique({ where: { id } });
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: { media: { orderBy: { sortOrder: "asc" } } },
+  });
   if (!product) notFound();
 
   const boundAction = updateProductAction.bind(null, id);
@@ -17,7 +20,11 @@ export default async function EditProductPage({
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">Modifier {product.nameFr}</h1>
-      <ProductForm product={product} action={boundAction} />
+      <ProductForm
+        product={{ ...product, priceCAD: Number(product.priceCAD) }}
+        extraPhotoUrls={product.media.map((m) => m.url)}
+        action={boundAction}
+      />
     </div>
   );
 }

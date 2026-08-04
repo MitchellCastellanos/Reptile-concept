@@ -11,6 +11,7 @@
 //   exactly-once delivery, and dropped inventory events are how a live
 //   animal ends up sold twice.
 import { prisma } from "@/lib/db";
+import { notifyStockSubscribers } from "@/lib/stock-notifications";
 import {
   fetchCloverOrder,
   fetchCloverItem,
@@ -174,6 +175,12 @@ async function syncLinkedProductFromItem(productId: string, item: CloverItem) {
         : {}),
     },
   });
+
+  if (restocked) {
+    notifyStockSubscribers(productId).catch((err) =>
+      console.error("[clover-sync] failed to notify stock subscribers:", err),
+    );
+  }
 }
 
 export type ProcessItemResult = {

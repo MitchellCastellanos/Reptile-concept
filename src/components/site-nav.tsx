@@ -33,6 +33,16 @@ export function SiteNav({
         </Link>
 
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          <Link
+            href="/search"
+            aria-label={t("search")}
+            className="flex items-center gap-1.5 rounded-full px-2 py-1.5 text-sm font-medium text-foreground hover:bg-accent-light hover:text-primary sm:px-3"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.3-4.3" strokeLinecap="round" />
+            </svg>
+          </Link>
           <LocaleSwitcher />
           {isLoggedIn ? (
             <Link

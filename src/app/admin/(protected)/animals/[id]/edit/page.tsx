@@ -25,8 +25,9 @@ export default async function EditAnimalPage({
       <h1 className="text-2xl font-semibold">Modifier {animal.morph}</h1>
       <AnimalForm
         species={species}
-        animal={animal}
-        photoUrl={animal.media[0]?.url ?? ""}
+        animal={{ ...animal, priceCAD: Number(animal.priceCAD) }}
+        photoUrl={animal.media.find((m) => m.sortOrder === 0)?.url ?? ""}
+        extraPhotoUrls={animal.media.filter((m) => m.sortOrder > 0).map((m) => m.url)}
         action={boundAction}
       />
 

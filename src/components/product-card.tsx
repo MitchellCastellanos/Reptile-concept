@@ -5,6 +5,7 @@ import { isBackInStock } from "@/lib/product-stock";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { RatingStars } from "@/components/rating-stars";
 
 type ProductCardProduct = {
   id: string;
@@ -25,6 +26,7 @@ export function ProductCard({
   backInStockLabel,
   showWishlist = false,
   inWishlist = false,
+  rating,
 }: {
   product: ProductCardProduct;
   locale: string;
@@ -33,13 +35,14 @@ export function ProductCard({
   backInStockLabel?: string;
   showWishlist?: boolean;
   inWishlist?: boolean;
+  rating?: { average: number; count: number };
 }) {
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const imageUrl = product.imageUrl || getProductImageUrl(product.category);
   const showBackInStock = backInStockLabel && isBackInStock(product);
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md">
+    <div className="animate-fade-in-up flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:shadow-md">
       <Link href={`/boutique/${product.id}`} className="group">
         <div className="relative aspect-[4/3] overflow-hidden bg-accent-light">
           <Image
@@ -68,6 +71,7 @@ export function ProductCard({
         <Link href={`/boutique/${product.id}`} className="font-semibold text-foreground hover:text-primary">
           {name}
         </Link>
+        {rating ? <RatingStars rating={rating.average} count={rating.count} /> : null}
         <p className="text-sm font-medium text-primary">{Number(product.priceCAD)} $ CAD</p>
         <KlarnaInstallments priceCAD={Number(product.priceCAD)} />
         <p className="text-xs text-muted">

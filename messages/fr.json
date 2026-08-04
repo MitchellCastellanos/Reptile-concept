@@ -44,7 +44,18 @@
     "account": "Compte",
     "wishlist": "Liste de souhaits",
     "menu": "Menu",
-    "backToTop": "Retour en haut"
+    "backToTop": "Retour en haut",
+    "search": "Recherche"
+  },
+  "Search": {
+    "title": "Recherche",
+    "placeholder": "Rechercher des animaux et des produits…",
+    "submit": "Rechercher",
+    "prompt": "Recherchez parmi nos animaux et notre boutique par nom, espèce ou mot-clé.",
+    "noResults": "Aucun résultat pour « {query} ».",
+    "resultsFor": "{count, plural, one {# résultat} other {# résultats}} pour « {query} »",
+    "animalsHeading": "Animaux",
+    "productsHeading": "Boutique"
   },
   "Listing": {
     "allProducts": "Tous les produits",
@@ -102,7 +113,14 @@
     "rights": "Tous droits réservés",
     "cardsAccepted": "Cartes acceptées :",
     "staff": "Staff",
-    "craftedInMontreal": "Conçu à Montréal par"
+    "craftedInMontreal": "Conçu à Montréal par",
+    "faq": "FAQ",
+    "about": "À propos",
+    "newsletterBody": "Recevez nos nouveautés et conseils de soins par courriel.",
+    "newsletterPlaceholder": "Votre courriel",
+    "newsletterSubmit": "S'abonner",
+    "newsletterSuccess": "Abonnement confirmé — merci!",
+    "newsletterError": "Veuillez entrer une adresse courriel valide."
   },
   "Animal": {
     "backToList": "Retour aux animaux",
@@ -130,7 +148,8 @@
     "enclosure": "Terrarium minimum",
     "substrate": "Substrat",
     "feeding": "Fréquence d'alimentation",
-    "handling": "Manipulation"
+    "handling": "Manipulation",
+    "relatedTitle": "Vous pourriez aussi aimer"
   },
   "Boutique": {
     "title": "Boutique",
@@ -141,7 +160,13 @@
     "featuredOutOfStock": "Populaires — temporairement en rupture",
     "featuredOutOfStockHint": "Quelques articles qu'on a habituellement — revenez bientôt ou demandez en magasin.",
     "noProducts": "Aucun produit disponible pour le moment.",
-    "backToList": "Retour à la boutique"
+    "backToList": "Retour à la boutique",
+    "relatedTitle": "Vous pourriez aussi aimer",
+    "notifyMeTitle": "Recevoir un avis dès le retour en stock",
+    "notifyMeEmailPlaceholder": "Votre courriel",
+    "notifyMeSubmit": "M'aviser",
+    "notifyMeSuccess": "C'est noté — on vous écrit dès que c'est de retour.",
+    "notifyMeError": "Veuillez entrer une adresse courriel valide."
   },
   "Cart": {
     "title": "Panier",
@@ -166,6 +191,8 @@
     "province": "Province",
     "postalCode": "Code postal",
     "healthGuarantee": "J'accepte la politique de garantie de santé et les conditions de vente de Reptiles Concept.",
+    "savedAddresses": "Adresse enregistrée",
+    "useNewAddress": "Entrer une nouvelle adresse",
     "placeOrder": "Payer maintenant",
     "paymentCancelled": "Paiement annulé. Votre panier est intact — vous pouvez réessayer quand vous voulez.",
     "confirmationTitle": "Merci pour votre achat!",
@@ -216,7 +243,18 @@
     "wishlistItemCount": "{count, plural, one {# article} other {# articles}}",
     "welcomeBack": "Content de vous revoir",
     "orderNumber": "Commande",
-    "status": "Statut"
+    "status": "Statut",
+    "loyaltyPoints": "{count, plural, one {# point de fidélité} other {# points de fidélité}}",
+    "loyaltyPointsHint": "1 point accumulé par dollar dépensé sur les commandes payées.",
+    "orderItems": "Articles",
+    "orderTotal": "Total",
+    "shippingAddress": "Adresse de contact pour le retrait",
+    "orderCancelled": "Cette commande a été annulée.",
+    "orderRefunded": "Cette commande a été remboursée.",
+    "timeline_paid": "Commande passée",
+    "timeline_preparing": "En préparation",
+    "timeline_ready_for_pickup": "Prête pour retrait",
+    "timeline_picked_up": "Récupérée"
   },
   "Legal": {
     "cookieBannerText": "Nous utilisons des témoins (cookies) pour faire fonctionner notre boutique (panier, connexion) et pour comprendre comment nos visiteurs utilisent le site. Consultez notre politique de témoins pour en savoir plus.",
@@ -239,5 +277,37 @@
     "cookiePolicyControlBody": "La plupart des navigateurs permettent de bloquer ou de supprimer les témoins dans leurs paramètres. Notez que bloquer les témoins essentiels peut empêcher certaines parties du site (comme le panier ou le paiement) de fonctionner correctement.",
     "cookiePolicyContactTitle": "Des questions?",
     "cookiePolicyContactBody": "Contactez-nous avec les coordonnées indiquées dans le pied de page si vous avez des questions sur cette politique."
+  },
+  "Faq": {
+    "title": "Foire aux questions",
+    "subtitle": "Tout ce qu'il faut savoir avant de visiter ou de commander chez Reptiles Concept.",
+    "pickup_q": "Comment fonctionne le retrait?",
+    "pickup_a": "Toutes les commandes sont préparées pour être récupérées à notre boutique de Lachine, QC. Une fois votre commande prête, vous recevrez un courriel avec nos horaires et un délai de retrait — merci de récupérer votre commande dans ce délai pour éviter des frais d'annulation.",
+    "shipping_q": "Livrez-vous les commandes?",
+    "shipping_a": "Pas encore — toutes les commandes, animaux comme accessoires, sont uniquement pour retrait en boutique à Lachine, QC.",
+    "payment_q": "Quels modes de paiement acceptez-vous?",
+    "payment_a": "Nous acceptons Visa, Mastercard et American Express en ligne, ainsi que Klarna pour 4 versements sans intérêt. En boutique, nous acceptons aussi l'argent comptant.",
+    "healthGuarantee_q": "Que couvre votre garantie de santé?",
+    "healthGuarantee_a": "Chaque animal est garanti en bonne santé au moment du retrait. Merci d'inspecter votre nouvel animal en boutique avant de partir — contactez-nous immédiatement si quelque chose semble anormal.",
+    "care_q": "Où puis-je apprendre à m'occuper de mon nouvel animal?",
+    "care_a": "Chaque fiche d'animal comprend une fiche de soins de l'espèce (alimentation, humidité, température, taille du terrarium, etc.). Notre équipe se fait aussi un plaisir de vous guider en boutique.",
+    "returns_q": "Puis-je retourner un animal vivant?",
+    "returns_a": "Pour le bien-être de l'animal, nous n'acceptons pas les retours d'animaux une fois récupérés. Vous pouvez annuler une commande non récupérée avant le délai de retrait — des frais d'annulation peuvent s'appliquer selon nos conditions de vente.",
+    "afterSale_q": "Que faire si j'ai des questions après avoir ramené mon animal à la maison?",
+    "afterSale_a": "Nous sommes là pour le long terme — contactez-nous en tout temps avec les coordonnées du pied de page, que ce soit pour une question de soins ou autre chose."
+  },
+  "About": {
+    "title": "À propos de Reptiles Concept",
+    "subtitle": "Une boutique spécialisée en reptiles à Lachine, Québec, fondée sur l'élevage responsable et des conseils réels.",
+    "story": "Reptiles Concept est né d'une idée simple : les passionnés de reptiles et d'invertébrés méritent une boutique qui connaît vraiment les animaux qu'elle vend. Chaque reptile, amphibien et invertébré sous nos soins est né en captivité, en bonne santé, et prêt à s'épanouir avant même de rencontrer un client.",
+    "mission": "Notre mission est de rendre la possession responsable d'animaux exotiques accessible — en accompagnant chaque animal vendu des informations de soins, de l'équipement et des conseils honnêtes nécessaires pour lui offrir une belle vie.",
+    "value_breeding_title": "Élevage responsable",
+    "value_breeding_body": "Des animaux nés en captivité, bien socialisés — jamais capturés dans la nature.",
+    "value_advice_title": "Une expertise réelle",
+    "value_advice_body": "Notre équipe élève ce qu'elle vend, alors les conseils viennent de l'expérience.",
+    "value_community_title": "Un accompagnement continu",
+    "value_community_body": "Les questions ne s'arrêtent pas au retrait — nous restons disponibles après aussi.",
+    "cta": "Voir nos animaux",
+    "faqCta": "Consulter la FAQ"
   }
 }

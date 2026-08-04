@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Animal, Species } from "@/generated/prisma/client";
 import { PhotoUploadField } from "@/components/admin/photo-upload-field";
+import { GalleryUrlsField } from "@/components/admin/gallery-urls-field";
 
 const SEX_OPTIONS = ["male", "female", "unknown"] as const;
 const STATUS_OPTIONS = [
@@ -17,12 +18,16 @@ export function AnimalForm({
   species,
   animal,
   photoUrl: initialPhotoUrl,
+  extraPhotoUrls = [],
   action,
   prefill,
 }: {
   species: Species[];
-  animal?: Animal;
+  // priceCAD as a plain number, not Prisma's Decimal — Decimal instances
+  // can't cross the server/client component boundary as props.
+  animal?: Omit<Animal, "priceCAD"> & { priceCAD: number };
   photoUrl?: string;
+  extraPhotoUrls?: string[];
   action: (formData: FormData) => void;
   // Pre-fills a brand-new form from a Clover import candidate (see
   // /admin/clover-import) so staff don't retype what Clover already knows —
@@ -36,11 +41,13 @@ export function AnimalForm({
     <form action={action} className="flex max-w-lg flex-col gap-4">
       <PhotoUploadField
         name="photoUrl"
-        label="Photo (téléversez un fichier ou collez une URL)"
+        label="Photo principale (téléversez un fichier ou collez une URL)"
         value={photoUrl}
         onChange={setPhotoUrl}
         placeholder="/images/animal-placeholder.png"
       />
+
+      <GalleryUrlsField name="extraPhotoUrls" initialUrls={extraPhotoUrls} />
 
       <label className="flex flex-col gap-1 text-sm">
         Espèce

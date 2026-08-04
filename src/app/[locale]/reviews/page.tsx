@@ -1,15 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
-
-function Stars({ rating }: { rating: number }) {
-  return (
-    <div className="flex gap-0.5 text-accent" aria-label={`${rating}/5`}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <span key={i}>{i < rating ? "★" : "☆"}</span>
-      ))}
-    </div>
-  );
-}
+import { RatingStars } from "@/components/rating-stars";
 
 export default async function ReviewsPage() {
   const t = await getTranslations("Reviews");
@@ -35,7 +26,7 @@ export default async function ReviewsPage() {
               key={review.id}
               className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
-              <Stars rating={review.rating} />
+              <RatingStars rating={review.rating} />
               <p className="text-sm leading-relaxed text-foreground">{review.comment}</p>
               <p className="mt-auto pt-2 text-xs font-medium uppercase tracking-wide text-muted">
                 {review.customer.fullName}

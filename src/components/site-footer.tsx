@@ -5,6 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { PaymentBadges } from "@/components/payment-badges";
 import { AmexMark, MastercardMark, VisaMark } from "@/components/brand-marks";
 import { getStoreSettings } from "@/lib/settings";
+import { NewsletterSignupForm } from "@/components/newsletter-signup-form";
 
 export async function SiteFooter() {
   const t = await getTranslations("Footer");
@@ -25,6 +26,7 @@ export async function SiteFooter() {
             <p className="text-lg font-semibold">Reptiles Concept</p>
           </div>
           <p className="text-sm text-white/80">{t("tagline")}</p>
+          <NewsletterSignupForm />
         </div>
 
         <div className="flex flex-col gap-2 text-sm">
@@ -54,6 +56,12 @@ export async function SiteFooter() {
           </Link>
           <Link href="/reviews" className="text-white/80 hover:text-white">
             {t("reviews")}
+          </Link>
+          <Link href="/faq" className="text-white/80 hover:text-white">
+            {t("faq")}
+          </Link>
+          <Link href="/about" className="text-white/80 hover:text-white">
+            {t("about")}
           </Link>
         </div>
       </div>

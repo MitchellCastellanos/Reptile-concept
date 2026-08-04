@@ -1,15 +1,49 @@
-import Image from "next/image";
+import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { getProductById } from "@/lib/queries";
+import { getProductById, getRelatedProducts } from "@/lib/queries";
 import { getProductImageUrl } from "@/lib/images";
+import { getProductRatings } from "@/lib/ratings";
+import { getSiteUrl } from "@/lib/site-url";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { MediaGallery } from "@/components/media-gallery";
+import { RatingStars } from "@/components/rating-stars";
+import { ProductCard } from "@/components/product-card";
 import { AddProductToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { NotifyMeForm } from "./notify-me-form";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string; locale: string }>;
+}): Promise<Metadata> {
+  const { id, locale } = await params;
+  const product = await getProductById(id, { publishedOnly: true });
+  if (!product) return {};
+
+  const name = locale === "en" ? product.nameEn : product.nameFr;
+  const description = locale === "en" ? product.descriptionEn : product.descriptionFr;
+  const imageUrl = product.imageUrl || getProductImageUrl(product.category);
+  const url = `${getSiteUrl()}/${locale}/boutique/${product.id}`;
+
+  return {
+    title: `${name} | Reptiles Concept`,
+    description: description?.slice(0, 160),
+    alternates: { canonical: url },
+    openGraph: {
+      title: name,
+      description: description?.slice(0, 160),
+      url,
+      images: [{ url: imageUrl }],
+      type: "website",
+    },
+  };
+}
 
 export default async function ProductDetailPage({
   params,
@@ -25,9 +59,18 @@ export default async function ProductDetailPage({
   const tCategories = await getTranslations("NavCategories");
   const name = locale === "en" ? product.nameEn : product.nameFr;
   const description = locale === "en" ? product.descriptionEn : product.descriptionFr;
-  const imageUrl = product.imageUrl || getProductImageUrl(product.category);
+  const galleryImages =
+    product.media.length > 0
+      ? product.media.map((m) => m.url)
+      : [product.imageUrl || getProductImageUrl(product.category)];
 
-  const customer = await getCurrentCustomer();
+  const [customer, ratings, relatedProducts] = await Promise.all([
+    getCurrentCustomer(),
+    getProductRatings([product.id]),
+    getRelatedProducts(product.category, product.id),
+  ]);
+  const rating = ratings.get(product.id);
+
   const isWishlisted = customer
     ? Boolean(
         await prisma.wishlistItem.findFirst({
@@ -36,8 +79,35 @@ export default async function ProductDetailPage({
       )
     : false;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name,
+    description,
+    image: galleryImages,
+    sku: product.sku,
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "CAD",
+      price: Number(product.priceCAD),
+      availability:
+        product.stockQty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    },
+    ...(rating
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: rating.average.toFixed(1),
+            reviewCount: rating.count,
+          },
+        }
+      : {}),
+  };
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
       <Breadcrumb
         items={[
           { label: t("title"), href: "/boutique" },
@@ -47,16 +117,7 @@ export default async function ProductDetailPage({
       />
 
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="relative aspect-square overflow-hidden rounded-2xl border border-border bg-accent-light shadow-sm">
-          <Image
-            src={imageUrl}
-            alt={name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            priority
-          />
-        </div>
+        <MediaGallery images={galleryImages} alt={name} />
 
         <div className="flex flex-col gap-4">
           <div>
@@ -65,6 +126,8 @@ export default async function ProductDetailPage({
             </p>
             <h1 className="text-3xl font-bold tracking-tight">{name}</h1>
           </div>
+
+          {rating ? <RatingStars rating={rating.average} count={rating.count} /> : null}
 
           <div>
             <p className="text-2xl font-bold text-primary">{Number(product.priceCAD)} $ CAD</p>
@@ -79,17 +142,39 @@ export default async function ProductDetailPage({
             <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
           ) : null}
 
-          <AddProductToCartButton
-            id={product.id}
-            name={name}
-            priceCAD={Number(product.priceCAD)}
-            stockQty={product.stockQty}
-          />
+          {product.stockQty > 0 ? (
+            <AddProductToCartButton
+              id={product.id}
+              name={name}
+              priceCAD={Number(product.priceCAD)}
+              stockQty={product.stockQty}
+            />
+          ) : (
+            <NotifyMeForm productId={product.id} />
+          )}
 
           <PaymentBadges />
           <WishlistToggleButton type="product" itemId={product.id} initialActive={isWishlisted} />
         </div>
       </div>
+
+      {relatedProducts.length > 0 ? (
+        <section className="flex flex-col gap-4 border-t border-border pt-8">
+          <h2 className="text-xl font-semibold text-foreground">{t("relatedTitle")}</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {relatedProducts.map((related) => (
+              <ProductCard
+                key={related.id}
+                product={related}
+                locale={locale}
+                inStockLabel={t("inStock")}
+                outOfStockLabel={t("outOfStock")}
+                backInStockLabel={t("backInStock")}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }

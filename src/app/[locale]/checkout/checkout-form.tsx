@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -8,17 +9,30 @@ import { KlarnaInstallments } from "@/components/klarna-installments";
 import { computeTax } from "@/lib/tax";
 import { placeOrderAction } from "./actions";
 
+type SavedAddress = {
+  id: string;
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+};
+
 export function CheckoutForm({
   gstRatePercent,
   qstRatePercent,
+  customer,
+  addresses,
 }: {
   gstRatePercent: number;
   qstRatePercent: number;
+  customer: { fullName: string; email: string; phone: string | null } | null;
+  addresses: SavedAddress[];
 }) {
   const { items, totalCAD } = useCart();
   const t = useTranslations("Checkout");
   const locale = useLocale();
   const router = useRouter();
+  const [selectedAddressId, setSelectedAddressId] = useState<string>(addresses[0]?.id ?? "new");
 
   if (items.length === 0) {
     if (typeof window !== "undefined") router.replace("/cart");
@@ -26,6 +40,7 @@ export function CheckoutForm({
   }
 
   const tax = computeTax(totalCAD, { gstRatePercent, qstRatePercent });
+  const usingSavedAddress = selectedAddressId !== "new";
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-12">
@@ -70,6 +85,7 @@ export function CheckoutForm({
           <input
             name="fullName"
             required
+            defaultValue={customer?.fullName}
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
@@ -79,6 +95,7 @@ export function CheckoutForm({
             type="email"
             name="email"
             required
+            defaultValue={customer?.email}
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
@@ -86,44 +103,78 @@ export function CheckoutForm({
           {t("phone")}
           <input
             name="phone"
+            defaultValue={customer?.phone ?? ""}
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          {t("street")}
-          <input
-            name="street"
-            required
-            className="rounded-lg border border-border bg-background px-3 py-2"
-          />
-        </label>
-        <div className="grid grid-cols-3 gap-4">
-          <label className="flex flex-col gap-1 text-sm">
-            {t("city")}
-            <input
-              name="city"
-              required
-              className="rounded-lg border border-border bg-background px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            {t("province")}
-            <input
-              name="province"
-              required
-              defaultValue="QC"
-              className="rounded-lg border border-border bg-background px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            {t("postalCode")}
-            <input
-              name="postalCode"
-              required
-              className="rounded-lg border border-border bg-background px-3 py-2"
-            />
-          </label>
-        </div>
+
+        {addresses.length > 0 ? (
+          <div className="flex flex-col gap-2 rounded-lg border border-border bg-accent-light p-3">
+            <p className="text-sm font-medium text-foreground">{t("savedAddresses")}</p>
+            {addresses.map((address) => (
+              <label key={address.id} className="flex items-center gap-2 text-sm">
+                <input
+                  type="radio"
+                  name="addressChoice"
+                  checked={selectedAddressId === address.id}
+                  onChange={() => setSelectedAddressId(address.id)}
+                />
+                {address.street}, {address.city}, {address.province} {address.postalCode}
+              </label>
+            ))}
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="radio"
+                name="addressChoice"
+                checked={selectedAddressId === "new"}
+                onChange={() => setSelectedAddressId("new")}
+              />
+              {t("useNewAddress")}
+            </label>
+          </div>
+        ) : null}
+
+        {usingSavedAddress ? (
+          <input type="hidden" name="addressId" value={selectedAddressId} />
+        ) : (
+          <>
+            <label className="flex flex-col gap-1 text-sm">
+              {t("street")}
+              <input
+                name="street"
+                required
+                className="rounded-lg border border-border bg-background px-3 py-2"
+              />
+            </label>
+            <div className="grid grid-cols-3 gap-4">
+              <label className="flex flex-col gap-1 text-sm">
+                {t("city")}
+                <input
+                  name="city"
+                  required
+                  className="rounded-lg border border-border bg-background px-3 py-2"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                {t("province")}
+                <input
+                  name="province"
+                  required
+                  defaultValue="QC"
+                  className="rounded-lg border border-border bg-background px-3 py-2"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm">
+                {t("postalCode")}
+                <input
+                  name="postalCode"
+                  required
+                  className="rounded-lg border border-border bg-background px-3 py-2"
+                />
+              </label>
+            </div>
+          </>
+        )}
         <input type="hidden" name="preferredLang" value={locale} />
 
         <label className="flex items-start gap-2 text-sm">

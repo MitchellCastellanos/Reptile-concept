@@ -1,5 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { getStoreSettings } from "@/lib/settings";
+import { getCurrentCustomer } from "@/lib/customer-auth";
+import { prisma } from "@/lib/db";
 import { CheckoutForm } from "./checkout-form";
 
 export default async function CheckoutPage({
@@ -10,6 +12,11 @@ export default async function CheckoutPage({
   const settings = await getStoreSettings();
   const { cancelled } = await searchParams;
   const t = await getTranslations("Checkout");
+
+  const customer = await getCurrentCustomer();
+  const addresses = customer
+    ? await prisma.address.findMany({ where: { customerId: customer.id }, orderBy: { id: "desc" } })
+    : [];
 
   return (
     <>
@@ -23,6 +30,8 @@ export default async function CheckoutPage({
       <CheckoutForm
         gstRatePercent={Number(settings.gstRatePercent)}
         qstRatePercent={Number(settings.qstRatePercent)}
+        customer={customer ? { fullName: customer.fullName, email: customer.email, phone: customer.phone } : null}
+        addresses={addresses}
       />
     </>
   );

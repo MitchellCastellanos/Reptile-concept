@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { pushSoldItemsToClover } from "@/lib/clover-sync";
 import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
 import { restoreOrderInventory } from "@/lib/orders";
+import { pointsForSubtotal } from "@/lib/loyalty";
 
 export type CartLineInput = {
   type: "animal" | "product";
@@ -72,11 +73,35 @@ type CreateOrderInput = {
   city: string;
   province: string;
   postalCode: string;
+  // When set and it resolves to an Address owned by this customer, that
+  // saved address is reused instead of creating a new one from the
+  // street/city/province/postalCode fields above.
+  addressId?: string;
   validated: ValidatedCart;
   gstAmountCAD: number;
   qstAmountCAD: number;
   totalCAD: number;
 };
+
+async function resolveShippingAddress(
+  tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
+  customerId: string,
+  input: CreateOrderInput,
+) {
+  if (input.addressId) {
+    const existing = await tx.address.findFirst({ where: { id: input.addressId, customerId } });
+    if (existing) return existing;
+  }
+  return tx.address.create({
+    data: {
+      customerId,
+      street: input.street,
+      city: input.city,
+      province: input.province,
+      postalCode: input.postalCode,
+    },
+  });
+}
 
 async function writeOrderItems(
   tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0],
@@ -142,15 +167,7 @@ export async function createPendingPaymentOrder(input: CreateOrderInput) {
       },
     });
 
-    const address = await tx.address.create({
-      data: {
-        customerId: customer.id,
-        street: input.street,
-        city: input.city,
-        province: input.province,
-        postalCode: input.postalCode,
-      },
-    });
+    const address = await resolveShippingAddress(tx, customer.id, input);
 
     const order = await tx.order.create({
       data: {
@@ -198,15 +215,7 @@ export async function createManualPaidOrder(input: CreateOrderInput) {
       },
     });
 
-    const address = await tx.address.create({
-      data: {
-        customerId: customer.id,
-        street: input.street,
-        city: input.city,
-        province: input.province,
-        postalCode: input.postalCode,
-      },
-    });
+    const address = await resolveShippingAddress(tx, customer.id, input);
 
     const order = await tx.order.create({
       data: {
@@ -233,6 +242,11 @@ export async function createManualPaidOrder(input: CreateOrderInput) {
       },
     });
 
+    await tx.customer.update({
+      where: { id: customer.id },
+      data: { loyaltyPoints: { increment: pointsForSubtotal(input.validated.subtotalCAD) } },
+    });
+
     return order.id;
   });
 }
@@ -254,6 +268,11 @@ export async function fulfillPaidOrder(
     await tx.order.update({
       where: { id: orderId },
       data: { status: "paid" },
+    });
+
+    await tx.customer.update({
+      where: { id: order.customerId },
+      data: { loyaltyPoints: { increment: pointsForSubtotal(Number(order.subtotalCAD ?? 0)) } },
     });
 
     for (const item of order.items) {

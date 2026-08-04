@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
+import { notifyStockSubscribers } from "@/lib/stock-notifications";
 import type { ProductCategoryValue } from "@/lib/product-categories";
 
 function readProductForm(formData: FormData) {
@@ -22,12 +23,30 @@ function readProductForm(formData: FormData) {
   };
 }
 
+/** Extra gallery photos beyond the primary imageUrl — fully replaced on every save. */
+async function saveProductGallery(productId: string, formData: FormData) {
+  let urls: string[] = [];
+  try {
+    urls = JSON.parse(String(formData.get("extraPhotoUrls") ?? "[]"));
+  } catch {
+    urls = [];
+  }
+
+  await prisma.media.deleteMany({ where: { productId } });
+  if (urls.length > 0) {
+    await prisma.media.createMany({
+      data: urls.map((url, i) => ({ productId, type: "photo" as const, url, sortOrder: i })),
+    });
+  }
+}
+
 export async function createProductAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
   const data = readProductForm(formData);
   const product = await prisma.product.create({ data });
+  await saveProductGallery(product.id, formData);
   await recordAudit(admin.id, "Product", product.id, "create");
 
   if (data.cloverItemId) {
@@ -61,7 +80,14 @@ export async function updateProductAction(id: string, formData: FormData) {
       ...(data.stockQty <= 0 ? { stockRestockedAt: null } : {}),
     },
   });
+  await saveProductGallery(id, formData);
   await recordAudit(admin.id, "Product", id, "update");
+
+  if (restocked) {
+    notifyStockSubscribers(id).catch((err) =>
+      console.error("[admin] failed to notify stock subscribers:", err),
+    );
+  }
 
   revalidatePath("/admin/products");
   redirect("/admin/products");

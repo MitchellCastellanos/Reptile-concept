@@ -7,6 +7,7 @@ import {
   PRODUCT_CATEGORIES,
 } from "@/lib/queries";
 import { isStockFilter, parsePageNumber, parsePageSize } from "@/lib/listing";
+import { getProductRatings } from "@/lib/ratings";
 import { ProductCard } from "@/components/product-card";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CategoryPillNav } from "@/components/category-pill-nav";
@@ -45,6 +46,7 @@ export default async function BoutiquePage({
   const totalPages = Math.ceil(total / pageSize);
   const customer = await getCurrentCustomer();
   const { productIds } = await getWishlistedIds(customer?.id);
+  const ratings = await getProductRatings([...products.map((p) => p.id), ...featuredOnly.map((p) => p.id)]);
 
   function buildPageHref(targetPage: number) {
     const params = new URLSearchParams();
@@ -103,6 +105,7 @@ export default async function BoutiquePage({
                   backInStockLabel={t("backInStock")}
                   showWishlist
                   inWishlist={productIds.has(product.id)}
+                  rating={ratings.get(product.id)}
                 />
               ))}
             </div>
@@ -124,6 +127,7 @@ export default async function BoutiquePage({
                     outOfStockLabel={t("outOfStock")}
                     showWishlist
                     inWishlist={productIds.has(product.id)}
+                    rating={ratings.get(product.id)}
                   />
                 ))}
               </div>

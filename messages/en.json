@@ -44,7 +44,18 @@
     "account": "Account",
     "wishlist": "Wishlist",
     "menu": "Menu",
-    "backToTop": "Back to top"
+    "backToTop": "Back to top",
+    "search": "Search"
+  },
+  "Search": {
+    "title": "Search",
+    "placeholder": "Search animals and products…",
+    "submit": "Search",
+    "prompt": "Search our animals and shop by name, species or keyword.",
+    "noResults": "No results for \"{query}\".",
+    "resultsFor": "{count, plural, one {# result} other {# results}} for \"{query}\"",
+    "animalsHeading": "Animals",
+    "productsHeading": "Shop"
   },
   "Listing": {
     "allProducts": "All products",
@@ -102,7 +113,14 @@
     "rights": "All rights reserved",
     "cardsAccepted": "Cards accepted:",
     "staff": "Staff",
-    "craftedInMontreal": "Crafted in Montreal by"
+    "craftedInMontreal": "Crafted in Montreal by",
+    "faq": "FAQ",
+    "about": "About us",
+    "newsletterBody": "Get new arrivals and care tips in your inbox.",
+    "newsletterPlaceholder": "Your email",
+    "newsletterSubmit": "Subscribe",
+    "newsletterSuccess": "You're subscribed — thanks!",
+    "newsletterError": "Please enter a valid email address."
   },
   "Animal": {
     "backToList": "Back to animals",
@@ -130,7 +148,8 @@
     "enclosure": "Minimum enclosure",
     "substrate": "Substrate",
     "feeding": "Feeding frequency",
-    "handling": "Handling"
+    "handling": "Handling",
+    "relatedTitle": "You might also like"
   },
   "Boutique": {
     "title": "Shop",
@@ -141,7 +160,13 @@
     "featuredOutOfStock": "Popular — temporarily out of stock",
     "featuredOutOfStockHint": "A few items we usually carry — check back soon or ask in store.",
     "noProducts": "No products available right now.",
-    "backToList": "Back to shop"
+    "backToList": "Back to shop",
+    "relatedTitle": "You might also like",
+    "notifyMeTitle": "Notify me when back in stock",
+    "notifyMeEmailPlaceholder": "Your email",
+    "notifyMeSubmit": "Notify me",
+    "notifyMeSuccess": "You're on the list — we'll email you as soon as it's back.",
+    "notifyMeError": "Please enter a valid email address."
   },
   "Cart": {
     "title": "Cart",
@@ -166,6 +191,8 @@
     "province": "Province",
     "postalCode": "Postal code",
     "healthGuarantee": "I accept Reptiles Concept's health guarantee policy and terms of sale.",
+    "savedAddresses": "Saved address",
+    "useNewAddress": "Enter a new address",
     "placeOrder": "Pay now",
     "paymentCancelled": "Payment cancelled. Your cart is unchanged — you can try again whenever you like.",
     "confirmationTitle": "Thank you for your purchase!",
@@ -216,7 +243,18 @@
     "wishlistItemCount": "{count, plural, one {# item} other {# items}}",
     "welcomeBack": "Welcome back",
     "orderNumber": "Order",
-    "status": "Status"
+    "status": "Status",
+    "loyaltyPoints": "{count, plural, one {# loyalty point} other {# loyalty points}}",
+    "loyaltyPointsHint": "Earned 1 point per $1 spent on paid orders.",
+    "orderItems": "Items",
+    "orderTotal": "Total",
+    "shippingAddress": "Pickup contact address",
+    "orderCancelled": "This order was cancelled.",
+    "orderRefunded": "This order was refunded.",
+    "timeline_paid": "Order placed",
+    "timeline_preparing": "Preparing",
+    "timeline_ready_for_pickup": "Ready for pickup",
+    "timeline_picked_up": "Picked up"
   },
   "Legal": {
     "cookieBannerText": "We use cookies to keep our store running (cart, sign-in) and to understand how visitors use our site. See our cookie policy for details.",
@@ -239,5 +277,37 @@
     "cookiePolicyControlBody": "Most browsers let you block or delete cookies in their settings. Note that blocking essential cookies may prevent parts of the site (like the cart or checkout) from working properly.",
     "cookiePolicyContactTitle": "Questions?",
     "cookiePolicyContactBody": "Contact us using the details in the footer if you have any questions about this policy."
+  },
+  "Faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Everything you need to know before visiting or ordering from Reptiles Concept.",
+    "pickup_q": "How does pickup work?",
+    "pickup_a": "All orders are prepared for pickup at our Lachine, QC location. Once your order is ready, we'll email you with our hours and a pickup deadline — please pick up within that window to avoid a cancellation fee.",
+    "shipping_q": "Do you ship orders?",
+    "shipping_a": "Not yet — every order, animals and supplies alike, is for in-store pickup only in Lachine, QC.",
+    "payment_q": "What payment methods do you accept?",
+    "payment_a": "We accept Visa, Mastercard and American Express online, plus Klarna for 4 interest-free installments. In store, we also accept cash.",
+    "healthGuarantee_q": "What does your health guarantee cover?",
+    "healthGuarantee_a": "Every animal is guaranteed healthy at the time of pickup. Please inspect your new pet in store before leaving — reach out right away if anything seems off.",
+    "care_q": "Where can I learn how to care for my new pet?",
+    "care_a": "Each animal's page includes a species care sheet (diet, humidity, temperature, enclosure size and more). Our team is also happy to walk you through setup in store.",
+    "returns_q": "Can I return a live animal?",
+    "returns_a": "For the animal's welfare, we don't accept returns on livestock once picked up. You can cancel an unpicked-up order before the pickup deadline — a cancellation fee may apply per our terms of sale.",
+    "afterSale_q": "What if I have questions after bringing my pet home?",
+    "afterSale_a": "We're here for the long run — contact us anytime using the details in the footer, whether it's a care question or something else."
+  },
+  "About": {
+    "title": "About Reptiles Concept",
+    "subtitle": "A specialty reptile shop in Lachine, Quebec, built on responsible breeding and real advice.",
+    "story": "Reptiles Concept started with a simple idea: reptile and invertebrate keepers deserve a shop that actually knows the animals it sells. Every reptile, amphibian and invertebrate in our care is captive bred, healthy, and set up to thrive before it ever meets a customer.",
+    "mission": "Our mission is to make responsible exotic pet ownership accessible — pairing every animal we sell with the care information, equipment and honest advice needed to give it a great life.",
+    "value_breeding_title": "Responsible breeding",
+    "value_breeding_body": "Captive bred, well socialized animals — never wild caught.",
+    "value_advice_title": "Real expertise",
+    "value_advice_body": "Our team keeps and breeds what we sell, so the advice is lived-in.",
+    "value_community_title": "Ongoing support",
+    "value_community_body": "Questions don't stop at pickup — we're here after you bring your pet home too.",
+    "cta": "Browse our animals",
+    "faqCta": "Read our FAQ"
   }
 }

@@ -17,6 +17,7 @@ import {
 } from "@/lib/queries";
 import { parsePageNumber, parsePageSize } from "@/lib/listing";
 import { getCurrentCustomer } from "@/lib/customer-auth";
+import { getAnimalRatings } from "@/lib/ratings";
 
 export default async function AnimalsPage({
   searchParams,
@@ -35,6 +36,7 @@ export default async function AnimalsPage({
   const totalPages = Math.ceil(total / pageSize);
   const customer = await getCurrentCustomer();
   const { animalIds } = await getWishlistedIds(customer?.id);
+  const ratings = await getAnimalRatings(animals.map((a) => a.id));
 
   const activeCategory = isAnimalCategory(category) ? category : undefined;
   const activeGroupOnly = !activeCategory && isAnimalCategoryGroup(category) ? category : undefined;
@@ -115,6 +117,7 @@ export default async function AnimalsPage({
               availableLabel={t("available")}
               showWishlist
               inWishlist={animalIds.has(animal.id)}
+              rating={ratings.get(animal.id)}
             />
           ))}
         </div>

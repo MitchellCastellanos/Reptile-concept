@@ -27,8 +27,7 @@ function readAnimalForm(formData: FormData) {
 async function savePrimaryPhoto(animalId: string, formData: FormData) {
   const photoUrl = String(formData.get("photoUrl") ?? "").trim();
   const existing = await prisma.media.findFirst({
-    where: { animalId },
-    orderBy: { sortOrder: "asc" },
+    where: { animalId, sortOrder: 0 },
   });
 
   if (photoUrl) {
@@ -44,6 +43,23 @@ async function savePrimaryPhoto(animalId: string, formData: FormData) {
   }
 }
 
+/** Extra gallery photos beyond the primary one (sortOrder 0) — fully replaced on every save. */
+async function saveExtraPhotos(animalId: string, formData: FormData) {
+  let urls: string[] = [];
+  try {
+    urls = JSON.parse(String(formData.get("extraPhotoUrls") ?? "[]"));
+  } catch {
+    urls = [];
+  }
+
+  await prisma.media.deleteMany({ where: { animalId, sortOrder: { gt: 0 } } });
+  if (urls.length > 0) {
+    await prisma.media.createMany({
+      data: urls.map((url, i) => ({ animalId, type: "photo" as const, url, sortOrder: i + 1 })),
+    });
+  }
+}
+
 export async function createAnimalAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
@@ -51,6 +67,7 @@ export async function createAnimalAction(formData: FormData) {
   const data = readAnimalForm(formData);
   const animal = await prisma.animal.create({ data });
   await savePrimaryPhoto(animal.id, formData);
+  await saveExtraPhotos(animal.id, formData);
   await recordAudit(admin.id, "Animal", animal.id, "create");
 
   if (data.cloverItemId) {
@@ -75,6 +92,7 @@ export async function updateAnimalAction(id: string, formData: FormData) {
   const data = readAnimalForm(formData);
   await prisma.animal.update({ where: { id }, data });
   await savePrimaryPhoto(id, formData);
+  await saveExtraPhotos(id, formData);
   await recordAudit(admin.id, "Animal", id, "update");
 
   revalidatePath("/admin/animals");

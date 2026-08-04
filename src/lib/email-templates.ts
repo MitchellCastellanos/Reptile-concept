@@ -208,6 +208,29 @@ export function orderPickedUpEmail(
   return { subject, html: shell(locale, subject, body, storeInfo) };
 }
 
+export function backInStockEmail(
+  product: { nameFr: string; nameEn: string },
+  productUrl: string,
+  storeInfo: StoreContactInfo,
+) {
+  const subjectFr = `${product.nameFr} est de retour en stock!`;
+  const subjectEn = `${product.nameEn} is back in stock!`;
+
+  const bodyFr = `
+    <p>Bonne nouvelle! <strong>${product.nameFr}</strong> est de nouveau disponible.</p>
+    <p><a href="${productUrl}" style="display:inline-block;background:#2d5a3d;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:600;">Voir le produit</a></p>
+    <p style="color:#6b7280;font-size:12px;margin-top:16px;">Le stock est limité — nous vous recommandons de commander rapidement.</p>`;
+  const bodyEn = `
+    <p>Good news! <strong>${product.nameEn}</strong> is available again.</p>
+    <p><a href="${productUrl}" style="display:inline-block;background:#2d5a3d;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:600;">View the product</a></p>
+    <p style="color:#6b7280;font-size:12px;margin-top:16px;">Stock is limited — we recommend ordering soon.</p>`;
+
+  return {
+    subject: `${subjectFr} / ${subjectEn}`,
+    html: shell("fr", subjectFr, `${bodyFr}<hr style="border:none;border-top:1px solid #e5e1db;margin:20px 0;"/>${bodyEn}`, storeInfo),
+  };
+}
+
 type PosReceiptData = {
   saleId: string;
   createdAt: Date;

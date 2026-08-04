@@ -32,9 +32,13 @@ export async function placeOrderAction(formData: FormData) {
   const city = String(formData.get("city") ?? "").trim();
   const province = String(formData.get("province") ?? "").trim();
   const postalCode = String(formData.get("postalCode") ?? "").trim();
+  const addressId = String(formData.get("addressId") ?? "").trim() || undefined;
   const healthGuaranteeAccepted = formData.get("healthGuaranteeAccepted") === "on";
 
-  if (!fullName || !email || !street || !city || !province || !postalCode) {
+  if (!fullName || !email) {
+    throw new Error("Champs requis manquants / Missing required fields");
+  }
+  if (!addressId && (!street || !city || !province || !postalCode)) {
     throw new Error("Champs requis manquants / Missing required fields");
   }
   if (!healthGuaranteeAccepted) {
@@ -59,6 +63,7 @@ export async function placeOrderAction(formData: FormData) {
     city,
     province,
     postalCode,
+    addressId,
     validated,
     gstAmountCAD,
     qstAmountCAD,

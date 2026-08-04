@@ -98,6 +98,35 @@ export function getProductById(id: string, opts?: { publishedOnly?: boolean }) {
       id,
       ...(opts?.publishedOnly ? { published: true } : {}),
     },
+    include: { media: { orderBy: { sortOrder: "asc" } } },
+  });
+}
+
+/** Other available animals of the same species category, for the detail page's "related" section. */
+export function getRelatedAnimals(category: string, excludeId: string, limit = 4) {
+  return prisma.animal.findMany({
+    where: {
+      status: "available",
+      id: { not: excludeId },
+      ...(isAnimalCategory(category) ? { species: { category } } : {}),
+    },
+    include: { species: true, media: { orderBy: { sortOrder: "asc" } } },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+}
+
+/** Other published, in-stock products of the same category, for the detail page's "related" section. */
+export function getRelatedProducts(category: string, excludeId: string, limit = 4) {
+  return prisma.product.findMany({
+    where: {
+      published: true,
+      stockQty: { gt: 0 },
+      id: { not: excludeId },
+      ...(isProductCategory(category) ? { category } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit,
   });
 }
 

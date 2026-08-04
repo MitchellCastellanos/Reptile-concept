@@ -211,10 +211,14 @@ model Animal {
   updatedAt       DateTime         @updatedAt
 }
 
+// Photo (or video) belonging to either an Animal or a Product, never both —
+// same nullable-pair convention as WishlistItem/OrderItem above.
 model Media {
   id        String    @id @default(uuid())
-  animal    Animal    @relation(fields: [animalId], references: [id], onDelete: Cascade)
-  animalId  String
+  animal    Animal?   @relation(fields: [animalId], references: [id], onDelete: Cascade)
+  animalId  String?
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String?
   type      MediaType
   url       String
   sortOrder Int       @default(0)
@@ -241,10 +245,38 @@ model Product {
   orderItems        OrderItem[]
   wishlistItems     WishlistItem[]
   posSaleItems      PosSaleItem[]
+  media             Media[]
+  stockNotifications StockNotification[]
   cloverItemId      String?         @unique
   cloverSaleItems   CloverSaleItem[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+}
+
+// Public opt-in: "email me when this is back in stock" for an out-of-stock
+// Product. One row per (email, product) pair — notifiedAt is stamped once
+// the restock email actually goes out, so a subscriber isn't emailed twice
+// for the same restock and a repeat signup after that is a fresh row.
+model StockNotification {
+  id         String    @id @default(uuid())
+  email      String
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  notifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@unique([email, productId])
+}
+
+// Public newsletter opt-in, separate from Customer since a subscriber may
+// never place an order (and a Customer's emailOptOut already governs
+// transactional-adjacent mail, not this general marketing list).
+model NewsletterSubscriber {
+  id             String    @id @default(uuid())
+  email          String    @unique
+  locale         Locale    @default(fr)
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
 }
 
 model Bundle {
@@ -285,6 +317,10 @@ model Customer {
   // Running account balance carried over from the client's accounting
   // system at import time (QuickBooks "Solde courant").
   currentBalanceCAD Decimal    @default(0)
+  // Simple accrual loyalty program: 1 point per $1 CAD spent (subtotal,
+  // pre-tax) on each order once it's paid. No redemption flow yet — balance
+  // is informational, shown in the account page.
+  loyaltyPoints     Int        @default(0)
   // Filenames/references listed in the source system's "Pièces jointes"
   // column. The CSV import can't carry the actual files, only this text.
   attachmentsNote String?

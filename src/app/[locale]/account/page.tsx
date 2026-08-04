@@ -44,6 +44,16 @@ export default async function AccountPage() {
         </form>
       </div>
 
+      <div className="flex w-fit items-center gap-3 rounded-2xl border border-border bg-accent-light px-5 py-4 shadow-sm">
+        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-accent" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 16.9l-6.2 3.4 1.6-6.8L2.2 8.9l6.9-.6z" strokeLinejoin="round" />
+        </svg>
+        <div>
+          <p className="font-semibold">{t("loyaltyPoints", { count: customer.loyaltyPoints })}</p>
+          <p className="text-sm text-muted">{t("loyaltyPointsHint")}</p>
+        </div>
+      </div>
+
       <Link
         href="/account/wishlist"
         className="flex w-fit items-center gap-3 rounded-2xl border border-border bg-card px-5 py-4 shadow-sm transition hover:border-primary/30"
@@ -75,22 +85,24 @@ export default async function AccountPage() {
                 0,
               );
               return (
-                <li
-                  key={order.id}
-                  className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm"
-                >
-                  <div>
-                    <p className="font-semibold">
-                      {t("orderNumber")} #{order.id.slice(0, 8)}
-                    </p>
-                    <p className="text-sm text-muted">
-                      {order.createdAt.toLocaleDateString(locale === "en" ? "en-CA" : "fr-CA")} &middot;{" "}
-                      {total.toFixed(2)} $ CAD
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-accent-light px-3 py-1 text-sm font-medium text-accent">
-                    {locale === "en" ? (label?.en ?? order.status) : (label?.fr ?? order.status)}
-                  </span>
+                <li key={order.id}>
+                  <Link
+                    href={`/account/orders/${order.id}`}
+                    className="flex items-center justify-between rounded-2xl border border-border bg-card p-4 shadow-sm transition hover:border-primary/30"
+                  >
+                    <div>
+                      <p className="font-semibold">
+                        {t("orderNumber")} #{order.id.slice(0, 8)}
+                      </p>
+                      <p className="text-sm text-muted">
+                        {order.createdAt.toLocaleDateString(locale === "en" ? "en-CA" : "fr-CA")} &middot;{" "}
+                        {total.toFixed(2)} $ CAD
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-accent-light px-3 py-1 text-sm font-medium text-accent">
+                      {locale === "en" ? (label?.en ?? order.status) : (label?.fr ?? order.status)}
+                    </span>
+                  </Link>
                 </li>
               );
             })}

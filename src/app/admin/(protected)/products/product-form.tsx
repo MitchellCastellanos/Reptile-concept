@@ -3,14 +3,19 @@
 import { useState } from "react";
 import type { Product } from "@/generated/prisma/client";
 import { PhotoUploadField } from "@/components/admin/photo-upload-field";
+import { GalleryUrlsField } from "@/components/admin/gallery-urls-field";
 import { PRODUCT_CATEGORIES as CATEGORY_OPTIONS } from "@/lib/product-categories";
 
 export function ProductForm({
   product,
+  extraPhotoUrls = [],
   action,
   prefill,
 }: {
-  product?: Product;
+  // priceCAD as a plain number, not Prisma's Decimal — Decimal instances
+  // can't cross the server/client component boundary as props.
+  product?: Omit<Product, "priceCAD"> & { priceCAD: number };
+  extraPhotoUrls?: string[];
   action: (formData: FormData) => void;
   prefill?: { cloverItemId: string; suggestedName?: string; priceCAD?: number };
 }) {
@@ -20,11 +25,13 @@ export function ProductForm({
     <form action={action} className="flex max-w-lg flex-col gap-4">
       <PhotoUploadField
         name="imageUrl"
-        label="Photo (téléversez un fichier ou collez une URL)"
+        label="Photo principale (téléversez un fichier ou collez une URL)"
         value={imageUrl}
         onChange={setImageUrl}
         placeholder="/images/products/TERRA-40G.jpg"
       />
+
+      <GalleryUrlsField name="extraPhotoUrls" initialUrls={extraPhotoUrls} />
 
       <label className="flex flex-col gap-1 text-sm">
         SKU

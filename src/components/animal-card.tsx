@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { getAnimalImageUrl } from "@/lib/images";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
+import { RatingStars } from "@/components/rating-stars";
 
 type AnimalCardAnimal = {
   id: string;
@@ -19,6 +20,7 @@ export function AnimalCard({
   availableLabel,
   showWishlist = false,
   inWishlist = false,
+  rating,
 }: {
   animal: AnimalCardAnimal;
   locale: string;
@@ -26,6 +28,7 @@ export function AnimalCard({
   availableLabel?: string;
   showWishlist?: boolean;
   inWishlist?: boolean;
+  rating?: { average: number; count: number };
 }) {
   const speciesName =
     locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
@@ -34,7 +37,7 @@ export function AnimalCard({
   return (
     <Link
       href={`/animals/${animal.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+      className="animate-fade-in-up group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-accent-light">
         <Image
@@ -58,6 +61,7 @@ export function AnimalCard({
       <div className="flex flex-1 flex-col gap-1 p-4">
         <p className="text-xs font-medium uppercase tracking-wide text-accent">{speciesName}</p>
         <p className="font-semibold text-foreground">{animal.morph}</p>
+        {rating ? <RatingStars rating={rating.average} count={rating.count} /> : null}
         <p className="mt-auto pt-2 text-sm font-medium text-primary">
           {priceLabel}: {Number(animal.priceCAD)} $ CAD
         </p>
