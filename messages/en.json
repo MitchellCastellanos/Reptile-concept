@@ -109,6 +109,7 @@
   "Footer": {
     "tagline": "Your specialty reptile shop in Lachine, Quebec.",
     "visit": "Visit us",
+    "getDirections": "Get directions on Google Maps",
     "contact": "Contact",
     "links": "Quick links",
     "animals": "Available animals",
@@ -212,7 +213,8 @@
     "securePayment": "Secure card payment",
     "klarnaPromo": "Pay in 4 interest-free installments",
     "klarnaInstallments": "or 4 payments of {amount} $ with",
-    "bannerText": "Buy now, pay later — 4 interest-free payments with"
+    "bannerText": "Buy now, pay later — 4 interest-free payments with",
+    "bannerTextShort": "4 interest-free payments with"
   },
   "Reviews": {
     "title": "Customer reviews",

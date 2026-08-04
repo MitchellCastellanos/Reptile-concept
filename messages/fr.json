@@ -109,6 +109,7 @@
   "Footer": {
     "tagline": "Votre boutique spécialisée en reptiles à Lachine, Québec.",
     "visit": "Nous visiter",
+    "getDirections": "Itinéraire sur Google Maps",
     "contact": "Contact",
     "links": "Liens rapides",
     "animals": "Animaux disponibles",
@@ -212,7 +213,8 @@
     "securePayment": "Paiement sécurisé par carte",
     "klarnaPromo": "Payez en 4 versements sans intérêt",
     "klarnaInstallments": "ou 4 versements de {amount} $ avec",
-    "bannerText": "Achetez maintenant, payez plus tard — 4 versements sans intérêt avec"
+    "bannerText": "Achetez maintenant, payez plus tard — 4 versements sans intérêt avec",
+    "bannerTextShort": "4 versements sans intérêt avec"
   },
   "Reviews": {
     "title": "Avis de nos clients",
