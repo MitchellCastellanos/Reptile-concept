@@ -2,11 +2,11 @@ import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
 import { isProductCategory } from "@/lib/product-categories";
-import { isStockFilter, type StockFilter } from "@/lib/listing";
+import { isStockFilter, LISTING_SEARCH_MIN_CHARS, type StockFilter } from "@/lib/listing";
 
 export const SEARCH_RESULT_LIMIT = 24;
 export const LISTING_SUGGESTION_LIMIT = 8;
-export const LISTING_SEARCH_MIN_CHARS = 3;
+export { LISTING_SEARCH_MIN_CHARS };
 
 export function animalTextSearchWhere(q: string): Prisma.AnimalWhereInput {
   return {

@@ -18,6 +18,7 @@ export function isStockFilter(value: string | undefined): value is StockFilter {
 export const LISTING_PAGE_SIZES = [25, 50, 100] as const;
 export type ListingPageSize = (typeof LISTING_PAGE_SIZES)[number];
 export const DEFAULT_LISTING_PAGE_SIZE: ListingPageSize = 25;
+export const LISTING_SEARCH_MIN_CHARS = 3;
 
 export function parsePageSize(value: string | undefined): ListingPageSize {
   const num = Number(value);

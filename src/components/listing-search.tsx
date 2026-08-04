@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { getAnimalImageUrl, getProductImageUrl } from "@/lib/images";
-import { LISTING_SEARCH_MIN_CHARS } from "@/lib/search";
+import { LISTING_SEARCH_MIN_CHARS } from "@/lib/listing";
 
 type ListingScope = "animals" | "products";
 
