@@ -48,7 +48,7 @@ export default async function Home() {
           alt="Reptiles Concept"
           fill
           priority
-          className="object-cover"
+          className="object-cover object-center lg:object-[center_52%] xl:object-[center_60%] 2xl:object-[center_70%]"
           sizes="100vw"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/30" />
