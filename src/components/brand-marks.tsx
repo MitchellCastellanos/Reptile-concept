@@ -53,3 +53,13 @@ export function AmexMark({ className = "" }: { className?: string }) {
     </span>
   );
 }
+
+export function FacebookMark({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex h-8 w-8 items-center justify-center rounded-full bg-[#1877F2] text-white ${className}`}>
+      <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="currentColor">
+        <path d="M13.5 21v-8h2.7l.4-3.1h-3.1V8c0-.9.25-1.5 1.55-1.5H16.7V3.7C16.4 3.66 15.44 3.58 14.32 3.58c-2.34 0-3.94 1.43-3.94 4.04V9.9H7.66V13h2.72v8h3.12z" />
+      </svg>
+    </span>
+  );
+}

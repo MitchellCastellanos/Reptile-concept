@@ -105,6 +105,7 @@ export default async function BoutiquePage({
                   backInStockLabel={t("backInStock")}
                   showWishlist
                   inWishlist={productIds.has(product.id)}
+                  isLoggedIn={Boolean(customer)}
                   rating={ratings.get(product.id)}
                 />
               ))}
@@ -127,6 +128,7 @@ export default async function BoutiquePage({
                     outOfStockLabel={t("outOfStock")}
                     showWishlist
                     inWishlist={productIds.has(product.id)}
+                    isLoggedIn={Boolean(customer)}
                     rating={ratings.get(product.id)}
                   />
                 ))}

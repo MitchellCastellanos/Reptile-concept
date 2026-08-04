@@ -117,6 +117,7 @@ export default async function AnimalsPage({
               availableLabel={t("available")}
               showWishlist
               inWishlist={animalIds.has(animal.id)}
+              isLoggedIn={Boolean(customer)}
               rating={ratings.get(animal.id)}
             />
           ))}

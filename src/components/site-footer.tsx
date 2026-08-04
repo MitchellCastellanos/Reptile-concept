@@ -3,7 +3,7 @@ import NextLink from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PaymentBadges } from "@/components/payment-badges";
-import { AmexMark, MastercardMark, VisaMark } from "@/components/brand-marks";
+import { AmexMark, FacebookMark, MastercardMark, VisaMark } from "@/components/brand-marks";
 import { getStoreSettings } from "@/lib/settings";
 import { NewsletterSignupForm } from "@/components/newsletter-signup-form";
 
@@ -14,6 +14,12 @@ export async function SiteFooter() {
   const settings = await getStoreSettings();
   const address = locale === "en" ? settings.addressEn : settings.addressFr;
   const hours = locale === "en" ? settings.hoursEn : settings.hoursFr;
+  const followerCount =
+    settings.facebookFollowerCount != null
+      ? new Intl.NumberFormat(locale === "en" ? "en-CA" : "fr-CA", { notation: "compact" }).format(
+          settings.facebookFollowerCount,
+        )
+      : null;
 
   return (
     <footer className="mt-auto border-t border-border bg-primary text-white">
@@ -27,6 +33,26 @@ export async function SiteFooter() {
           </div>
           <p className="text-sm text-white/80">{t("tagline")}</p>
           <NewsletterSignupForm />
+
+          {settings.facebookUrl ? (
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-white/60">{t("followUs")}</p>
+              <a
+                href={settings.facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-fit items-center gap-2 rounded-full bg-white/10 py-1 pl-1 pr-3 text-sm text-white/90 transition hover:bg-white/20"
+              >
+                <FacebookMark />
+                <span>
+                  Facebook
+                  {followerCount ? (
+                    <span className="text-white/60"> · {t("followerCount", { count: followerCount })}</span>
+                  ) : null}
+                </span>
+              </a>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-2 text-sm">
@@ -86,9 +112,9 @@ export async function SiteFooter() {
           <Image
             src="/images/apple-touch-icon.png"
             alt="GABAN Solutions"
-            width={52}
-            height={52}
-            className="rounded-xl shadow-lg ring-1 ring-white/25"
+            width={32}
+            height={32}
+            className="rounded-lg shadow-lg ring-1 ring-white/25"
           />
           <span className="max-w-xs text-sm leading-snug text-white/55 group-hover:text-white/75">
             {t("craftedInMontreal")}{" "}

@@ -73,6 +73,8 @@ export default async function AdminSettingsPage() {
           gstRatePercent: Number(settings.gstRatePercent),
           qstNumber: settings.qstNumber,
           qstRatePercent: Number(settings.qstRatePercent),
+          facebookUrl: settings.facebookUrl,
+          facebookFollowerCount: settings.facebookFollowerCount,
         }}
         weeklyHours={weeklyHours}
       />

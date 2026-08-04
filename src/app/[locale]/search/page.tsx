@@ -56,6 +56,7 @@ export default async function SearchPage({
                     availableLabel={home("available")}
                     showWishlist
                     inWishlist={animalIds.has(animal.id)}
+                    isLoggedIn={Boolean(customer)}
                     rating={animalRatings.get(animal.id)}
                   />
                 ))}
@@ -77,6 +78,7 @@ export default async function SearchPage({
                     backInStockLabel={tBoutique("backInStock")}
                     showWishlist
                     inWishlist={productIds.has(product.id)}
+                    isLoggedIn={Boolean(customer)}
                     rating={productRatings.get(product.id)}
                   />
                 ))}

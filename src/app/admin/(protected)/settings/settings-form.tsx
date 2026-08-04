@@ -21,6 +21,8 @@ export function SettingsForm({
     gstRatePercent: number;
     qstNumber: string | null;
     qstRatePercent: number;
+    facebookUrl: string | null;
+    facebookFollowerCount: number | null;
   };
   weeklyHours: WeeklyHours;
 }) {
@@ -129,6 +131,36 @@ export function SettingsForm({
           </p>
           <BusinessHoursFields defaultWeeklyHours={weeklyHours} />
         </div>
+      </fieldset>
+
+      <fieldset className="flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/10">
+        <legend className="px-1 text-sm font-medium">Réseaux sociaux</legend>
+        <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          Affiché comme un bloc « Suivez-nous » dans le pied de page. Laissez vide pour ne rien
+          afficher. Le nombre d&apos;abonnés est saisi à la main (pas de connexion en direct à
+          Facebook) — mettez-le à jour de temps en temps.
+        </p>
+        <label className="flex flex-col gap-1 text-sm">
+          Lien de la page Facebook
+          <input
+            type="url"
+            name="facebookUrl"
+            defaultValue={settings.facebookUrl ?? ""}
+            placeholder="https://www.facebook.com/ReptilesConcept"
+            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-sm">
+          Nombre d&apos;abonnés
+          <input
+            type="number"
+            name="facebookFollowerCount"
+            min={0}
+            defaultValue={settings.facebookFollowerCount ?? ""}
+            placeholder="ex. 2400"
+            className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+          />
+        </label>
       </fieldset>
 
       <fieldset className="flex flex-col gap-4 rounded-lg border border-black/10 p-4 dark:border-white/10">

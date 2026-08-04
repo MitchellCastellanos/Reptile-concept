@@ -26,6 +26,7 @@ export function ProductCard({
   backInStockLabel,
   showWishlist = false,
   inWishlist = false,
+  isLoggedIn = false,
   rating,
 }: {
   product: ProductCardProduct;
@@ -35,6 +36,7 @@ export function ProductCard({
   backInStockLabel?: string;
   showWishlist?: boolean;
   inWishlist?: boolean;
+  isLoggedIn?: boolean;
   rating?: { average: number; count: number };
 }) {
   const name = locale === "en" ? product.nameEn : product.nameFr;
@@ -59,7 +61,13 @@ export function ProductCard({
           ) : null}
           {showWishlist ? (
             <span className="absolute right-3 top-3">
-              <WishlistToggleButton type="product" itemId={product.id} initialActive={inWishlist} variant="icon" />
+              <WishlistToggleButton
+                type="product"
+                itemId={product.id}
+                initialActive={inWishlist}
+                variant="icon"
+                isLoggedIn={isLoggedIn}
+              />
             </span>
           ) : null}
         </div>

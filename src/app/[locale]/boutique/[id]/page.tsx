@@ -156,7 +156,12 @@ export default async function ProductDetailPage({
 
           <PaymentBadges />
           <div className="flex items-center gap-3">
-            <WishlistToggleButton type="product" itemId={product.id} initialActive={isWishlisted} />
+            <WishlistToggleButton
+              type="product"
+              itemId={product.id}
+              initialActive={isWishlisted}
+              isLoggedIn={Boolean(customer)}
+            />
             <ShareButton title={name} url={`${getSiteUrl()}/${locale}/boutique/${product.id}`} />
           </div>
         </div>

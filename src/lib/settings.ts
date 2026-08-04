@@ -24,6 +24,8 @@ export async function updateStoreSettings(data: {
   hoursFr?: string;
   hoursEn?: string;
   weeklyHours?: WeeklyHours;
+  facebookUrl?: string | null;
+  facebookFollowerCount?: number | null;
 }) {
   return prisma.storeSettings.upsert({
     where: { id: "singleton" },

@@ -63,6 +63,9 @@ export async function updateSettingsAction(
     const contactPhone = String(formData.get("contactPhone") ?? "").trim();
     const addressFr = String(formData.get("addressFr") ?? "").trim();
     const addressEn = String(formData.get("addressEn") ?? "").trim();
+    const facebookUrl = String(formData.get("facebookUrl") ?? "").trim();
+    const facebookFollowerCountRaw = String(formData.get("facebookFollowerCount") ?? "").trim();
+    const facebookFollowerCount = facebookFollowerCountRaw ? Number(facebookFollowerCountRaw) : null;
     const weeklyHours = parseWeeklyHoursFromForm(formData);
     const hoursFr = formatWeeklyHours(weeklyHours, "fr");
     const hoursEn = formatWeeklyHours(weeklyHours, "en");
@@ -83,6 +86,9 @@ export async function updateSettingsAction(
     if (!Number.isFinite(qstRatePercent) || qstRatePercent < 0 || qstRatePercent > 100) {
       return { error: "Le taux de TVQ doit être entre 0 et 100%." };
     }
+    if (facebookFollowerCount !== null && (!Number.isFinite(facebookFollowerCount) || facebookFollowerCount < 0)) {
+      return { error: "Le nombre d'abonnés Facebook doit être un nombre positif." };
+    }
 
     await updateStoreSettings({
       pickupDeadlineBusinessDays,
@@ -99,6 +105,8 @@ export async function updateSettingsAction(
       hoursFr,
       hoursEn,
       weeklyHours,
+      facebookUrl: facebookUrl || null,
+      facebookFollowerCount,
     });
     await recordAudit(admin.id, "StoreSettings", "singleton", "update");
 

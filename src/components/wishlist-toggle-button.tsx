@@ -16,12 +16,17 @@ export function WishlistToggleButton({
   initialActive = false,
   label,
   variant = "text",
+  isLoggedIn,
 }: {
   type: "animal" | "product";
   itemId: string;
   initialActive?: boolean;
   label?: string;
   variant?: "text" | "icon";
+  // Known server-side by every caller — lets a guest click go straight to
+  // /account/login instead of optimistically flipping the heart and then
+  // yanking them there once the server action's own redirect lands.
+  isLoggedIn: boolean;
 }) {
   const t = useTranslations("Account");
   const router = useRouter();
@@ -34,6 +39,12 @@ export function WishlistToggleButton({
     // triggering navigation to the item's detail page.
     e.preventDefault();
     e.stopPropagation();
+
+    if (!isLoggedIn) {
+      router.push("/account/login");
+      return;
+    }
+
     const nextActive = !active;
     setActive(nextActive);
     if (nextActive) {

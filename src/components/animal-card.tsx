@@ -20,6 +20,7 @@ export function AnimalCard({
   availableLabel,
   showWishlist = false,
   inWishlist = false,
+  isLoggedIn = false,
   rating,
 }: {
   animal: AnimalCardAnimal;
@@ -28,6 +29,7 @@ export function AnimalCard({
   availableLabel?: string;
   showWishlist?: boolean;
   inWishlist?: boolean;
+  isLoggedIn?: boolean;
   rating?: { average: number; count: number };
 }) {
   const speciesName =
@@ -54,7 +56,13 @@ export function AnimalCard({
         ) : null}
         {showWishlist ? (
           <span className="absolute right-3 top-3">
-            <WishlistToggleButton type="animal" itemId={animal.id} initialActive={inWishlist} variant="icon" />
+            <WishlistToggleButton
+              type="animal"
+              itemId={animal.id}
+              initialActive={inWishlist}
+              variant="icon"
+              isLoggedIn={isLoggedIn}
+            />
           </span>
         ) : null}
       </div>

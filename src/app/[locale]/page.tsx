@@ -114,6 +114,7 @@ export default async function Home() {
                   availableLabel={t("available")}
                   showWishlist
                   inWishlist={animalIds.has(animal.id)}
+                  isLoggedIn={Boolean(customer)}
                   rating={animalRatings.get(animal.id)}
                 />
               ))}
@@ -140,6 +141,7 @@ export default async function Home() {
                   backInStockLabel={t("backInStock")}
                   showWishlist
                   inWishlist={productIds.has(product.id)}
+                  isLoggedIn={Boolean(customer)}
                   rating={productRatings.get(product.id)}
                 />
               ))}

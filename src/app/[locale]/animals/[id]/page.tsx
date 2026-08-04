@@ -165,7 +165,12 @@ export default async function AnimalDetailPage({
             </>
           ) : null}
           <div className="flex items-center gap-3">
-            <WishlistToggleButton type="animal" itemId={animal.id} initialActive={isWishlisted} />
+            <WishlistToggleButton
+              type="animal"
+              itemId={animal.id}
+              initialActive={isWishlisted}
+              isLoggedIn={Boolean(customer)}
+            />
             <ShareButton
               title={`${speciesName} — ${animal.morph}`}
               url={`${getSiteUrl()}/${locale}/animals/${animal.id}`}

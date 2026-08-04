@@ -64,7 +64,7 @@ export default async function WishlistPage() {
                     <p className="text-sm font-medium text-primary">
                       {home("priceLabel")}: {Number(animal.priceCAD)} $ CAD
                     </p>
-                    <WishlistToggleButton type="animal" itemId={animal.id} initialActive label={t("removeFromWishlist")} />
+                    <WishlistToggleButton type="animal" itemId={animal.id} initialActive isLoggedIn label={t("removeFromWishlist")} />
                   </div>
                 </div>
               );
@@ -87,7 +87,7 @@ export default async function WishlistPage() {
                   <div className="flex flex-1 flex-col gap-1 p-4">
                     <p className="font-semibold">{name}</p>
                     <p className="text-sm font-medium text-primary">{Number(product.priceCAD)} $ CAD</p>
-                    <WishlistToggleButton type="product" itemId={product.id} initialActive label={t("removeFromWishlist")} />
+                    <WishlistToggleButton type="product" itemId={product.id} initialActive isLoggedIn label={t("removeFromWishlist")} />
                   </div>
                 </div>
               );
