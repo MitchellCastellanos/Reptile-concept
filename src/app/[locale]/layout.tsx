@@ -9,6 +9,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBanner } from "@/components/announcement-banner";
 import { BnplBanner } from "@/components/bnpl-banner";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { BackToTopButton } from "@/components/back-to-top-button";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
@@ -70,6 +71,7 @@ export default async function RootLayout({
             {children}
             <SiteFooter />
             <CookieConsentBanner />
+            <BackToTopButton />
           </CartProvider>
         </NextIntlClientProvider>
       </body>

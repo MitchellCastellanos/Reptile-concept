@@ -43,7 +43,8 @@
     "reviews": "Reviews",
     "account": "Account",
     "wishlist": "Wishlist",
-    "menu": "Menu"
+    "menu": "Menu",
+    "backToTop": "Back to top"
   },
   "Listing": {
     "allProducts": "All products",

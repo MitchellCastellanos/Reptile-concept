@@ -43,7 +43,8 @@
     "reviews": "Avis clients",
     "account": "Compte",
     "wishlist": "Liste de souhaits",
-    "menu": "Menu"
+    "menu": "Menu",
+    "backToTop": "Retour en haut"
   },
   "Listing": {
     "allProducts": "Tous les produits",
