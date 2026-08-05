@@ -184,7 +184,12 @@
     "total": "Total",
     "checkout": "Passer à la caisse",
     "reserve": "Acheter maintenant",
-    "addToCart": "Ajouter au panier"
+    "addToCart": "Ajouter au panier",
+    "buyNow": "Acheter maintenant",
+    "addedToCart": "Ajouté au panier : {name}",
+    "itemsInCart": "{count, plural, one {# article} other {# articles}} dans le panier",
+    "continueShoppingCta": "Continuer mes achats",
+    "close": "Fermer"
   },
   "Checkout": {
     "title": "Paiement",

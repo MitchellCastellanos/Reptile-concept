@@ -49,6 +49,7 @@ export function AddProductToCartButton({
   stockQty: number;
 }) {
   const { addProduct } = useCart();
+  const router = useRouter();
   const t = useTranslations("Cart");
   const [quantity, setQuantity] = useState(1);
 
@@ -93,6 +94,18 @@ export function AddProductToCartButton({
         className={btnSecondary}
       >
         {t("addToCart")}
+      </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          addProduct(id, name, priceCAD, quantity, stockQty);
+          setQuantity(1);
+          router.push("/checkout");
+        }}
+        className={btnPrimary}
+      >
+        {t("buyNow")}
       </button>
     </div>
   );
