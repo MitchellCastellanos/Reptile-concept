@@ -18,6 +18,8 @@ export type CartLine = {
   maxQuantity?: number;
 };
 
+export type CartNotice = { name: string; quantity: number } | null;
+
 type CartContextValue = {
   items: CartLine[];
   addAnimal: (id: string, name: string, priceCAD: number) => void;
@@ -32,6 +34,8 @@ type CartContextValue = {
   removeItem: (type: CartLine["type"], id: string) => void;
   clear: () => void;
   totalCAD: number;
+  notice: CartNotice;
+  dismissNotice: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -40,6 +44,7 @@ const STORAGE_KEY = "reptile-concept-cart";
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartLine[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [notice, setNotice] = useState<CartNotice>(null);
 
   useEffect(() => {
     try {
@@ -79,9 +84,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           { type: "product", id, name, priceCAD, quantity: Math.min(quantity, maxQuantity), maxQuantity },
         ];
       });
+      setNotice({ name, quantity });
     },
     [],
   );
+
+  const dismissNotice = useCallback(() => setNotice(null), []);
 
   const setProductQuantity = useCallback((id: string, quantity: number) => {
     setItems((prev) =>
@@ -107,8 +115,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ items, addAnimal, addProduct, setProductQuantity, removeItem, clear, totalCAD }),
-    [items, addAnimal, addProduct, setProductQuantity, removeItem, clear, totalCAD],
+    () => ({
+      items,
+      addAnimal,
+      addProduct,
+      setProductQuantity,
+      removeItem,
+      clear,
+      totalCAD,
+      notice,
+      dismissNotice,
+    }),
+    [items, addAnimal, addProduct, setProductQuantity, removeItem, clear, totalCAD, notice, dismissNotice],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

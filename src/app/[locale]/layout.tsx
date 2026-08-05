@@ -11,6 +11,7 @@ import { BnplBanner } from "@/components/bnpl-banner";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { BackToTopButton } from "@/components/back-to-top-button";
 import { PageViewTracker } from "@/components/page-view-tracker";
+import { MiniCartPopover } from "@/components/mini-cart-popover";
 import { CartProvider } from "@/lib/cart-context";
 import "../globals.css";
 
@@ -75,6 +76,7 @@ export default async function RootLayout({
             <SiteFooter />
             <CookieConsentBanner />
             <BackToTopButton />
+            <MiniCartPopover />
           </CartProvider>
         </NextIntlClientProvider>
       </body>

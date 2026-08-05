@@ -184,7 +184,12 @@
     "total": "Total",
     "checkout": "Go to checkout",
     "reserve": "Buy now",
-    "addToCart": "Add to cart"
+    "addToCart": "Add to cart",
+    "buyNow": "Buy Now",
+    "addedToCart": "Added to cart: {name}",
+    "itemsInCart": "{count, plural, one {# item} other {# items}} in cart",
+    "continueShoppingCta": "Continue shopping",
+    "close": "Close"
   },
   "Checkout": {
     "title": "Payment",
