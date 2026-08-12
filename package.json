@@ -35,8 +35,12 @@
     "inventory:link-animals-species": "tsx --tsconfig tsconfig.json scripts/link-animals-species.ts",
     "inventory:fix-placeholder-animals": "tsx --tsconfig tsconfig.json scripts/fix-placeholder-animals.ts",
     "inventory:import-species-stubs": "tsx --tsconfig tsconfig.json scripts/import-species-stubs.ts",
+    "inventory:fix-care-sheet-shift": "tsx --tsconfig tsconfig.json scripts/fix-care-sheet-column-shift.ts",
+    "export:species-care-sheet-refill": "tsx --tsconfig tsconfig.json scripts/export-species-care-sheet-refill.ts",
+    "inventory:import-species-care-sheet-refill": "tsx --tsconfig tsconfig.json scripts/import-species-care-sheet-refill.ts",
     "inventory:delete-seed-data": "tsx --tsconfig tsconfig.json scripts/delete-seed-data.ts",
     "inventory:fix-clover-stock-availability-bug": "tsx --tsconfig tsconfig.json scripts/fix-clover-stock-availability-bug.ts",
+    "inventory:zoomed-images": "tsx --tsconfig tsconfig.json scripts/apply-zoomed-product-images.ts",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio"
   },
