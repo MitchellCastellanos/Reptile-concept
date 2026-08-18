@@ -134,7 +134,7 @@ export async function SiteFooter() {
         </a>
       </div>
 
-      <div className="flex flex-col items-center gap-2 border-t border-white/20 px-6 py-4 text-center text-xs text-white/60 sm:flex-row sm:justify-between">
+      <div className="flex flex-col items-center gap-2 border-t border-white/20 px-6 py-4 text-center text-xs text-white/60 sm:flex-row sm:justify-between sm:pr-20">
         <span>
           © {new Date().getFullYear()} Reptiles Concept — {t("rights")}
         </span>
