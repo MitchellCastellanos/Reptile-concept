@@ -231,6 +231,20 @@ export function backInStockEmail(
   };
 }
 
+export function newsletterConfirmationEmail(locale: Locale, unsubscribeUrl: string, storeInfo: StoreContactInfo) {
+  const title = locale === "en" ? "You're subscribed!" : "Inscription confirmée!";
+  const subject =
+    locale === "en" ? `You're on the list — ${storeInfo.en.name}` : `Inscription confirmée — ${storeInfo.fr.name}`;
+  const body =
+    locale === "en"
+      ? `<p>Thanks for signing up! You'll be the first to know about new arrivals, restocks, and news from ${storeInfo.en.name}.</p>
+         <p style="color:#6b7280;font-size:12px;margin-top:16px;">Didn't sign up for this? <a href="${unsubscribeUrl}" style="color:#6b7280;">Unsubscribe</a>.</p>`
+      : `<p>Merci de votre inscription! Vous serez parmi les premiers informés des nouveautés, réapprovisionnements et actualités de ${storeInfo.fr.name}.</p>
+         <p style="color:#6b7280;font-size:12px;margin-top:16px;">Vous n'êtes pas à l'origine de cette inscription? <a href="${unsubscribeUrl}" style="color:#6b7280;">Se désabonner</a>.</p>`;
+
+  return { subject, html: shell(locale, title, body, storeInfo) };
+}
+
 type PosReceiptData = {
   saleId: string;
   createdAt: Date;

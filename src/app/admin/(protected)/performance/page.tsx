@@ -12,7 +12,17 @@ export default async function AdminPerformancePage() {
   const last7Start = new Date(today.getTime() - 6 * 24 * 60 * 60 * 1000);
   const prev7Start = new Date(today.getTime() - 13 * 24 * 60 * 60 * 1000);
 
-  const [views30, viewsPrev30, views7, viewsPrev7, recentViews, topPathsRaw] = await Promise.all([
+  const [
+    views30,
+    viewsPrev30,
+    views7,
+    viewsPrev7,
+    recentViews,
+    topPathsRaw,
+    newsletterActiveCount,
+    newsletterLast30Count,
+    newsletterRecent,
+  ] = await Promise.all([
     prisma.pageView.count({ where: { createdAt: { gte: last30Start } } }),
     prisma.pageView.count({ where: { createdAt: { gte: prev30Start, lt: last30Start } } }),
     prisma.pageView.count({ where: { createdAt: { gte: last7Start } } }),
@@ -27,6 +37,15 @@ export default async function AdminPerformancePage() {
       _count: { path: true },
       orderBy: { _count: { path: "desc" } },
       take: 10,
+    }),
+    prisma.newsletterSubscriber.count({ where: { unsubscribedAt: null } }),
+    prisma.newsletterSubscriber.count({
+      where: { subscribedAt: { gte: last30Start }, unsubscribedAt: null },
+    }),
+    prisma.newsletterSubscriber.findMany({
+      orderBy: { subscribedAt: "desc" },
+      take: 20,
+      select: { email: true, locale: true, subscribedAt: true, unsubscribedAt: true },
     }),
   ]);
 
@@ -99,6 +118,56 @@ export default async function AdminPerformancePage() {
           </tbody>
         </table>
 </div>
+      </section>
+
+      <section>
+        <h2 className="mb-3 text-lg font-medium">Inscriptions à l&apos;infolettre</h2>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+            <p className="text-2xl font-semibold">{newsletterActiveCount}</p>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Abonnés actifs</p>
+          </div>
+          <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
+            <p className="text-2xl font-semibold">{newsletterLast30Count}</p>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Nouveaux — 30 derniers jours</p>
+          </div>
+        </div>
+
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full max-w-2xl border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-black/10 text-left text-zinc-500 dark:border-white/10">
+                <th className="py-2 font-medium">Courriel</th>
+                <th className="py-2 font-medium">Inscrit le</th>
+                <th className="py-2 font-medium">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              {newsletterRecent.map((sub) => (
+                <tr key={sub.email} className="border-b border-black/5 dark:border-white/5">
+                  <td className="py-2">{sub.email}</td>
+                  <td className="py-2 text-zinc-500">
+                    {sub.subscribedAt.toLocaleDateString("fr-CA")}
+                  </td>
+                  <td className="py-2">
+                    {sub.unsubscribedAt ? (
+                      <span className="text-zinc-500">Désabonné</span>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400">Actif</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {newsletterRecent.length === 0 ? (
+                <tr>
+                  <td className="py-2 text-zinc-500" colSpan={3}>
+                    Aucune inscription pour le moment.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <p className="text-xs text-zinc-500">
