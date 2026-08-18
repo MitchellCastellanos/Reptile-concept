@@ -517,7 +517,40 @@ export type PollResult = {
   itemsQueued: number;
   itemsAutoCreated: number;
   itemsAutoCreatedAnimals: number;
+  productsStockRefreshed: number;
 };
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Clover keeps stock counts on a separate /item_stocks resource from the
+// item record itself (see clover.ts), and a restock rung in directly on the
+// Clover device doesn't reliably bump the parent item's own modifiedTime.
+// listModifiedCloverItems() below is filtered on exactly that modifiedTime,
+// so a plain restock is invisible to it — a linked Product's stockQty could
+// go stale forever even though price/name edits (which do touch modifiedTime)
+// keep syncing fine. Unconditionally re-pull stock for every already-linked
+// Product on each poll so restocks always converge within one polling cycle,
+// independent of whatever triggers Clover considers a "modification".
+async function refreshLinkedProductStock(): Promise<number> {
+  const linked = await prisma.product.findMany({
+    where: { cloverItemId: { not: null } },
+    select: { cloverItemId: true },
+  });
+
+  let refreshed = 0;
+  for (let i = 0; i < linked.length; i++) {
+    const cloverItemId = linked[i].cloverItemId;
+    if (!cloverItemId) continue;
+    if (i > 0 && i % 10 === 0) await sleep(350);
+    try {
+      await syncCloverItemById(cloverItemId);
+      refreshed++;
+    } catch (err) {
+      console.error(`[clover-sync] failed to refresh stock for item ${cloverItemId}:`, err);
+    }
+  }
+  return refreshed;
+}
 
 // Polling fallback — catches anything a missed/failed webhook delivery
 // didn't relay, for both sales (processCloverOrder) and catalog changes
@@ -545,6 +578,8 @@ export async function pollClover(): Promise<PollResult> {
     if (result.action === "rule-auto-created-animal") itemsAutoCreatedAnimals++;
   }
 
+  const productsStockRefreshed = await refreshLinkedProductStock();
+
   await prisma.cloverSyncState.upsert({
     where: { id: "singleton" },
     update: { lastPolledAt: new Date() },
@@ -558,6 +593,7 @@ export async function pollClover(): Promise<PollResult> {
     itemsQueued,
     itemsAutoCreated,
     itemsAutoCreatedAnimals,
+    productsStockRefreshed,
   };
 }
 

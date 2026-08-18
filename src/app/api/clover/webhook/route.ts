@@ -60,11 +60,20 @@ export async function POST(request: Request) {
     // import queue and keep price/stock current for already-linked
     // animals/products. A payment event without an accompanying order
     // change would be unusual, so it's not handled separately.
+    //
+    // Clover keeps stock counts on a separate /item_stocks resource from the
+    // item record (see clover.ts), and its own webhook docs aren't
+    // consistent enough to be sure of the exact prefix a pure restock is
+    // delivered under across accounts — treat "IS" (item stock) the same as
+    // "I" here, and confirm the actual prefix against the client's sandbox
+    // account. The polling cron (pollClover -> refreshLinkedProductStock)
+    // is the real safety net if this guess is wrong: it re-pulls stock for
+    // every linked product unconditionally instead of relying on any event.
     const [prefix, id] = event.objectId.split(":");
     try {
       if (prefix === "O" && id) {
         await syncCloverOrderById(id);
-      } else if (prefix === "I" && id) {
+      } else if ((prefix === "I" || prefix === "IS") && id) {
         // Confirm the exact casing Clover sends ("DELETE" vs "deleted", etc.)
         // against the client's sandbox account — compared case-insensitively
         // here since it isn't consistently documented.
