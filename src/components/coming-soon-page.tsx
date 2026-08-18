@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { NewsletterGateForm } from "./newsletter-gate-form";
 
 const IMAGE_SRC = "/images/coming-soon.jpg";
 
@@ -89,6 +90,8 @@ export function ComingSoonPage() {
               </p>
             </div>
           </div>
+
+          <NewsletterGateForm />
 
           <div className="my-7 h-px w-16 bg-white/20 lg:hidden" aria-hidden />
 
