@@ -99,7 +99,13 @@ export async function fetchCloverItemStock(itemId: string): Promise<number | nul
   try {
     const data = await cloverApiFetch<CloverItemStock>(`/item_stocks/${itemId}`);
     return data.quantity ?? null;
-  } catch {
+  } catch (err) {
+    // Was previously swallowed with no trace at all — if this endpoint/path
+    // is ever wrong for this merchant's account, every product's stock
+    // silently stays whatever it last was, forever, with nothing in the
+    // logs to explain why. Log it so a real failure here is visible instead
+    // of looking identical to "Clover legitimately has no stock record yet."
+    console.error(`[clover] failed to fetch item stock for ${itemId}:`, err);
     return null;
   }
 }
