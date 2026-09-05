@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ImageCropperModal } from "./image-cropper-modal";
 
 export function PhotoUploadField({
   name,
@@ -8,18 +9,21 @@ export function PhotoUploadField({
   value,
   onChange,
   placeholder,
+  aspect = 1,
 }: {
   name: string;
   label: string;
   value: string;
   onChange: (url: string) => void;
   placeholder?: string;
+  /** Default crop aspect ratio (width / height) offered in the cropper. */
+  aspect?: number;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  async function handleFile(file: File | undefined) {
-    if (!file) return;
+  async function uploadFile(file: File) {
     setUploading(true);
     setError(null);
     try {
@@ -57,7 +61,11 @@ export function PhotoUploadField({
             accept="image/*"
             className="hidden"
             disabled={uploading}
-            onChange={(e) => handleFile(e.target.files?.[0])}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) setPendingFile(file);
+            }}
           />
         </label>
       </div>
@@ -70,6 +78,26 @@ export function PhotoUploadField({
           className="mt-2 h-32 w-32 rounded object-cover"
           onError={(e) => (e.currentTarget.style.display = "none")}
           onLoad={(e) => (e.currentTarget.style.display = "block")}
+        />
+      ) : null}
+
+      {pendingFile ? (
+        <ImageCropperModal
+          file={pendingFile}
+          initialAspect={aspect}
+          onCancel={() => setPendingFile(null)}
+          onSkip={() => {
+            const file = pendingFile;
+            setPendingFile(null);
+            uploadFile(file);
+          }}
+          onConfirm={(blob) => {
+            const cropped = new File([blob], pendingFile.name.replace(/\.\w+$/, ".jpg"), {
+              type: "image/jpeg",
+            });
+            setPendingFile(null);
+            uploadFile(cropped);
+          }}
         />
       ) : null}
     </label>
