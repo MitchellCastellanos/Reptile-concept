@@ -18,6 +18,7 @@ import {
   listModifiedCloverOrders,
   listModifiedCloverItems,
   fetchAllCloverItems,
+  fetchAllCloverItemStocks,
   setCloverItemStock,
   isCloverConfigured,
   type CloverOrder,
@@ -520,8 +521,6 @@ export type PollResult = {
   productsStockRefreshed: number;
 };
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 // Clover keeps stock counts on a separate /item_stocks resource from the
 // item record itself (see clover.ts), and a restock rung in directly on the
 // Clover device doesn't reliably bump the parent item's own modifiedTime.
@@ -531,20 +530,55 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // keep syncing fine. Unconditionally re-pull stock for every already-linked
 // Product on each poll so restocks always converge within one polling cycle,
 // independent of whatever triggers Clover considers a "modification".
+//
+// This used to call syncCloverItemById() (two Clover API requests) per
+// linked Product one at a time. A catalog with a few hundred linked
+// Products — this merchant's feeder-insect lineup alone runs to dozens of
+// SKUs per species across every bag size — pushed that well past Vercel's
+// function timeout, so the loop died partway through at the same point on
+// every run and never reached the tail of the list: those Products' stock
+// went stale forever even after a real Clover restock, which is exactly the
+// "shows in Clover but not on the site" symptom this was supposed to fix.
+// One bulk /item_stocks pull (paginated, but a handful of requests
+// regardless of how many Products are linked) replaces all of that.
 async function refreshLinkedProductStock(): Promise<number> {
   const linked = await prisma.product.findMany({
     where: { cloverItemId: { not: null } },
-    select: { cloverItemId: true },
   });
+  if (linked.length === 0) return 0;
+
+  const stockByItemId = await fetchAllCloverItemStocks();
 
   let refreshed = 0;
-  for (let i = 0; i < linked.length; i++) {
-    const cloverItemId = linked[i].cloverItemId;
+  for (const product of linked) {
+    const cloverItemId = product.cloverItemId;
     if (!cloverItemId) continue;
-    if (i > 0 && i % 10 === 0) await sleep(350);
+    // Not in the map: either Clover legitimately has no stock record for
+    // it, or the item was deleted/recreated under a different id in
+    // Clover — either way there's nothing to converge to, so leave the
+    // Product's stock as last known rather than zeroing it out.
+    const quantity = stockByItemId.get(cloverItemId);
+    if (quantity == null) continue;
+
+    const nextStockQty = Math.max(0, quantity);
+    if (nextStockQty === product.stockQty) continue;
+    const restocked = product.stockQty <= 0 && nextStockQty > 0;
+
     try {
-      await syncCloverItemById(cloverItemId);
+      await prisma.product.update({
+        where: { id: product.id },
+        data: {
+          stockQty: nextStockQty,
+          ...(restocked ? { stockRestockedAt: new Date() } : {}),
+          ...(nextStockQty <= 0 ? { stockRestockedAt: null } : {}),
+        },
+      });
       refreshed++;
+      if (restocked) {
+        notifyStockSubscribers(product.id).catch((err) =>
+          console.error("[clover-sync] failed to notify stock subscribers:", err),
+        );
+      }
     } catch (err) {
       console.error(`[clover-sync] failed to refresh stock for item ${cloverItemId}:`, err);
     }

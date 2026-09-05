@@ -125,6 +125,30 @@ export async function enrichCloverItemsWithStock(items: CloverItem[]): Promise<C
   return enriched;
 }
 
+// Bulk counterpart to fetchCloverItemStock — /item_stocks is a paginated
+// collection just like /items, so the whole merchant's stock table can be
+// pulled in a handful of 100-per-page requests instead of one request per
+// item. This is the difference between a poll that scales with the number
+// of linked Products (times out well before reaching all of them once a
+// catalog has a few hundred SKUs — see refreshLinkedProductStock in
+// clover-sync.ts) and one that scales with total-catalog-size/100.
+export async function fetchAllCloverItemStocks(): Promise<Map<string, number>> {
+  const stockByItemId = new Map<string, number>();
+  const pageSize = 100;
+  for (let page = 0; page < 50; page++) {
+    if (page > 0) await sleep(350);
+    const data = await cloverApiFetch<{ elements?: CloverItemStock[] }>(
+      `/item_stocks?limit=${pageSize}&offset=${page * pageSize}`,
+    );
+    const batch = data.elements ?? [];
+    for (const stock of batch) {
+      if (stock.item?.id && stock.quantity != null) stockByItemId.set(stock.item.id, stock.quantity);
+    }
+    if (batch.length < pageSize) break;
+  }
+  return stockByItemId;
+}
+
 export type CloverLineItem = {
   id: string;
   item?: { id: string };
@@ -195,10 +219,15 @@ export async function fetchAllCloverItems(): Promise<CloverItem[]> {
       `/items?expand=categories&limit=${pageSize}&offset=${page * pageSize}`,
     );
     const batch = data.elements ?? [];
-    items.push(...(await enrichCloverItemsWithStock(batch)));
+    items.push(...batch);
     if (batch.length < pageSize) break;
   }
-  return items;
+
+  // One bulk /item_stocks pull instead of enrichCloverItemsWithStock's
+  // one-request-per-item loop — a catalog of a few hundred items pushed the
+  // per-item version well past any serverless function's time budget.
+  const stockByItemId = await fetchAllCloverItemStocks();
+  return items.map((item) => ({ ...item, stockCount: stockByItemId.get(item.id) ?? item.stockCount }));
 }
 
 // Pushes the current stock count for an item we already know the Clover
