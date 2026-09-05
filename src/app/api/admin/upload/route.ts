@@ -26,8 +26,8 @@ export async function POST(request: Request) {
   if (!file.type.startsWith("image/")) {
     return NextResponse.json({ error: "Le fichier doit être une image." }, { status: 400 });
   }
-  if (file.size > 8 * 1024 * 1024) {
-    return NextResponse.json({ error: "Image trop volumineuse (max 8 Mo)." }, { status: 400 });
+  if (file.size > 20 * 1024 * 1024) {
+    return NextResponse.json({ error: "Image trop volumineuse (max 20 Mo)." }, { status: 400 });
   }
 
   const blob = await put(`uploads/${Date.now()}-${file.name}`, file, {
