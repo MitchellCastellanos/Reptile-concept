@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const ASPECT_OPTIONS: { label: string; value: number }[] = [
   { label: "Carré (1:1)", value: 1 },
@@ -51,7 +51,10 @@ export function ImageCropperModal({
     };
   }, [file]);
 
-  useEffect(() => {
+  // Layout effect (runs before paint) so the frame is always measured before the
+  // photo is ever shown — otherwise it could flash at natural size for a frame,
+  // looking like only a tiny portion of a big photo fits.
+  useLayoutEffect(() => {
     function measure() {
       if (frameRef.current) {
         const rect = frameRef.current.getBoundingClientRect();
@@ -198,7 +201,7 @@ export function ImageCropperModal({
               onPointerUp={handlePointerUp}
               onPointerLeave={handlePointerUp}
             >
-              {imgEl ? (
+              {imgEl && frameSize.width && frameSize.height ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={imgEl.src}
@@ -255,7 +258,7 @@ export function ImageCropperModal({
           </button>
           <button
             type="button"
-            disabled={!imgEl || imgError}
+            disabled={!imgEl || imgError || !frameSize.width || !frameSize.height}
             onClick={handleConfirm}
             className="rounded bg-foreground px-3 py-1.5 text-sm text-background disabled:opacity-50"
           >
