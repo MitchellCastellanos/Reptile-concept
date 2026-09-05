@@ -146,11 +146,11 @@ export function ImageCropperModal({
       role="dialog"
       aria-modal="true"
       aria-label="Recadrer la photo"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 px-4 py-8"
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-sm rounded-lg border border-black/10 bg-white p-5 shadow-xl dark:border-white/10 dark:bg-zinc-900"
+        className="mx-auto w-full max-w-sm rounded-lg border border-black/10 bg-white p-5 shadow-xl dark:border-white/10 dark:bg-zinc-900"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-3 flex items-center justify-between">
