@@ -117,6 +117,14 @@ export default async function BoutiquePage({
             </div>
           ) : null}
 
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            buildHref={buildPageHref}
+            previousLabel={tListing("paginationPrevious")}
+            nextLabel={tListing("paginationNext")}
+          />
+
           {featuredOnly.length > 0 ? (
             <section className="mt-10 flex flex-col gap-4">
               <div>
@@ -142,14 +150,6 @@ export default async function BoutiquePage({
           ) : null}
         </>
       )}
-
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        buildHref={buildPageHref}
-        previousLabel={tListing("paginationPrevious")}
-        nextLabel={tListing("paginationNext")}
-      />
     </main>
   );
 }
