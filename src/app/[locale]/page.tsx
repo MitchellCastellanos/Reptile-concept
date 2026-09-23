@@ -16,7 +16,7 @@ const categoryIcons = [
   { key: "decor" as const, href: "/boutique?category=decor", image: "/images/icons/category-decor.png" },
   { key: "lighting" as const, href: "/boutique?category=lighting", image: "/images/icons/category-lighting.png" },
   { key: "equipment" as const, href: "/boutique?category=equipment", image: "/images/icons/category-equipment.png" },
-  { key: "food" as const, href: "/boutique", image: "/images/icons/category-food.png" },
+  { key: "food" as const, href: "/boutique?category=food", image: "/images/icons/category-food.png" },
   { key: "supplement" as const, href: "/boutique?category=supplement", image: "/images/icons/category-supplement.png" },
 ];
 

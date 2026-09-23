@@ -1,16 +1,19 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import {
+  FOOD_CATEGORIES,
   getProducts,
   getFeaturedOutOfStockProducts,
   getWishlistedIds,
+  isFoodCategory,
   isProductCategory,
-  PRODUCT_CATEGORIES,
+  isProductCategoryGroup,
+  PRODUCT_BROWSE_CATEGORIES,
 } from "@/lib/queries";
 import { isStockFilter, parsePageNumber, parsePageSize } from "@/lib/listing";
 import { getProductRatings } from "@/lib/ratings";
 import { ProductCard } from "@/components/product-card";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { CategoryPillNav } from "@/components/category-pill-nav";
+import { ProductCategoryNav } from "@/components/product-category-nav";
 import { ListingScrollAnchor } from "@/components/listing-scroll-anchor";
 import { ListingSearch } from "@/components/listing-search";
 import { ListingToolbar } from "@/components/listing-toolbar";
@@ -28,6 +31,8 @@ export default async function BoutiquePage({
   const tCategories = await getTranslations("NavCategories");
   const locale = await getLocale();
   const activeCategory = isProductCategory(category) ? category : undefined;
+  const activeGroup = isProductCategoryGroup(category) ? category : isFoodCategory(activeCategory) ? "food" : undefined;
+  const activeTop = activeGroup ?? activeCategory;
   const stockFilter = isStockFilter(stock) ? stock : "in_stock";
   const showFeaturedOos = stockFilter === "in_stock" && stock === undefined && !q?.trim();
   const page = parsePageNumber(pageParam);
@@ -67,22 +72,28 @@ export default async function BoutiquePage({
       <div className="flex flex-col gap-3">
         <Breadcrumb
           items={[
-            { label: t("title"), href: activeCategory ? "/boutique" : undefined },
+            { label: t("title"), href: activeTop ? "/boutique" : undefined },
+            ...(activeGroup
+              ? [{ label: tCategories(activeGroup), href: activeCategory ? `/boutique?category=${activeGroup}` : undefined }]
+              : []),
             ...(activeCategory ? [{ label: tCategories(activeCategory) }] : []),
           ]}
         />
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            {activeCategory ? tCategories(activeCategory) : t("title")}
+            {activeCategory ? tCategories(activeCategory) : activeGroup ? tCategories(activeGroup) : t("title")}
           </h1>
           <p className="mt-2 text-muted">{t("subtitle")}</p>
         </div>
       </div>
 
-      <CategoryPillNav
+      <ProductCategoryNav
         allLabel={tListing("allProducts")}
-        activeValue={activeCategory}
-        items={PRODUCT_CATEGORIES.map((value) => ({ value, label: tCategories(value) }))}
+        activeTopValue={activeTop}
+        activeValue={category}
+        items={PRODUCT_BROWSE_CATEGORIES.map(({ value, image }) => ({ value, image, label: tCategories(value) }))}
+        subItems={activeGroup ? FOOD_CATEGORIES.map((value) => ({ value, label: tCategories(value) })) : undefined}
+        subAllLabel={tListing("allFood")}
       />
 
       <ListingSearch scope="products" category={category} stock={stockFilter} />
