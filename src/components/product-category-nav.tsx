@@ -15,7 +15,7 @@ const chipClass = (active: boolean) =>
 
 /**
  * /boutique counterpart of GroupedCategoryButtonGrid: the same icon cards as the
- * home page, plus a wrapped row of subcategory chips when the "food" group is open.
+ * home page, plus a second row of subcategory cards when the "food" group is open.
  */
 export function ProductCategoryNav({
   items,
@@ -24,16 +24,18 @@ export function ProductCategoryNav({
   allLabel,
   subItems,
   subAllLabel,
+  subGroupLabel,
 }: {
   items: ProductCategoryNavItem[];
   /** Highlighted card — the group ("food") when a food subcategory is active. */
   activeTopValue?: string;
-  /** Exact `category` param, used to highlight the subcategory chip. */
+  /** Exact `category` param, used to highlight the subcategory card. */
   activeValue?: string;
   allLabel: string;
   /** Subcategories of the active group; omitted when the active card has none. */
-  subItems?: { value: string; label: string }[];
+  subItems?: ProductCategoryNavItem[];
   subAllLabel?: string;
+  subGroupLabel?: string;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -67,15 +69,22 @@ export function ProductCategoryNav({
       />
 
       {subItems && activeTopValue ? (
-        <div className="flex flex-wrap gap-2">
-          <Link href={hrefFor(activeTopValue)} className={chipClass(activeValue === activeTopValue)}>
-            {subAllLabel}
-          </Link>
-          {subItems.map((item) => (
-            <Link key={item.value} href={hrefFor(item.value)} className={chipClass(activeValue === item.value)}>
-              {item.label}
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted">{subGroupLabel}</p>
+            <Link href={hrefFor(activeTopValue)} className={chipClass(activeValue === activeTopValue)}>
+              {subAllLabel}
             </Link>
-          ))}
+          </div>
+          <CategoryButtonGrid
+            items={subItems.map(({ value, label, image }) => ({
+              key: value,
+              href: hrefFor(value),
+              image,
+              label,
+              active: activeValue === value,
+            }))}
+          />
         </div>
       ) : null}
     </div>

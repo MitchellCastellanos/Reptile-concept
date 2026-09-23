@@ -44,6 +44,13 @@ export function productCategoryFilter(value: string | undefined) {
   return undefined;
 }
 
+/** Icons for the food subcategory cards shown when the "food" card is open. */
+export const FOOD_CATEGORY_ICON: Record<(typeof FOOD_CATEGORIES)[number], string> = {
+  food_live: "/images/icons/subcategory-food-live.png",
+  food_frozen: "/images/icons/subcategory-food-frozen.png",
+  food_packaged: "/images/icons/subcategory-food-packaged.png",
+};
+
 export type ProductBrowseCategory = ProductCategoryValue | ProductCategoryGroupKey;
 
 /** Top-level card buttons on /boutique, in display order — same icons as the home page. */

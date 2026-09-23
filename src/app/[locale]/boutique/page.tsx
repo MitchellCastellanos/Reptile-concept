@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import {
   FOOD_CATEGORIES,
+  FOOD_CATEGORY_ICON,
   getProducts,
   getFeaturedOutOfStockProducts,
   getWishlistedIds,
@@ -92,8 +93,13 @@ export default async function BoutiquePage({
         activeTopValue={activeTop}
         activeValue={category}
         items={PRODUCT_BROWSE_CATEGORIES.map(({ value, image }) => ({ value, image, label: tCategories(value) }))}
-        subItems={activeGroup ? FOOD_CATEGORIES.map((value) => ({ value, label: tCategories(value) })) : undefined}
+        subItems={
+          activeGroup
+            ? FOOD_CATEGORIES.map((value) => ({ value, label: tCategories(value), image: FOOD_CATEGORY_ICON[value] }))
+            : undefined
+        }
         subAllLabel={tListing("allFood")}
+        subGroupLabel={activeGroup ? tCategories(activeGroup) : undefined}
       />
 
       <ListingSearch scope="products" category={category} stock={stockFilter} />

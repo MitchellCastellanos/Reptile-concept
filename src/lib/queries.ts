@@ -6,6 +6,7 @@ import { animalTextSearchWhere, productTextSearchWhere } from "@/lib/search";
 
 export {
   FOOD_CATEGORIES,
+  FOOD_CATEGORY_ICON,
   PRODUCT_BROWSE_CATEGORIES,
   PRODUCT_CATEGORIES,
   isFoodCategory,
