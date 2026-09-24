@@ -1,7 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
-import { isProductCategory } from "@/lib/product-categories";
+import { productCategoryFilter } from "@/lib/product-categories";
 import { isStockFilter, LISTING_SEARCH_MIN_CHARS, type StockFilter } from "@/lib/listing";
 
 export const SEARCH_RESULT_LIMIT = 24;
@@ -39,7 +39,8 @@ function animalCategoryWhere(category?: string): Prisma.AnimalWhereInput {
 }
 
 function productCategoryWhere(category?: string): Prisma.ProductWhereInput {
-  return isProductCategory(category) ? { category } : {};
+  const filter = productCategoryFilter(category);
+  return filter ? { category: filter } : {};
 }
 
 function productStockWhere(stock: StockFilter): Prisma.ProductWhereInput {

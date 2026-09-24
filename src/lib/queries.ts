@@ -1,11 +1,25 @@
 import { prisma } from "@/lib/db";
-import { isProductCategory } from "@/lib/product-categories";
+import { isProductCategory, productCategoryFilter } from "@/lib/product-categories";
 import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
 import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
 import { animalTextSearchWhere, productTextSearchWhere } from "@/lib/search";
 
-export { PRODUCT_CATEGORIES, isProductCategory, type ProductCategoryValue } from "@/lib/product-categories";
+export {
+  FOOD_CATEGORIES,
+  FOOD_CATEGORY_ICON,
+  PRODUCT_BROWSE_CATEGORIES,
+  PRODUCT_CATEGORIES,
+  isFoodCategory,
+  isProductCategory,
+  isProductCategoryGroup,
+  type ProductCategoryValue,
+} from "@/lib/product-categories";
 export { ANIMAL_CATEGORIES, ANIMAL_CATEGORY_GROUPS, ANIMAL_CATEGORY_ICON, animalCategoryGroup, isAnimalCategory, isAnimalCategoryGroup, type AnimalCategoryValue } from "@/lib/animal-categories";
+
+function productCategoryWhere(category: string | undefined) {
+  const filter = productCategoryFilter(category);
+  return filter ? { category: filter } : {};
+}
 
 /** Max out-of-stock items shown below the in-stock grid on /boutique. */
 export const FEATURED_OUT_OF_STOCK_LIMIT = 6;
@@ -68,7 +82,7 @@ export async function getProducts(
   const search = opts?.q?.trim();
   const where = {
     ...(opts?.publishedOnly ? { published: true } : {}),
-    ...(isProductCategory(category) ? { category } : {}),
+    ...productCategoryWhere(category),
     ...(stock === "in_stock" ? { stockQty: { gt: 0 } } : {}),
     ...(stock === "out_of_stock" ? { stockQty: { lte: 0 } } : {}),
     ...(search ? productTextSearchWhere(search) : {}),
@@ -92,7 +106,7 @@ export function getFeaturedOutOfStockProducts(category?: string, limit = FEATURE
     where: {
       published: true,
       stockQty: { lte: 0 },
-      ...(isProductCategory(category) ? { category } : {}),
+      ...productCategoryWhere(category),
     },
     orderBy: { updatedAt: "desc" },
     take: limit,

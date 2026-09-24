@@ -59,6 +59,7 @@
   },
   "Listing": {
     "allProducts": "Tous les produits",
+    "allFood": "Toute la nourriture",
     "allAnimals": "Tous les animaux",
     "resultCount": "{count, plural, =0 {Aucun résultat} one {# résultat} other {# résultats}}",
     "sortLabel": "Trier par",
@@ -100,6 +101,7 @@
     "decor": "Décoration",
     "lighting": "Éclairage et chauffage",
     "equipment": "Équipement et pièces",
+    "food": "Nourriture",
     "food_live": "Nourriture vivante",
     "food_frozen": "Nourriture congelée",
     "food_packaged": "Nourriture sèche et emballée",
