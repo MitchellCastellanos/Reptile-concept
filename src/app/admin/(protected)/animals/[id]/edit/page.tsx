@@ -1,14 +1,19 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
+import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { AnimalForm } from "../../animal-form";
 import { updateAnimalAction, convertAnimalToProductAction } from "../../actions";
 
 export default async function EditAnimalPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
+  const returnTo = safeAdminReturnTo("/admin/animals", (await searchParams).returnTo);
   const [animal, species] = await Promise.all([
     prisma.animal.findUnique({
       where: { id },
@@ -22,6 +27,12 @@ export default async function EditAnimalPage({
 
   return (
     <div className="flex flex-col gap-6">
+      <Link
+        href={withAdminFocus(returnTo, id)}
+        className="w-fit text-sm text-black/60 underline hover:text-foreground dark:text-white/60"
+      >
+        ← Retour à la liste
+      </Link>
       <h1 className="text-2xl font-semibold">Modifier {animal.morph}</h1>
       <AnimalForm
         species={species}
@@ -29,6 +40,7 @@ export default async function EditAnimalPage({
         photoUrl={animal.media.find((m) => m.sortOrder === 0)?.url ?? ""}
         extraPhotoUrls={animal.media.filter((m) => m.sortOrder > 0).map((m) => m.url)}
         action={boundAction}
+        returnTo={returnTo}
       />
 
       <div className="max-w-lg rounded-lg border border-black/10 p-4 text-sm dark:border-white/10">

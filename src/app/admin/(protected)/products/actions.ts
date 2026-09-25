@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
@@ -90,7 +91,7 @@ export async function updateProductAction(id: string, formData: FormData) {
   }
 
   revalidatePath("/admin/products");
-  redirect("/admin/products");
+  redirect(withAdminFocus(safeAdminReturnTo("/admin/products", formData.get("returnTo")), id));
 }
 
 export async function updateProductPhotoAction(formData: FormData) {

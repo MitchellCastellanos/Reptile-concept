@@ -6,6 +6,8 @@ import {
   parseAdminListParams,
   searchWhere,
   type SortDir,
+  adminRowDomId,
+  buildAdminEditHref,
 } from "@/lib/admin-catalog-listing";
 import { speciesNeedsAttention } from "@/lib/admin-catalog-attention";
 import { isCareSheetIncomplete } from "@/lib/species-utils";
@@ -17,6 +19,7 @@ import {
 } from "@/components/admin/admin-catalog-alert-section";
 import { AdminCatalogFilters } from "@/components/admin/admin-catalog-filters";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminFocusRow } from "@/components/admin/admin-focus-row";
 import { AdminSortableTh } from "@/components/admin/admin-sortable-th";
 import { deleteSpeciesAction } from "./actions";
 
@@ -61,6 +64,7 @@ export default async function AdminSpeciesPage({
 }) {
   const sp = await searchParams;
   const params = listParams(sp);
+  const focus = typeof sp.focus === "string" ? sp.focus : undefined;
   const { q, page, perPage, sort, dir, category, careSheet, attention } = params;
 
   const where = {
@@ -112,6 +116,15 @@ export default async function AdminSpeciesPage({
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const editHref = (id: string) => buildAdminEditHref(BASE, id, { ...listParamsForLinks, page });
+  const paginationProps = {
+    basePath: BASE,
+    params: listParamsForLinks,
+    currentPage: page,
+    totalPages,
+    total,
+    perPage,
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -128,11 +141,11 @@ export default async function AdminSpeciesPage({
       <AdminCatalogAlertBanner kind="species" count={alertCount} />
 
       {alertCount > 0 && attention !== "yes" ? (
-        <AdminCatalogAlertSection title={`Attention requise — ${alertCount} espèce(s)`}>
+        <AdminCatalogAlertSection storageKey="species" title={`Attention requise — ${alertCount} espèce(s)`}>
           {alertRows.map((s) => (
             <AdminAlertRowLink
               key={s.id}
-              href={`/admin/species/${s.id}/edit`}
+              href={editHref(s.id)}
               primary={`${s.commonNameFr} (${s.scientificName})`}
               secondary={s.category}
               badge="Fiche incomplète"
@@ -188,6 +201,9 @@ export default async function AdminSpeciesPage({
         ]}
       />
 
+      <AdminFocusRow rowId={focus ? adminRowDomId(focus) : undefined} />
+      <AdminPagination {...paginationProps} />
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
@@ -207,7 +223,14 @@ export default async function AdminSpeciesPage({
               return (
                 <tr
                   key={s.id}
-                  className={`border-b border-black/5 dark:border-white/5 ${alert ? "bg-amber-50/80 dark:bg-amber-950/15" : ""}`}
+                  id={adminRowDomId(s.id)}
+                  className={`border-b border-black/5 dark:border-white/5 ${
+                    s.id === focus
+                      ? "bg-primary/10 outline outline-2 -outline-offset-2 outline-primary"
+                      : alert
+                        ? "bg-amber-50/80 dark:bg-amber-950/15"
+                        : ""
+                  }`}
                 >
                   <td className="py-2 pr-3 italic">{s.scientificName}</td>
                   <td className="py-2 pr-3">{s.commonNameFr}</td>
@@ -222,7 +245,7 @@ export default async function AdminSpeciesPage({
                     )}
                   </td>
                   <td className="flex gap-3 py-2">
-                    <Link href={`/admin/species/${s.id}/edit`} className="underline">
+                    <Link href={editHref(s.id)} className="underline">
                       Modifier
                     </Link>
                     {!isCloverPlaceholderSpeciesId(s.id) ? (
@@ -241,7 +264,7 @@ export default async function AdminSpeciesPage({
         </table>
       </div>
 
-      <AdminPagination basePath={BASE} params={listParamsForLinks} currentPage={page} totalPages={totalPages} />
+      <AdminPagination {...paginationProps} />
     </div>
   );
 }

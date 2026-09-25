@@ -21,6 +21,7 @@ export function AnimalForm({
   extraPhotoUrls = [],
   action,
   prefill,
+  returnTo,
 }: {
   species: Species[];
   // priceCAD as a plain number, not Prisma's Decimal — Decimal instances
@@ -34,11 +35,14 @@ export function AnimalForm({
   // they still have to fill in species/description/photo since Clover has
   // no equivalent fields for those.
   prefill?: { cloverItemId: string; suggestedName?: string; priceCAD?: number };
+  // List URL (page/filters) to go back to after saving.
+  returnTo?: string;
 }) {
   const [photoUrl, setPhotoUrl] = useState(initialPhotoUrl ?? "");
 
   return (
     <form action={action} className="flex max-w-lg flex-col gap-4">
+      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       <PhotoUploadField
         name="photoUrl"
         label="Photo principale (téléversez un fichier ou collez une URL)"

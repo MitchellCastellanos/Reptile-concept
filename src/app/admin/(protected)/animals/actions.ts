@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
@@ -96,7 +97,7 @@ export async function updateAnimalAction(id: string, formData: FormData) {
   await recordAudit(admin.id, "Animal", id, "update");
 
   revalidatePath("/admin/animals");
-  redirect("/admin/animals");
+  redirect(withAdminFocus(safeAdminReturnTo("/admin/animals", formData.get("returnTo")), id));
 }
 
 // For an Animal record that was actually a Product (e.g. auto-created by the

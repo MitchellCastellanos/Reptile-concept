@@ -49,6 +49,44 @@ export function buildAdminListHref(
   return query ? `${basePath}?${query}` : basePath;
 }
 
+/**
+ * Edit link that remembers the list page (filters, sort, page) it came from,
+ * so saving or going back lands on the same spot instead of page 1.
+ */
+export function buildAdminEditHref(
+  basePath: string,
+  id: string,
+  listParams: Record<string, string | number | boolean | undefined>,
+): string {
+  const returnTo = buildAdminListHref(basePath, listParams);
+  const editPath = `${basePath}/${id}/edit`;
+  return returnTo === basePath
+    ? editPath
+    : `${editPath}?returnTo=${encodeURIComponent(returnTo)}`;
+}
+
+/**
+ * Only accept return URLs pointing back at this same admin list — never an
+ * arbitrary (possibly external) URL.
+ */
+export function safeAdminReturnTo(basePath: string, raw: unknown): string {
+  if (typeof raw !== "string") return basePath;
+  if (raw === basePath || raw.startsWith(`${basePath}?`)) return raw;
+  return basePath;
+}
+
+/** List URL with `focus=<id>` so the list scrolls to and highlights that row. */
+export function withAdminFocus(listHref: string, id: string): string {
+  const [path, query = ""] = listHref.split("?");
+  const sp = new URLSearchParams(query);
+  sp.set("focus", id);
+  return `${path}?${sp.toString()}`;
+}
+
+export function adminRowDomId(id: string): string {
+  return `row-${id}`;
+}
+
 /** Prisma where fragment: species care sheet missing key fields. */
 export const CARE_SHEET_INCOMPLETE_WHERE = {
   OR: [
