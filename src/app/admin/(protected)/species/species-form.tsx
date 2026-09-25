@@ -100,9 +100,12 @@ function TextAreaField({
 export function SpeciesForm({
   species,
   action,
+  returnTo,
 }: {
   species?: Species;
   action: (formData: FormData) => void;
+  // List URL (page/filters) to go back to after saving.
+  returnTo?: string;
 }) {
   const [form, setForm] = useState<FormState>(() => toFormState(species));
   const showHelper = isCareSheetIncomplete(species) || !species;
@@ -122,6 +125,7 @@ export function SpeciesForm({
 
   return (
     <form action={action} className="flex max-w-2xl flex-col gap-4">
+      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       <TextField
         label="Nom scientifique"
         name="scientificName"

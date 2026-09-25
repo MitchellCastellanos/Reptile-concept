@@ -11,6 +11,7 @@ export function ProductForm({
   extraPhotoUrls = [],
   action,
   prefill,
+  returnTo,
 }: {
   // priceCAD as a plain number, not Prisma's Decimal — Decimal instances
   // can't cross the server/client component boundary as props.
@@ -18,11 +19,14 @@ export function ProductForm({
   extraPhotoUrls?: string[];
   action: (formData: FormData) => void;
   prefill?: { cloverItemId: string; suggestedName?: string; priceCAD?: number };
+  // List URL (page/filters) to go back to after saving.
+  returnTo?: string;
 }) {
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
 
   return (
     <form action={action} className="flex max-w-lg flex-col gap-4">
+      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       <PhotoUploadField
         name="imageUrl"
         label="Photo principale (téléversez un fichier ou collez une URL)"

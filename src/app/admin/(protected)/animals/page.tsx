@@ -5,6 +5,8 @@ import {
   CARE_SHEET_INCOMPLETE_WHERE,
   parseAdminListParams,
   type SortDir,
+  adminRowDomId,
+  buildAdminEditHref,
 } from "@/lib/admin-catalog-listing";
 import { animalNeedsAttention } from "@/lib/admin-catalog-attention";
 import { isCloverPlaceholderSpeciesId } from "@/lib/admin-catalog-counts";
@@ -17,6 +19,7 @@ import {
 } from "@/components/admin/admin-catalog-alert-section";
 import { AdminCatalogFilters } from "@/components/admin/admin-catalog-filters";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminFocusRow } from "@/components/admin/admin-focus-row";
 import { AdminSortableTh } from "@/components/admin/admin-sortable-th";
 import { AdminPhotoCell } from "@/components/admin/admin-photo-cell";
 import { deleteAnimalAction, updateAnimalPhotoAction } from "./actions";
@@ -63,6 +66,7 @@ export default async function AdminAnimalsPage({
 }) {
   const sp = await searchParams;
   const params = listParams(sp);
+  const focus = typeof sp.focus === "string" ? sp.focus : undefined;
   const { q, page, perPage, sort, dir, category, status, attention } = params;
 
   const where = {
@@ -103,6 +107,15 @@ export default async function AdminAnimalsPage({
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const editHref = (id: string) => buildAdminEditHref(BASE_ANIMALS, id, { ...listParamsForLinks, page });
+  const paginationProps = {
+    basePath: BASE_ANIMALS,
+    params: listParamsForLinks,
+    currentPage: page,
+    totalPages,
+    total,
+    perPage,
+  };
 
   function alertBadge(animal: (typeof alertRows)[0]) {
     if (isCloverPlaceholderSpeciesId(animal.speciesId)) return "Espèce placeholder";
@@ -129,7 +142,7 @@ export default async function AdminAnimalsPage({
           {alertRows.map((a) => (
             <AdminAlertRowLink
               key={a.id}
-              href={`/admin/animals/${a.id}/edit`}
+              href={editHref(a.id)}
               primary={a.morph}
               secondary={`${a.species.commonNameFr} · ${a.status}`}
               badge={alertBadge(a)}
@@ -185,6 +198,9 @@ export default async function AdminAnimalsPage({
         ]}
       />
 
+      <AdminFocusRow rowId={focus ? adminRowDomId(focus) : undefined} />
+      <AdminPagination {...paginationProps} />
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
@@ -205,7 +221,14 @@ export default async function AdminAnimalsPage({
               return (
                 <tr
                   key={animal.id}
-                  className={`border-b border-black/5 dark:border-white/5 ${alert ? "bg-amber-50/80 dark:bg-amber-950/15" : ""}`}
+                  id={adminRowDomId(animal.id)}
+                  className={`border-b border-black/5 dark:border-white/5 ${
+                    animal.id === focus
+                      ? "bg-primary/10 outline outline-2 -outline-offset-2 outline-primary"
+                      : alert
+                        ? "bg-amber-50/80 dark:bg-amber-950/15"
+                        : ""
+                  }`}
                 >
                   <td className="py-2 pr-3">
                     <AdminPhotoCell
@@ -231,7 +254,7 @@ export default async function AdminAnimalsPage({
                     {animal.createdAt.toLocaleDateString("fr-CA")}
                   </td>
                   <td className="flex gap-3 py-2">
-                    <Link href={`/admin/animals/${animal.id}/edit`} className="underline">
+                    <Link href={editHref(animal.id)} className="underline">
                       Modifier
                     </Link>
                     <form action={deleteAnimalAction}>
@@ -248,7 +271,7 @@ export default async function AdminAnimalsPage({
         </table>
       </div>
 
-      <AdminPagination basePath={BASE_ANIMALS} params={listParamsForLinks} currentPage={page} totalPages={totalPages} />
+      <AdminPagination {...paginationProps} />
     </div>
   );
 }

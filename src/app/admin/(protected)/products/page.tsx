@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { isProductCategory, PRODUCT_CATEGORIES } from "@/lib/product-categories";
-import { parseAdminListParams, searchWhere, type SortDir } from "@/lib/admin-catalog-listing";
+import {
+  adminRowDomId,
+  buildAdminEditHref,
+  parseAdminListParams,
+  searchWhere,
+  type SortDir,
+} from "@/lib/admin-catalog-listing";
 import { productNeedsAttention } from "@/lib/admin-catalog-attention";
 import { getProductImageUrl } from "@/lib/images";
 import { AdminCatalogAlertBanner } from "@/components/admin/admin-catalog-alert-banner";
@@ -11,6 +17,7 @@ import {
 } from "@/components/admin/admin-catalog-alert-section";
 import { AdminCatalogFilters } from "@/components/admin/admin-catalog-filters";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminFocusRow } from "@/components/admin/admin-focus-row";
 import { AdminSortableTh } from "@/components/admin/admin-sortable-th";
 import { AdminPhotoCell } from "@/components/admin/admin-photo-cell";
 import { deleteProductAction, updateProductPhotoAction } from "./actions";
@@ -55,6 +62,7 @@ export default async function AdminProductsPage({
 }) {
   const sp = await searchParams;
   const params = listParams(sp);
+  const focus = typeof sp.focus === "string" ? sp.focus : undefined;
   const { q, page, perPage, sort, dir, category, published, stock, attention } = params;
 
   const where = {
@@ -86,6 +94,15 @@ export default async function AdminProductsPage({
   ]);
 
   const totalPages = Math.max(1, Math.ceil(total / perPage));
+  const editHref = (id: string) => buildAdminEditHref(BASE, id, { ...listParamsForLinks, page });
+  const paginationProps = {
+    basePath: BASE,
+    params: listParamsForLinks,
+    currentPage: page,
+    totalPages,
+    total,
+    perPage,
+  };
 
   const categoryOptions = [
     { value: "", label: "Toutes" },
@@ -111,7 +128,7 @@ export default async function AdminProductsPage({
           {alertRows.map((p) => (
             <AdminAlertRowLink
               key={p.id}
-              href={`/admin/products/${p.id}/edit`}
+              href={editHref(p.id)}
               primary={p.nameFr}
               secondary={`SKU ${p.sku} · stock ${p.stockQty}`}
               badge="Non publié"
@@ -159,6 +176,9 @@ export default async function AdminProductsPage({
         ]}
       />
 
+      <AdminFocusRow rowId={focus ? adminRowDomId(focus) : undefined} />
+      <AdminPagination {...paginationProps} />
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
@@ -180,7 +200,14 @@ export default async function AdminProductsPage({
               return (
                 <tr
                   key={product.id}
-                  className={`border-b border-black/5 dark:border-white/5 ${alert ? "bg-amber-50/80 dark:bg-amber-950/15" : ""}`}
+                  id={adminRowDomId(product.id)}
+                  className={`border-b border-black/5 dark:border-white/5 ${
+                    product.id === focus
+                      ? "bg-primary/10 outline outline-2 -outline-offset-2 outline-primary"
+                      : alert
+                        ? "bg-amber-50/80 dark:bg-amber-950/15"
+                        : ""
+                  }`}
                 >
                   <td className="py-2 pr-3">
                     <AdminPhotoCell
@@ -206,7 +233,7 @@ export default async function AdminProductsPage({
                     {product.createdAt.toLocaleDateString("fr-CA")}
                   </td>
                   <td className="flex gap-3 py-2">
-                    <Link href={`/admin/products/${product.id}/edit`} className="underline">
+                    <Link href={editHref(product.id)} className="underline">
                       Modifier
                     </Link>
                     <form action={deleteProductAction}>
@@ -223,7 +250,7 @@ export default async function AdminProductsPage({
         </table>
       </div>
 
-      <AdminPagination basePath={BASE} params={listParamsForLinks} currentPage={page} totalPages={totalPages} />
+      <AdminPagination {...paginationProps} />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
@@ -68,7 +69,7 @@ export async function updateSpeciesAction(id: string, formData: FormData) {
   await recordAudit(admin.id, "Species", id, "update");
 
   revalidatePath("/admin/species");
-  redirect("/admin/species");
+  redirect(withAdminFocus(safeAdminReturnTo("/admin/species", formData.get("returnTo")), id));
 }
 
 export async function deleteSpeciesAction(formData: FormData) {
