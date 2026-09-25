@@ -9,12 +9,17 @@ export function AdminCatalogAlertSection({
   children: ReactNode;
 }) {
   return (
-    <section className="overflow-x-auto rounded-xl border border-amber-300/60 bg-amber-50/50 dark:border-amber-700/40 dark:bg-amber-950/20">
-      <h2 className="border-b border-amber-200/80 px-4 py-2 text-sm font-semibold text-amber-900 dark:border-amber-800/60 dark:text-amber-100">
-        {title}
-      </h2>
+    // Collapsed by default so the alert list doesn't push the main table down.
+    <details className="group overflow-x-auto rounded-xl border border-amber-300/60 bg-amber-50/50 dark:border-amber-700/40 dark:bg-amber-950/20">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold text-amber-900 group-open:border-b group-open:border-amber-200/80 dark:text-amber-100 dark:group-open:border-amber-800/60 [&::-webkit-details-marker]:hidden">
+        <h2>{title}</h2>
+        <span className="shrink-0 text-xs font-medium text-amber-800/80 dark:text-amber-200/70">
+          <span className="group-open:hidden">Afficher ▾</span>
+          <span className="hidden group-open:inline">Masquer ▴</span>
+        </span>
+      </summary>
       <div className="max-h-64 overflow-y-auto">{children}</div>
-    </section>
+    </details>
   );
 }
 
