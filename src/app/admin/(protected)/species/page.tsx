@@ -141,7 +141,7 @@ export default async function AdminSpeciesPage({
       <AdminCatalogAlertBanner kind="species" count={alertCount} />
 
       {alertCount > 0 && attention !== "yes" ? (
-        <AdminCatalogAlertSection title={`Attention requise — ${alertCount} espèce(s)`}>
+        <AdminCatalogAlertSection storageKey="species" title={`Attention requise — ${alertCount} espèce(s)`}>
           {alertRows.map((s) => (
             <AdminAlertRowLink
               key={s.id}
