@@ -6,6 +6,7 @@ import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
+import { releaseUnusedBlobs } from "@/lib/blob-cleanup";
 
 function readAnimalForm(formData: FormData) {
   return {
@@ -91,9 +92,11 @@ export async function updateAnimalAction(id: string, formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const data = readAnimalForm(formData);
+  const oldMedia = await prisma.media.findMany({ where: { animalId: id }, select: { url: true } });
   await prisma.animal.update({ where: { id }, data });
   await savePrimaryPhoto(id, formData);
   await saveExtraPhotos(id, formData);
+  await releaseUnusedBlobs(oldMedia.map((m) => m.url));
   await recordAudit(admin.id, "Animal", id, "update");
 
   revalidatePath("/admin/animals");
@@ -133,7 +136,9 @@ export async function updateAnimalPhotoAction(formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const id = String(formData.get("id"));
+  const oldMedia = await prisma.media.findMany({ where: { animalId: id }, select: { url: true } });
   await savePrimaryPhoto(id, formData);
+  await releaseUnusedBlobs(oldMedia.map((m) => m.url));
   await recordAudit(admin.id, "Animal", id, "update");
 
   revalidatePath("/admin/animals");

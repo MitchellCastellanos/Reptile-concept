@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import sharp from "sharp";
 import { getCurrentAdmin } from "@/lib/auth";
+
+const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+const MAX_DIMENSION = 1600;
 
 export async function POST(request: Request) {
   const admin = await getCurrentAdmin();
@@ -26,14 +30,31 @@ export async function POST(request: Request) {
   if (!file.type.startsWith("image/")) {
     return NextResponse.json({ error: "Le fichier doit être une image." }, { status: 400 });
   }
-  if (file.size > 20 * 1024 * 1024) {
-    return NextResponse.json({ error: "Image trop volumineuse (max 20 Mo)." }, { status: 400 });
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ error: "Image trop volumineuse (max 8 Mo)." }, { status: 400 });
   }
 
   try {
-    const blob = await put(`uploads/${Date.now()}-${file.name}`, file, {
+    // Always recompress server-side so phone photos (3-8 MB) don't eat the
+    // storage quota, even when the admin skips the cropper. GIFs are left
+    // alone to keep animation.
+    let body: File | Buffer = file;
+    let name = file.name;
+    let contentType = file.type;
+    if (file.type !== "image/gif" && file.type !== "image/svg+xml") {
+      body = await sharp(Buffer.from(await file.arrayBuffer()))
+        .rotate()
+        .resize({ width: MAX_DIMENSION, height: MAX_DIMENSION, fit: "inside", withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer();
+      name = file.name.replace(/\.\w+$/, "") + ".webp";
+      contentType = "image/webp";
+    }
+
+    const blob = await put(`uploads/${Date.now()}-${name}`, body, {
       access: "public",
       addRandomSuffix: true,
+      contentType,
     });
     return NextResponse.json({ url: blob.url });
   } catch (err) {
