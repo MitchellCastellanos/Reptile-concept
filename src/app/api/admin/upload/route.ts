@@ -30,10 +30,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Image trop volumineuse (max 20 Mo)." }, { status: 400 });
   }
 
-  const blob = await put(`uploads/${Date.now()}-${file.name}`, file, {
-    access: "public",
-    addRandomSuffix: true,
-  });
-
-  return NextResponse.json({ url: blob.url });
+  try {
+    const blob = await put(`uploads/${Date.now()}-${file.name}`, file, {
+      access: "public",
+      addRandomSuffix: true,
+    });
+    return NextResponse.json({ url: blob.url });
+  } catch (err) {
+    console.error("Blob upload failed:", err);
+    const message = err instanceof Error ? err.message : "";
+    if (/quota/i.test(message)) {
+      return NextResponse.json(
+        {
+          error:
+            "Le stockage de photos est plein. Supprimez d'anciennes images ou utilisez le champ URL en attendant, ou contactez GABAN Solutions.",
+        },
+        { status: 507 },
+      );
+    }
+    return NextResponse.json(
+      { error: "Échec du téléversement de l'image. Réessayez ou utilisez le champ URL." },
+      { status: 502 },
+    );
+  }
 }
