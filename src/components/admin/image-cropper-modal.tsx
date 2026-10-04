@@ -29,6 +29,11 @@ export function ImageCropperModal({
   const [imgEl, setImgEl] = useState<HTMLImageElement | null>(null);
   const [imgError, setImgError] = useState(false);
   const [frameSize, setFrameSize] = useState({ width: 0, height: 0 });
+  // Set synchronously on the first click: canvas.toBlob() is async, so the
+  // modal stays open (and clickable) until it resolves — without this, a
+  // double-click uploaded the same photo twice and orphaned one copy.
+  const submittedRef = useRef(false);
+  const [submitting, setSubmitting] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(
     null,
@@ -126,8 +131,25 @@ export function ImageCropperModal({
     setOffset(clamp({ x: cx - imgX * newScale, y: cy - imgY * newScale }, newScale));
   }
 
+  function beginSubmit(): boolean {
+    if (submittedRef.current) return false;
+    submittedRef.current = true;
+    setSubmitting(true);
+    return true;
+  }
+
+  function resetSubmit() {
+    submittedRef.current = false;
+    setSubmitting(false);
+  }
+
+  function handleSkip() {
+    if (beginSubmit()) onSkip();
+  }
+
   function handleConfirm() {
     if (!imgEl || !frameSize.width || !frameSize.height) return;
+    if (!beginSubmit()) return;
     const effectiveScale = baseScale * zoom;
     const sx = -offset.x / effectiveScale;
     const sy = -offset.y / effectiveScale;
@@ -139,9 +161,19 @@ export function ImageCropperModal({
     canvas.width = outW;
     canvas.height = outH;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      resetSubmit();
+      return;
+    }
     ctx.drawImage(imgEl, sx, sy, sWidth, sHeight, 0, 0, outW, outH);
-    canvas.toBlob((blob) => blob && onConfirm(blob), "image/jpeg", 0.9);
+    canvas.toBlob(
+      (blob) => {
+        if (blob) onConfirm(blob);
+        else resetSubmit();
+      },
+      "image/jpeg",
+      0.9,
+    );
   }
 
   return (
@@ -251,18 +283,19 @@ export function ImageCropperModal({
           </button>
           <button
             type="button"
-            onClick={onSkip}
-            className="rounded border border-black/20 px-3 py-1.5 text-sm dark:border-white/20"
+            disabled={submitting}
+            onClick={handleSkip}
+            className="rounded border border-black/20 px-3 py-1.5 text-sm disabled:opacity-50 dark:border-white/20"
           >
             Téléverser sans recadrer
           </button>
           <button
             type="button"
-            disabled={!imgEl || imgError || !frameSize.width || !frameSize.height}
+            disabled={submitting || !imgEl || imgError || !frameSize.width || !frameSize.height}
             onClick={handleConfirm}
             className="rounded bg-foreground px-3 py-1.5 text-sm text-background disabled:opacity-50"
           >
-            Recadrer et téléverser
+            {submitting ? "Préparation..." : "Recadrer et téléverser"}
           </button>
         </div>
       </div>
