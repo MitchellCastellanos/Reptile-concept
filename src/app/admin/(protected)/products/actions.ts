@@ -6,6 +6,7 @@ import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
+import { releaseUnusedBlobs } from "@/lib/blob-cleanup";
 import { notifyStockSubscribers } from "@/lib/stock-notifications";
 import type { ProductCategoryValue } from "@/lib/product-categories";
 
@@ -70,6 +71,7 @@ export async function updateProductAction(id: string, formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const existing = await prisma.product.findUniqueOrThrow({ where: { id } });
+  const oldGallery = await prisma.media.findMany({ where: { productId: id }, select: { url: true } });
   const data = readProductForm(formData);
   const restocked = existing.stockQty <= 0 && data.stockQty > 0;
 
@@ -82,6 +84,7 @@ export async function updateProductAction(id: string, formData: FormData) {
     },
   });
   await saveProductGallery(id, formData);
+  await releaseUnusedBlobs([existing.imageUrl, ...oldGallery.map((m) => m.url)]);
   await recordAudit(admin.id, "Product", id, "update");
 
   if (restocked) {
@@ -100,7 +103,9 @@ export async function updateProductPhotoAction(formData: FormData) {
 
   const id = String(formData.get("id"));
   const imageUrl = String(formData.get("photoUrl") ?? "").trim() || null;
+  const previous = await prisma.product.findUnique({ where: { id }, select: { imageUrl: true } });
   await prisma.product.update({ where: { id }, data: { imageUrl } });
+  await releaseUnusedBlobs([previous?.imageUrl]);
   await recordAudit(admin.id, "Product", id, "update");
 
   revalidatePath("/admin/products");
@@ -111,7 +116,12 @@ export async function deleteProductAction(formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const id = String(formData.get("id"));
+  const [product, gallery] = await Promise.all([
+    prisma.product.findUnique({ where: { id }, select: { imageUrl: true } }),
+    prisma.media.findMany({ where: { productId: id }, select: { url: true } }),
+  ]);
   await prisma.product.delete({ where: { id } });
+  await releaseUnusedBlobs([product?.imageUrl, ...gallery.map((m) => m.url)]);
   await recordAudit(admin.id, "Product", id, "delete");
 
   revalidatePath("/admin/products");

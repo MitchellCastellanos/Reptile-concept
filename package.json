@@ -14,6 +14,8 @@
     "export:inventory": "tsx --tsconfig tsconfig.json scripts/export-inventory-review.ts",
     "export:inventory-master": "tsx --tsconfig tsconfig.json scripts/export-inventory-master.ts",
     "apply:inventory-phase1": "tsx --tsconfig tsconfig.json scripts/apply-inventory-phase1.ts",
+    "blob:cleanup": "tsx --tsconfig tsconfig.json scripts/cleanup-blob-storage.ts",
+    "blob:recompress": "tsx --tsconfig tsconfig.json scripts/recompress-blob-images.ts",
     "inventory:publish-and-triage": "tsx --tsconfig tsconfig.json scripts/inventory-publish-and-triage.ts",
     "export:uncategorized": "tsx --tsconfig tsconfig.json scripts/export-uncategorized-only.ts",
     "export:chatgpt-v2": "tsx --tsconfig tsconfig.json scripts/build-chatgpt-v2.ts",
@@ -54,6 +56,7 @@
     "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "sharp": "^0.34.5",
     "stripe": "^22.4.0"
   },
   "devDependencies": {

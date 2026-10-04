@@ -3,6 +3,30 @@
 import { useState } from "react";
 import { ImageCropperModal } from "./image-cropper-modal";
 
+const CLIENT_MAX_BYTES = 3 * 1024 * 1024;
+const CLIENT_MAX_DIMENSION = 1600;
+
+/** Shrinks big phone photos in the browser so they fit Vercel's 4.5 MB request limit. */
+async function downscaleIfLarge(file: File): Promise<File> {
+  if (file.size <= CLIENT_MAX_BYTES || file.type === "image/gif" || file.type === "image/svg+xml") {
+    return file;
+  }
+  try {
+    const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+    const scale = Math.min(1, CLIENT_MAX_DIMENSION / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
+    if (!blob || blob.size >= file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+  } catch {
+    return file;
+  }
+}
+
 export function PhotoUploadField({
   name,
   label,
@@ -23,14 +47,15 @@ export function PhotoUploadField({
   const [error, setError] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
 
-  async function uploadFile(file: File) {
+  async function uploadFile(original: File) {
     setUploading(true);
     setError(null);
     try {
+      const file = await downscaleIfLarge(original);
       const formData = new FormData();
       formData.append("file", file);
       const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error ?? "Échec du téléversement.");
         return;
