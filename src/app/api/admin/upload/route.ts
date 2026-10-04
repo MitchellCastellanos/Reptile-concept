@@ -3,7 +3,9 @@ import { put } from "@vercel/blob";
 import sharp from "sharp";
 import { getCurrentAdmin } from "@/lib/auth";
 
-const MAX_UPLOAD_BYTES = 8 * 1024 * 1024;
+// Vercel rejects serverless request bodies above 4.5 MB before they reach this
+// route, so stay under it; the admin form downsizes large photos client-side.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
 const MAX_DIMENSION = 1600;
 
 export async function POST(request: Request) {
@@ -31,7 +33,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Le fichier doit être une image." }, { status: 400 });
   }
   if (file.size > MAX_UPLOAD_BYTES) {
-    return NextResponse.json({ error: "Image trop volumineuse (max 8 Mo)." }, { status: 400 });
+    return NextResponse.json({ error: "Image trop volumineuse (max 4 Mo)." }, { status: 400 });
   }
 
   try {

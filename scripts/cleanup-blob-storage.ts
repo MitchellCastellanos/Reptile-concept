@@ -12,41 +12,17 @@ import { config } from "dotenv";
 config({ path: ".env.local" });
 config();
 
-import { list, del, type ListBlobResultBlob } from "@vercel/blob";
-
-const mb = (bytes: number) => (bytes / 1024 / 1024).toFixed(2);
-
-async function listAllBlobs(): Promise<ListBlobResultBlob[]> {
-  const all: ListBlobResultBlob[] = [];
-  let cursor: string | undefined;
-  do {
-    const page = await list({ cursor, limit: 1000 });
-    all.push(...page.blobs);
-    cursor = page.hasMore ? page.cursor : undefined;
-  } while (cursor);
-  return all;
-}
+import { del } from "@vercel/blob";
+import { disconnectDb, listAllBlobs, loadReferencedUrls, mb, requireBlobToken } from "./blob-shared";
 
 async function main() {
   const apply = process.argv.includes("--apply");
   const topIdx = process.argv.indexOf("--top");
   const top = topIdx >= 0 ? Number(process.argv[topIdx + 1]) || 20 : 0;
 
-  if (!process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error("BLOB_READ_WRITE_TOKEN is not configured.");
-  }
+  requireBlobToken();
 
-  const { prisma } = await import("../src/lib/db");
-  const [products, media, blobs] = await Promise.all([
-    prisma.product.findMany({ where: { imageUrl: { not: null } }, select: { imageUrl: true } }),
-    prisma.media.findMany({ select: { url: true } }),
-    listAllBlobs(),
-  ]);
-
-  const referenced = new Set<string>([
-    ...products.map((p) => p.imageUrl as string),
-    ...media.map((m) => m.url),
-  ]);
+  const [referenced, blobs] = await Promise.all([loadReferencedUrls(), listAllBlobs()]);
 
   const total = blobs.reduce((n, b) => n + b.size, 0);
   const orphans = blobs.filter((b) => !referenced.has(b.url));
@@ -82,7 +58,7 @@ async function main() {
     console.log(`\nDeleted ${orphans.length} orphan blobs, freed ~${mb(orphanBytes)} MB.`);
   }
 
-  await prisma.$disconnect();
+  await disconnectDb();
 }
 
 main().catch((err) => {

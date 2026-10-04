@@ -116,7 +116,12 @@ export async function deleteProductAction(formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const id = String(formData.get("id"));
+  const [product, gallery] = await Promise.all([
+    prisma.product.findUnique({ where: { id }, select: { imageUrl: true } }),
+    prisma.media.findMany({ where: { productId: id }, select: { url: true } }),
+  ]);
   await prisma.product.delete({ where: { id } });
+  await releaseUnusedBlobs([product?.imageUrl, ...gallery.map((m) => m.url)]);
   await recordAudit(admin.id, "Product", id, "delete");
 
   revalidatePath("/admin/products");

@@ -149,7 +149,9 @@ export async function deleteAnimalAction(formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const id = String(formData.get("id"));
+  const oldMedia = await prisma.media.findMany({ where: { animalId: id }, select: { url: true } });
   await prisma.animal.delete({ where: { id } });
+  await releaseUnusedBlobs(oldMedia.map((m) => m.url));
   await recordAudit(admin.id, "Animal", id, "delete");
 
   revalidatePath("/admin/animals");
