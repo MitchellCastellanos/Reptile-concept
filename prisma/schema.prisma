@@ -38,6 +38,8 @@ enum ProductCategory {
   terrarium
   substrate
   decor
+  // Live terrarium plants ("Plante Vivant" in Clover) — bioactive/naturalistic setups.
+  live_plants
   // Added 2026-07 to match the client's real Clover catalog (bulbs, heat
   // mats/lamps — "Lumiere" in Clover) — previously had nowhere to go.
   lighting

@@ -25,6 +25,7 @@
     "inventory:launch-online": "tsx --tsconfig tsconfig.json scripts/launch-inventory-online.ts",
     "inventory:apply-triage": "tsx --tsconfig tsconfig.json scripts/apply-inventory-triage.ts",
     "inventory:bulk-import-animals": "tsx --tsconfig tsconfig.json scripts/bulk-import-clover-animals.ts",
+    "inventory:reclassify-live-plants": "tsx --tsconfig tsconfig.json scripts/reclassify-live-plants.ts",
     "inventory:fix-live-food-misimport": "tsx --tsconfig tsconfig.json scripts/fix-live-food-misimport.ts",
     "inventory:fix-animal-category-food-misimport": "tsx --tsconfig tsconfig.json scripts/fix-animal-category-food-misimport.ts",
     "inventory:reclassify-animals": "tsx --tsconfig tsconfig.json scripts/reclassify-animal-categories.ts",
