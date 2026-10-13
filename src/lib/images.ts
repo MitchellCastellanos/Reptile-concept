@@ -12,6 +12,7 @@ const categoryImages: Record<string, string> = {
   terrarium: productDefaultImages.terrarium,
   substrate: productDefaultImages.substrate,
   decor: productDefaultImages.decor,
+  live_plants: productDefaultImages.decor,
   lighting: productDefaultImages.hardware,
   equipment: productDefaultImages.hardware,
   food_live: productDefaultImages.consumables,

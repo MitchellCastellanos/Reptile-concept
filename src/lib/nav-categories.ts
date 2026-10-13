@@ -60,6 +60,7 @@ export const NAV_ITEMS: NavTopItem[] = [
       { key: "terrarium", href: "/boutique?category=terrarium" },
       { key: "substrate", href: "/boutique?category=substrate" },
       { key: "decor", href: "/boutique?category=decor" },
+      { key: "live_plants", href: "/boutique?category=live_plants" },
       { key: "lighting", href: "/boutique?category=lighting" },
       { key: "equipment", href: "/boutique?category=equipment" },
       { key: "food_live", href: "/boutique?category=food_live" },

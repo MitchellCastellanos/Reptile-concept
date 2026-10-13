@@ -44,7 +44,7 @@ const FOOD_OR_CONSUMABLE_NAME =
   /\b(food|nourriture|aliment|alimentation|treat|gâterie|gaterie|vitamine?s?|calcium|repas)\b/i;
 
 const MIXED_CATEGORY_MERCH = [
-  { pattern: /\b(tarantula crib|plastic plant|plante grasse)\b/i, category: "decor" as const },
+  { pattern: /\b(tarantula crib|plastic plant)\b/i, category: "decor" as const },
   { pattern: /\b(nourriture isopod)\b/i, category: "food_packaged" as const },
   { pattern: /\b(ant nectar)\b/i, category: "supplement" as const },
 ];
@@ -157,7 +157,7 @@ const SUGGESTIONS: Record<string, ProductCategoryValue> = {
   substrat: "substrate",
   decoration: "decor",
   "roche et bois/cork": "decor",
-  "plante vivant": "decor",
+  "plante vivant": "live_plants",
   lumiere: "lighting",
   "piece remplacement/ electronique": "equipment",
   "insecte vivant": "food_live",
