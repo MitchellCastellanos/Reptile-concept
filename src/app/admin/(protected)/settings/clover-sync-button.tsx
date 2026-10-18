@@ -22,7 +22,8 @@ export function CloverSyncNowButton() {
           synchronisée(s)) — {state.itemsChecked} article(s) Clover vérifié(s), {state.itemsAutoCreated} créé(s)
           automatiquement (règle enregistrée), {state.itemsQueued} nouveau(x) ajouté(s) à la file d&apos;import,
           {" "}
-          {state.productsStockRefreshed} produit(s) relié(s) avec le stock remis à jour.
+          {state.linkedPricesUpdated} prix et {state.productsStockRefreshed} stock(s) remis à jour depuis Clover
+          {state.linkedRemoved ? `, ${state.linkedRemoved} article(s) supprimé(s) de Clover retiré(s) du site` : ""}.
         </p>
       ) : null}
     </form>

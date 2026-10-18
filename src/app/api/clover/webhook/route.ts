@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { syncCloverOrderById, syncCloverItemById, removeCloverImportCandidate } from "@/lib/clover-sync";
+import { syncCloverOrderById, syncCloverItemById, handleCloverItemRemoved } from "@/lib/clover-sync";
 
 // Receives near-real-time notifications from Clover (Developer Dashboard →
 // this app → Webhooks) whenever an order/payment/item changes for this
@@ -66,9 +66,9 @@ export async function POST(request: Request) {
     // consistent enough to be sure of the exact prefix a pure restock is
     // delivered under across accounts — treat "IS" (item stock) the same as
     // "I" here, and confirm the actual prefix against the client's sandbox
-    // account. The polling cron (pollClover -> refreshLinkedProductStock)
-    // is the real safety net if this guess is wrong: it re-pulls stock for
-    // every linked product unconditionally instead of relying on any event.
+    // account. The polling cron (pollClover -> reconcileLinkedInventory)
+    // is the real safety net if this guess is wrong: it re-pulls price and stock
+    // for every linked animal/product unconditionally instead of relying on any event.
     const [prefix, id] = event.objectId.split(":");
     try {
       if (prefix === "O" && id) {
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
         // against the client's sandbox account — compared case-insensitively
         // here since it isn't consistently documented.
         if (event.type.toUpperCase().includes("DELETE")) {
-          await removeCloverImportCandidate(id);
+          await handleCloverItemRemoved(id);
         } else {
           await syncCloverItemById(id);
         }

@@ -12,8 +12,9 @@ import { pollClover } from "@/lib/clover-sync";
 // tighten that schedule without confirming the project is on a paid plan
 // first. Daily is only a backstop: the webhook is the real near-real-time
 // path, and /admin/settings has a manual "Synchroniser maintenant" button
-// for anyone who doesn't want to wait a day. Protect this route with
-// CRON_SECRET if it's publicly reachable.
+// for anyone who doesn't want to wait a day. To get frequent syncing without
+// a paid Vercel plan, .github/workflows/clover-sync.yml calls this route every
+// 10 minutes. Protect this route with CRON_SECRET if it's publicly reachable.
 export async function GET(request: Request) {
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret) {

@@ -43,6 +43,19 @@ function cloverApiBase() {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Carries the HTTP status so callers can tell "Clover says this doesn't
+// exist" (404) apart from a transient failure — the reconcile pass relies on
+// that before it takes a linked listing offline.
+export class CloverApiError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "CloverApiError";
+  }
+}
+
 async function cloverApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const creds = getCloverCredentials();
   if (!creds) throw new Error("Clover credentials not configured (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN).");
@@ -70,11 +83,11 @@ async function cloverApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 
     if (!res.ok) {
       const body = await res.text().catch(() => "");
-      throw new Error(`Clover API error ${res.status} on ${path}: ${body}`);
+      throw new CloverApiError(res.status, `Clover API error ${res.status} on ${path}: ${body}`);
     }
     return res.json() as Promise<T>;
   }
-  throw new Error(`Clover API error 429 on ${path}: rate limited after ${maxAttempts} attempts`);
+  throw new CloverApiError(429, `Clover API error 429 on ${path}: rate limited after ${maxAttempts} attempts`);
 }
 
 export type CloverItem = {
@@ -85,6 +98,10 @@ export type CloverItem = {
   sku?: string;
   categories?: { elements: { id: string; name: string }[] };
   stockCount?: number;
+  // "FIXED" | "VARIABLE" | "PER_UNIT" — a VARIABLE item's `price` is just a
+  // placeholder (usually 0) because the cashier types the amount at sale time.
+  priceType?: string;
+  modifiedTime?: number;
 };
 
 export type CloverItemStock = {
@@ -111,9 +128,12 @@ export async function fetchCloverItemStock(itemId: string): Promise<number | nul
 }
 
 export async function enrichCloverItemWithStock(item: CloverItem): Promise<CloverItem> {
-  if (item.stockCount != null) return item;
+  // /item_stocks is the stock Clover's register actually decrements and staff
+  // actually edit; the legacy `stockCount` on the item record is not kept
+  // current by either, so it is only a fallback for when the stock lookup
+  // fails or returns nothing — never the other way around.
   const quantity = await fetchCloverItemStock(item.id);
-  return { ...item, stockCount: quantity ?? undefined };
+  return { ...item, stockCount: quantity ?? item.stockCount };
 }
 
 export async function enrichCloverItemsWithStock(items: CloverItem[]): Promise<CloverItem[]> {
@@ -178,56 +198,89 @@ export async function fetchCloverOrder(orderId: string): Promise<CloverOrder> {
   return cloverApiFetch<CloverOrder>(`/orders/${orderId}?expand=lineItems,payments`);
 }
 
+// Walks a Clover collection page by page. The order/item polls used to read
+// only the first 100 rows and then advance their "last polled" cursor anyway,
+// so anything beyond row 100 of a busy window (e.g. right after a bulk edit or
+// a re-import) was dropped for good. Returns whether it reached the end, so a
+// caller can refuse to treat a truncated listing as the full picture.
+async function fetchAllPages<T>(
+  pathForPage: (limit: number, offset: number) => string,
+  maxPages: number,
+): Promise<{ elements: T[]; complete: boolean }> {
+  const pageSize = 100;
+  const elements: T[] = [];
+  for (let page = 0; page < maxPages; page++) {
+    // A small gap between pages keeps a large catalog from tripping Clover's
+    // per-token rate limit outright — cloverApiFetch's 429 retry is the net.
+    if (page > 0) await sleep(350);
+    const data = await cloverApiFetch<{ elements?: T[] }>(pathForPage(pageSize, page * pageSize));
+    const batch = data.elements ?? [];
+    elements.push(...batch);
+    if (batch.length < pageSize) return { elements, complete: true };
+  }
+  return { elements, complete: false };
+}
+
 // Polling fallback for the webhook — pulls orders modified since `sinceMs`
-// (epoch milliseconds). Clover paginates at 100 by default; a client this
-// size shouldn't hit that within one polling window, but if volume grows
-// this needs an offset loop.
+// (epoch milliseconds).
 export async function listModifiedCloverOrders(sinceMs: number): Promise<CloverOrder[]> {
-  const data = await cloverApiFetch<{ elements?: CloverOrder[] }>(
-    `/orders?filter=modifiedTime>=${sinceMs}&expand=lineItems,payments&limit=100`,
+  const { elements } = await fetchAllPages<CloverOrder>(
+    (limit, offset) =>
+      `/orders?filter=modifiedTime>=${sinceMs}&expand=lineItems,payments&limit=${limit}&offset=${offset}`,
+    20,
   );
-  return data.elements ?? [];
+  return elements;
 }
 
 // Polling fallback counterpart to listModifiedCloverOrders — catches new
 // items captured (or edited/re-priced) directly on the Clover device so the
 // site's import queue and linked price/stock stay current even if a webhook
-// delivery is missed. Same pagination caveat as listModifiedCloverOrders.
+// delivery is missed.
 export async function listModifiedCloverItems(sinceMs: number): Promise<CloverItem[]> {
-  const data = await cloverApiFetch<{ elements?: CloverItem[] }>(
-    `/items?filter=modifiedTime>=${sinceMs}&expand=categories&limit=100`,
+  const { elements } = await fetchAllPages<CloverItem>(
+    (limit, offset) => `/items?filter=modifiedTime>=${sinceMs}&expand=categories&limit=${limit}&offset=${offset}`,
+    20,
   );
-  return enrichCloverItemsWithStock(data.elements ?? []);
+  // A handful of items is cheaper one stock lookup each; a large burst (bulk
+  // edit) is cheaper as one pass over the whole stock table.
+  if (elements.length <= 15) return enrichCloverItemsWithStock(elements);
+  const stockByItemId = await fetchAllCloverItemStocks();
+  return elements.map((item) => ({ ...item, stockCount: stockByItemId.get(item.id) ?? item.stockCount }));
 }
 
-// One-time (or on-demand) full catalog pull — unlike listModifiedCloverItems,
-// this ignores modifiedTime and fetches every item that currently exists in
-// Clover, paginating past the 100-per-page default. Used to backfill the
-// /admin/clover-import queue with a merchant's pre-existing Clover catalog,
-// since the webhook/poll only ever see items created or edited *after* the
-// integration went live. Capped at 2000 items (20 pages) as a sanity limit.
+export type CloverCatalogSnapshot = {
+  items: CloverItem[];
+  // false when the page cap was hit before the end of the catalog — such a
+  // snapshot can refresh what it contains but must never be used to conclude
+  // that an item is missing from Clover.
+  complete: boolean;
+};
+
+// Full catalog pull — unlike listModifiedCloverItems, this ignores
+// modifiedTime and fetches every item that currently exists in Clover. Used
+// for the on-demand backfill of /admin/clover-import and as the source of
+// truth for the periodic reconcile of linked animals/products, since neither
+// webhooks nor modifiedTime-based polling are reliable enough to be the only
+// way a price or quantity edit reaches the site.
+export async function fetchCloverCatalogSnapshot(): Promise<CloverCatalogSnapshot> {
+  // Items and the stock table are independent collections — pulled in
+  // parallel to halve the wall-clock time of a sync.
+  const [{ elements: items, complete }, stockByItemId] = await Promise.all([
+    fetchAllPages<CloverItem>(
+      (limit, offset) => `/items?expand=categories&limit=${limit}&offset=${offset}`,
+      60,
+    ),
+    fetchAllCloverItemStocks(),
+  ]);
+  if (!complete) console.error("[clover] catalog snapshot hit the page cap; treating it as incomplete");
+  return {
+    items: items.map((item) => ({ ...item, stockCount: stockByItemId.get(item.id) ?? item.stockCount })),
+    complete,
+  };
+}
+
 export async function fetchAllCloverItems(): Promise<CloverItem[]> {
-  const items: CloverItem[] = [];
-  const pageSize = 100;
-  for (let page = 0; page < 20; page++) {
-    // A small gap between pages keeps a large catalog from tripping
-    // Clover's per-token rate limit outright — cloverApiFetch's built-in
-    // 429 retry is the safety net if it still happens.
-    if (page > 0) await sleep(350);
-
-    const data = await cloverApiFetch<{ elements?: CloverItem[] }>(
-      `/items?expand=categories&limit=${pageSize}&offset=${page * pageSize}`,
-    );
-    const batch = data.elements ?? [];
-    items.push(...batch);
-    if (batch.length < pageSize) break;
-  }
-
-  // One bulk /item_stocks pull instead of enrichCloverItemsWithStock's
-  // one-request-per-item loop — a catalog of a few hundred items pushed the
-  // per-item version well past any serverless function's time budget.
-  const stockByItemId = await fetchAllCloverItemStocks();
-  return items.map((item) => ({ ...item, stockCount: stockByItemId.get(item.id) ?? item.stockCount }));
+  return (await fetchCloverCatalogSnapshot()).items;
 }
 
 // Pushes the current stock count for an item we already know the Clover

@@ -126,7 +126,9 @@ export type CloverSyncNowResult = {
   itemsChecked?: number;
   itemsQueued?: number;
   itemsAutoCreated?: number;
+  linkedPricesUpdated?: number;
   productsStockRefreshed?: number;
+  linkedRemoved?: number;
 };
 
 // Manual "just in case" trigger — forces the same reconciliation the
