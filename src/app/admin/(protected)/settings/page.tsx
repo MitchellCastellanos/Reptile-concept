@@ -1,9 +1,9 @@
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
 import { getCurrentAdmin } from "@/lib/auth";
 import { isCloverConfigured } from "@/lib/clover";
 import { parseWeeklyHours } from "@/lib/business-hours";
-import { CloverSyncNowButton } from "./clover-sync-button";
 import { AccountForm } from "./account-form";
 import { SettingsForm } from "./settings-form";
 
@@ -48,15 +48,17 @@ export default async function AdminSettingsPage() {
           </p>
         ) : null}
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Dernier sondage de secours :{" "}
+          Dernière synchronisation :{" "}
           {cloverSyncState?.lastPolledAt
             ? cloverSyncState.lastPolledAt.toLocaleString("fr-CA")
             : "jamais"}
         </p>
-        <CloverSyncNowButton />
-        <p className="text-xs text-zinc-500">
-          Met à jour prix/stock et la file d&apos;import pour les articles Clover déjà reliés ou
-          couverts par une règle de catégorie. Les ventes comptoir restent dans Clover uniquement.
+        <p className="text-sm">
+          Pour forcer une synchronisation ou traiter les nouveaux articles :{" "}
+          <Link href="/admin/clover-import" className="underline">
+            Clover — synchronisation et nouveaux articles
+          </Link>
+          .
         </p>
       </fieldset>
 

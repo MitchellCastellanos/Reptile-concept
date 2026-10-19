@@ -23,7 +23,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/species", label: "Espèces", badgeKey: "species" },
       { href: "/admin/animals", label: "Animaux", badgeKey: "animals" },
       { href: "/admin/products", label: "Produits", badgeKey: "products" },
-      { href: "/admin/clover-import", label: "Nouveaux articles Clover" },
+      { href: "/admin/clover-import", label: "Clover (synchro + nouveaux articles)" },
     ],
   },
   {
