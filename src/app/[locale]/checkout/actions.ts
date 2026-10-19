@@ -12,6 +12,7 @@ import {
   pushCloverStockForOrder,
   validateCartLines,
 } from "@/lib/order-payment";
+import { refreshCartFromClover } from "@/lib/clover-sync";
 import { createStripeCheckoutSession, isStripeConfigured } from "@/lib/stripe";
 
 type CartLineInput = {
@@ -47,6 +48,9 @@ export async function placeOrderAction(formData: FormData) {
     );
   }
 
+  // Clover is the source of truth: pick up any in-person sale or price/stock
+  // edit made since the last sync before deciding what this cart costs.
+  await refreshCartFromClover(cart);
   const validated = await validateCartLines(cart);
   const settings = await getStoreSettings();
   const { gstAmountCAD, qstAmountCAD, totalCAD } = computeTax(validated.subtotalCAD, {

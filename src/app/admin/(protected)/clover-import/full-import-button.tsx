@@ -24,7 +24,8 @@ export function FullImportButton() {
       {state && !state.error ? (
         <p className="text-sm text-green-700 dark:text-green-400">
           {state.totalItems} article(s) trouvé(s) dans Clover — {state.alreadyLinked} déjà relié(s)
-          mis à jour, {state.autoCreated} produit(s) créé(s) (règle), {state.autoCreatedAnimals ?? 0}{" "}
+          vérifié(s) ({state.pricesUpdated ?? 0} prix et {state.stockUpdated ?? 0} stock(s) remis à jour
+          {state.removed ? `, ${state.removed} retiré(s) du site car supprimé(s) de Clover` : ""}), {state.autoCreated} produit(s) créé(s) (règle), {state.autoCreatedAnimals ?? 0}{" "}
           animal(aux) créé(s) (catégorie animaux), {state.queued} ajouté(s) à la file ci-dessous.
         </p>
       ) : null}

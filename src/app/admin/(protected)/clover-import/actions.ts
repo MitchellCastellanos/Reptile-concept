@@ -42,6 +42,9 @@ export type FullImportActionResult = {
   alreadyLinked?: number;
   autoCreated?: number;
   autoCreatedAnimals?: number;
+  pricesUpdated?: number;
+  stockUpdated?: number;
+  removed?: number;
 };
 
 // One-time (repeatable) backfill of Clover's existing catalog — the
