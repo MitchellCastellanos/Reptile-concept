@@ -8,6 +8,8 @@ import { recordAudit } from "@/lib/audit";
 import { isCloverConfigured } from "@/lib/clover";
 import {
   syncCloverFully,
+  listLinkedItemsMissingFromClover,
+  type MissingLinkedItem,
   bulkIgnoreCandidatesByCategory,
   bulkCreateProductsFromCategory,
   bulkCreateAnimalsFromCategory,
@@ -62,6 +64,28 @@ export async function syncCloverAction(): Promise<SyncActionResult> {
     return result;
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Erreur de synchronisation avec Clover." };
+  }
+}
+
+export type MissingPreviewResult = {
+  error?: string;
+  items?: MissingLinkedItem[];
+  unconfirmed?: number;
+  complete?: boolean;
+};
+
+// Read-only: lists what the next sync would take offline because its Clover
+// item was deleted. Changes nothing.
+export async function previewMissingAction(): Promise<MissingPreviewResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+  if (!isCloverConfigured()) {
+    return { error: "Identifiants Clover non configurés (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN)." };
+  }
+  try {
+    return await listLinkedItemsMissingFromClover();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Erreur de vérification avec Clover." };
   }
 }
 

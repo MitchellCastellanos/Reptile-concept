@@ -759,6 +759,67 @@ export async function pollClover(): Promise<PollResult> {
   };
 }
 
+export type MissingLinkedItem = {
+  kind: "animal" | "product";
+  name: string;
+  priceCAD: number;
+  cloverItemId: string;
+};
+
+// Read-only preview of what the reconcile would take offline: live linked
+// listings whose Clover item no longer exists (confirmed with a direct 404,
+// same as the real run). Lets staff review — and the owner confirm — a list
+// of removals before they happen, instead of discovering them afterwards.
+export async function listLinkedItemsMissingFromClover(): Promise<{
+  items: MissingLinkedItem[];
+  unconfirmed: number;
+  complete: boolean;
+}> {
+  const [animals, products, snapshot] = await Promise.all([
+    prisma.animal.findMany({
+      where: { cloverItemId: { not: null }, status: { in: ["available", "on_hold"] } },
+      select: { cloverItemId: true, morph: true, priceCAD: true, species: { select: { commonNameFr: true } } },
+    }),
+    prisma.product.findMany({
+      where: { cloverItemId: { not: null }, published: true },
+      select: { cloverItemId: true, nameFr: true, priceCAD: true },
+    }),
+    fetchCloverCatalogSnapshot(),
+  ]);
+  const inClover = new Set(snapshot.items.map((item) => item.id));
+
+  const candidates: MissingLinkedItem[] = [
+    ...animals.map((a) => ({
+      kind: "animal" as const,
+      name: `${a.species.commonNameFr} — ${a.morph}`,
+      priceCAD: Number(a.priceCAD),
+      cloverItemId: a.cloverItemId as string,
+    })),
+    ...products.map((p) => ({
+      kind: "product" as const,
+      name: p.nameFr,
+      priceCAD: Number(p.priceCAD),
+      cloverItemId: p.cloverItemId as string,
+    })),
+  ].filter((c) => !inClover.has(c.cloverItemId));
+
+  if (!snapshot.complete) return { items: [], unconfirmed: candidates.length, complete: false };
+
+  const items: MissingLinkedItem[] = [];
+  let unconfirmed = 0;
+  for (const candidate of candidates) {
+    try {
+      await fetchCloverItem(candidate.cloverItemId);
+      unconfirmed++; // still exists in Clover after all
+    } catch (err) {
+      if (err instanceof CloverApiError && err.status === 404) items.push(candidate);
+      else unconfirmed++;
+    }
+  }
+  items.sort((a, b) => a.name.localeCompare(b.name));
+  return { items, unconfirmed, complete: true };
+}
+
 export type FullSyncResult = FullImportResult & { ordersChecked: number; ordersProcessed: number };
 
 // What the admin's single "Synchroniser avec Clover" button runs: everything
