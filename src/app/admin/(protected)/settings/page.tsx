@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/db";
 import { getStoreSettings } from "@/lib/settings";
 import { getCurrentAdmin } from "@/lib/auth";
 import { parseWeeklyHours } from "@/lib/business-hours";
