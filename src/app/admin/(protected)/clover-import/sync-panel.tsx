@@ -3,7 +3,15 @@
 import { useActionState } from "react";
 import { syncCloverAction } from "./actions";
 
-export function CloverSyncPanel({ lastSyncedAt }: { lastSyncedAt: string | null }) {
+export function CloverSyncPanel({
+  lastSyncedAt,
+  credentialsConfigured,
+  verificationCode,
+}: {
+  lastSyncedAt: string | null;
+  credentialsConfigured: boolean;
+  verificationCode: string | null;
+}) {
   const [state, formAction, pending] = useActionState(syncCloverAction, undefined);
 
   return (
@@ -16,8 +24,18 @@ export function CloverSyncPanel({ lastSyncedAt }: { lastSyncedAt: string | null 
         pas encore de fiche sur le site (ils s&apos;ajoutent à la file ci-dessous).
       </p>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Dernière synchronisation : {lastSyncedAt ?? "jamais"}
+        Dernière synchronisation : {lastSyncedAt ?? "jamais"} — identifiants Clover :{" "}
+        <span className={credentialsConfigured ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+          {credentialsConfigured ? "configurés" : "non configurés"}
+        </span>
       </p>
+      {verificationCode ? (
+        <p className="text-xs text-zinc-500">
+          Code de vérification du webhook (à coller dans le Developer Dashboard de Clover lors de sa
+          configuration) :{" "}
+          <code className="rounded bg-black/5 px-1.5 py-0.5 dark:bg-white/10">{verificationCode}</code>
+        </p>
+      ) : null}
       <button
         type="submit"
         disabled={pending}

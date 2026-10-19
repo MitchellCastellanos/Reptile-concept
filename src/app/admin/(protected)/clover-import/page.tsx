@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { ignoreCloverImportCandidateAction, deleteCategoryRuleAction } from "./actions";
 import { CloverSyncPanel } from "./sync-panel";
 import { CategoryBulkActions } from "./category-bulk-actions";
+import { isCloverConfigured } from "@/lib/clover";
 import { listCloverCategoryRules } from "@/lib/clover-sync";
 
 const PAGE_SIZE = 50;
@@ -59,7 +60,11 @@ export default async function CloverImportPage({
       </div>
 
       <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
-        <CloverSyncPanel lastSyncedAt={syncState?.lastPolledAt ? syncState.lastPolledAt.toLocaleString("fr-CA") : null} />
+        <CloverSyncPanel
+          lastSyncedAt={syncState?.lastPolledAt ? syncState.lastPolledAt.toLocaleString("fr-CA") : null}
+          credentialsConfigured={isCloverConfigured()}
+          verificationCode={syncState?.lastVerificationCode ?? null}
+        />
       </div>
 
       {categories.length > 0 ? (
