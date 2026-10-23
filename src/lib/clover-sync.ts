@@ -531,6 +531,7 @@ export type FullImportResult = {
   pricesUpdated: number;
   stockUpdated: number;
   removed: number;
+  missing: number;
 };
 
 export type ReconcileResult = {
@@ -538,14 +539,21 @@ export type ReconcileResult = {
   pricesUpdated: number;
   stockUpdated: number;
   removed: number;
+  // Live linked records whose Clover item wasn't in the catalog: `removed`
+  // of them were confirmed deleted and taken offline, the rest are waiting
+  // for the next run (per-run check cap) or were held back by the safety
+  // guard — surfaced so a silent "0" can't hide them.
+  missing: number;
   linkedItemIds: Set<string>;
 };
 
-// How many linked records may be missing from Clover's catalog before the
-// reconcile concludes the listing itself is wrong (a truncated page, an API
-// hiccup, the wrong merchant token) rather than that staff really deleted
-// that many items — in which case it takes nothing offline.
+// How large a share of linked records may be missing from Clover's catalog
+// before the reconcile concludes the listing itself is wrong (a truncated
+// page, an API hiccup, the wrong merchant token) rather than that staff
+// really deleted that many items — in which case it takes nothing offline.
 const MAX_MISSING_LINKED_FRACTION = 0.25;
+// Each missing item is confirmed with its own Clover request, so only this
+// many are checked per run; a bigger backlog drains over the next runs.
 const MAX_MISSING_LINKED_CHECKS = 40;
 
 // The single place that makes every already-linked animal/product match
@@ -578,7 +586,7 @@ export async function reconcileLinkedInventory(
   for (const a of animals) if (a.cloverItemId) linkedItemIds.add(a.cloverItemId);
   for (const p of products) if (p.cloverItemId) linkedItemIds.add(p.cloverItemId);
   if (linkedItemIds.size === 0) {
-    return { linkedChecked: 0, pricesUpdated: 0, stockUpdated: 0, removed: 0, linkedItemIds };
+    return { linkedChecked: 0, pricesUpdated: 0, stockUpdated: 0, removed: 0, missing: 0, linkedItemIds };
   }
 
   const { items, complete } = snapshot ?? (await fetchCloverCatalogSnapshot());
@@ -623,15 +631,14 @@ export async function reconcileLinkedInventory(
 
   let removed = 0;
   if (complete && items.length > 0 && missing.size > 0) {
-    const plausible =
-      missing.size <= MAX_MISSING_LINKED_CHECKS && missing.size / linkedItemIds.size <= MAX_MISSING_LINKED_FRACTION;
+    const plausible = missing.size / linkedItemIds.size <= MAX_MISSING_LINKED_FRACTION;
     if (!plausible) {
       console.error(
         `[clover-sync] ${missing.size}/${linkedItemIds.size} linked items missing from Clover's catalog — ` +
           "not taking anything offline; check the Clover credentials/listing.",
       );
     } else {
-      for (const cloverItemId of missing) {
+      for (const cloverItemId of [...missing].slice(0, MAX_MISSING_LINKED_CHECKS)) {
         // Confirm each with a direct lookup — only an explicit 404 counts as
         // deleted, never a timeout or a throttled request.
         try {
@@ -648,7 +655,7 @@ export async function reconcileLinkedInventory(
     }
   }
 
-  return { linkedChecked: linkedItemIds.size, pricesUpdated, stockUpdated, removed, linkedItemIds };
+  return { linkedChecked: linkedItemIds.size, pricesUpdated, stockUpdated, removed, missing: missing.size, linkedItemIds };
 }
 
 // One-time (repeatable) backfill for a merchant's pre-existing Clover
@@ -682,6 +689,7 @@ export async function importFullCloverCatalog(): Promise<FullImportResult> {
     pricesUpdated: reconcile.pricesUpdated,
     stockUpdated: reconcile.stockUpdated,
     removed: reconcile.removed,
+    missing: reconcile.missing,
   };
 }
 
@@ -695,6 +703,7 @@ export type PollResult = {
   linkedPricesUpdated: number;
   productsStockRefreshed: number;
   linkedRemoved: number;
+  linkedMissing: number;
 };
 
 // Polling fallback — catches anything a missed/failed webhook delivery
@@ -746,7 +755,97 @@ export async function pollClover(): Promise<PollResult> {
     linkedPricesUpdated: reconcile.pricesUpdated,
     productsStockRefreshed: reconcile.stockUpdated,
     linkedRemoved: reconcile.removed,
+    linkedMissing: reconcile.missing,
   };
+}
+
+export type MissingLinkedItem = {
+  kind: "animal" | "product";
+  name: string;
+  priceCAD: number;
+  cloverItemId: string;
+};
+
+// Read-only preview of what the reconcile would take offline: live linked
+// listings whose Clover item no longer exists (confirmed with a direct 404,
+// same as the real run). Lets staff review — and the owner confirm — a list
+// of removals before they happen, instead of discovering them afterwards.
+export async function listLinkedItemsMissingFromClover(): Promise<{
+  items: MissingLinkedItem[];
+  unconfirmed: number;
+  complete: boolean;
+}> {
+  const [animals, products, snapshot] = await Promise.all([
+    prisma.animal.findMany({
+      where: { cloverItemId: { not: null }, status: { in: ["available", "on_hold"] } },
+      select: { cloverItemId: true, morph: true, priceCAD: true, species: { select: { commonNameFr: true } } },
+    }),
+    prisma.product.findMany({
+      where: { cloverItemId: { not: null }, published: true },
+      select: { cloverItemId: true, nameFr: true, priceCAD: true },
+    }),
+    fetchCloverCatalogSnapshot(),
+  ]);
+  const inClover = new Set(snapshot.items.map((item) => item.id));
+
+  const candidates: MissingLinkedItem[] = [
+    ...animals.map((a) => ({
+      kind: "animal" as const,
+      name: `${a.species.commonNameFr} — ${a.morph}`,
+      priceCAD: Number(a.priceCAD),
+      cloverItemId: a.cloverItemId as string,
+    })),
+    ...products.map((p) => ({
+      kind: "product" as const,
+      name: p.nameFr,
+      priceCAD: Number(p.priceCAD),
+      cloverItemId: p.cloverItemId as string,
+    })),
+  ].filter((c) => !inClover.has(c.cloverItemId));
+
+  if (!snapshot.complete) return { items: [], unconfirmed: candidates.length, complete: false };
+
+  const items: MissingLinkedItem[] = [];
+  let unconfirmed = 0;
+  for (const candidate of candidates) {
+    try {
+      await fetchCloverItem(candidate.cloverItemId);
+      unconfirmed++; // still exists in Clover after all
+    } catch (err) {
+      if (err instanceof CloverApiError && err.status === 404) items.push(candidate);
+      else unconfirmed++;
+    }
+  }
+  items.sort((a, b) => a.name.localeCompare(b.name));
+  return { items, unconfirmed, complete: true };
+}
+
+export type FullSyncResult = FullImportResult & { ordersChecked: number; ordersProcessed: number };
+
+// What the admin's single "Synchroniser avec Clover" button runs: everything
+// the scheduled poll does (sales since the last poll, linked price/stock/
+// removals) plus the pass over every not-yet-linked Clover item that feeds the
+// import queue and category rules. One entry point, so there is no separate
+// "refresh" vs "import" to choose between.
+export async function syncCloverFully(): Promise<FullSyncResult> {
+  const state = await prisma.cloverSyncState.findUnique({ where: { id: "singleton" } });
+  const sinceMs = state?.lastPolledAt ? state.lastPolledAt.getTime() : Date.now() - 24 * 60 * 60 * 1000;
+  const startedAt = new Date();
+
+  const orders = await listModifiedCloverOrders(sinceMs);
+  let ordersProcessed = 0;
+  for (const order of orders) {
+    if ((await processCloverOrder(order)).processed) ordersProcessed++;
+  }
+
+  const imported = await importFullCloverCatalog();
+
+  await prisma.cloverSyncState.upsert({
+    where: { id: "singleton" },
+    update: { lastPolledAt: startedAt },
+    create: { id: "singleton", lastPolledAt: startedAt },
+  });
+  return { ...imported, ordersChecked: orders.length, ordersProcessed };
 }
 
 // Brings the cart's own items (and any sale rung up at the register in the

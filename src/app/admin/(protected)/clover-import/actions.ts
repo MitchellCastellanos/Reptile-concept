@@ -7,7 +7,9 @@ import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { isCloverConfigured } from "@/lib/clover";
 import {
-  importFullCloverCatalog,
+  syncCloverFully,
+  listLinkedItemsMissingFromClover,
+  type MissingLinkedItem,
   bulkIgnoreCandidatesByCategory,
   bulkCreateProductsFromCategory,
   bulkCreateAnimalsFromCategory,
@@ -35,25 +37,13 @@ export async function ignoreCloverImportCandidateAction(formData: FormData) {
   revalidatePath("/admin/clover-import");
 }
 
-export type FullImportActionResult = {
-  error?: string;
-  totalItems?: number;
-  queued?: number;
-  alreadyLinked?: number;
-  autoCreated?: number;
-  autoCreatedAnimals?: number;
-  pricesUpdated?: number;
-  stockUpdated?: number;
-  removed?: number;
-};
+export type SyncActionResult = { error?: string } & Partial<Awaited<ReturnType<typeof syncCloverFully>>>;
 
-// One-time (repeatable) backfill of Clover's existing catalog — the
-// webhook/poll only ever pick up items created or edited after the
-// integration went live, so a merchant's pre-existing inventory needs this
-// to show up here at all.
-export async function importFullCatalogAction(
-  _prevState: FullImportActionResult | undefined,
-): Promise<FullImportActionResult> {
+// The one manual sync: sales since the last poll, price/stock/removals for
+// everything already linked, and every Clover item not yet linked (auto-create
+// rules or the queue below). The webhook and the scheduled poll only cover
+// what changed recently; this also catches items that predate the integration.
+export async function syncCloverAction(): Promise<SyncActionResult> {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
@@ -62,14 +52,40 @@ export async function importFullCatalogAction(
   }
 
   try {
-    const result = await importFullCloverCatalog();
-    await recordAudit(admin.id, "CloverImportCandidate", "full-import", "create");
+    const result = await syncCloverFully();
+    await recordAudit(admin.id, "CloverSyncState", "singleton", "update");
+    revalidatePath("/admin/settings");
     revalidatePath("/admin/clover-import");
     revalidatePath("/admin/animals");
     revalidatePath("/admin/products");
+    revalidatePath("/admin/finance");
+    revalidatePath("/animals");
+    revalidatePath("/boutique");
     return result;
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Erreur d'import depuis Clover." };
+    return { error: err instanceof Error ? err.message : "Erreur de synchronisation avec Clover." };
+  }
+}
+
+export type MissingPreviewResult = {
+  error?: string;
+  items?: MissingLinkedItem[];
+  unconfirmed?: number;
+  complete?: boolean;
+};
+
+// Read-only: lists what the next sync would take offline because its Clover
+// item was deleted. Changes nothing.
+export async function previewMissingAction(): Promise<MissingPreviewResult> {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+  if (!isCloverConfigured()) {
+    return { error: "Identifiants Clover non configurés (CLOVER_MERCHANT_ID / CLOVER_API_TOKEN)." };
+  }
+  try {
+    return await listLinkedItemsMissingFromClover();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Erreur de vérification avec Clover." };
   }
 }
 

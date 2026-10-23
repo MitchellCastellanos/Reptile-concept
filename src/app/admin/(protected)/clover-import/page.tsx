@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { ignoreCloverImportCandidateAction, deleteCategoryRuleAction } from "./actions";
-import { FullImportButton } from "./full-import-button";
+import { CloverSyncPanel } from "./sync-panel";
 import { CategoryBulkActions } from "./category-bulk-actions";
+import { isCloverConfigured } from "@/lib/clover";
 import { listCloverCategoryRules } from "@/lib/clover-sync";
 
 const PAGE_SIZE = 50;
@@ -20,7 +21,7 @@ export default async function CloverImportPage({
 
   // The detail table only renders once a category is selected (see below), so
   // skip fetching individual candidates entirely when browsing the overview.
-  const [grouped, candidates, totalPending, rules] = await Promise.all([
+  const [grouped, candidates, totalPending, rules, syncState] = await Promise.all([
     prisma.cloverImportCandidate.groupBy({
       by: ["cloverCategoryName"],
       where: { status: "pending" },
@@ -39,6 +40,7 @@ export default async function CloverImportPage({
       : Promise.resolve([]),
     prisma.cloverImportCandidate.count({ where: { status: "pending" } }),
     listCloverCategoryRules(),
+    prisma.cloverSyncState.findUnique({ where: { id: "singleton" } }),
   ]);
 
   const categories = grouped
@@ -49,7 +51,7 @@ export default async function CloverImportPage({
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-semibold">Nouveaux articles Clover</h1>
+        <h1 className="text-2xl font-semibold">Clover — synchronisation et nouveaux articles</h1>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
           Articles capturés directement sur l&apos;appareil Clover (comptoir ou salon) qui n&apos;ont
           pas encore de fiche sur le site — {totalPending} en attente au total. Pour un gros catalogue,
@@ -58,7 +60,11 @@ export default async function CloverImportPage({
       </div>
 
       <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
-        <FullImportButton />
+        <CloverSyncPanel
+          lastSyncedAt={syncState?.lastPolledAt ? syncState.lastPolledAt.toLocaleString("fr-CA") : null}
+          credentialsConfigured={isCloverConfigured()}
+          verificationCode={syncState?.lastVerificationCode ?? null}
+        />
       </div>
 
       {categories.length > 0 ? (
