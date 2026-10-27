@@ -4,6 +4,10 @@ export async function restoreOrderInventory(tx: Prisma.TransactionClient, orderI
   const items = await tx.orderItem.findMany({ where: { orderId } });
   for (const item of items) {
     if (item.animalId) {
+      await tx.animal.update({
+        where: { id: item.animalId },
+        data: { quantity: { increment: item.quantity } },
+      });
       await tx.animal.updateMany({
         where: { id: item.animalId, status: { in: ["sold", "reserved"] } },
         data: { status: "available" },

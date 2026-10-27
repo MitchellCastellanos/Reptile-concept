@@ -14,6 +14,7 @@ function readAnimalForm(formData: FormData) {
     morph: String(formData.get("morph")),
     sex: String(formData.get("sex")) as "male" | "female" | "unknown",
     priceCAD: Number(formData.get("priceCAD")),
+    quantity: Math.max(0, Math.floor(Number(formData.get("quantity") ?? 1)) || 0),
     status: String(formData.get("status")) as
       | "available"
       | "reserved"

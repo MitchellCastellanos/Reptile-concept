@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getAnimalImageUrl } from "@/lib/images";
 import { KlarnaInstallments } from "@/components/klarna-installments";
@@ -11,6 +12,8 @@ type AnimalCardAnimal = {
   priceCAD: { toString(): string } | number;
   species: { id: string; commonNameFr: string; commonNameEn: string; category: string };
   media: { url: string }[];
+  // Identical animals share one listing; absent/1 means a single animal.
+  quantity?: number;
 };
 
 export function AnimalCard({
@@ -32,6 +35,9 @@ export function AnimalCard({
   isLoggedIn?: boolean;
   rating?: { average: number; count: number };
 }) {
+  const t = useTranslations("Home");
+  const units = animal.quantity ?? 1;
+  const badgeLabel = units > 1 ? t("unitsAvailable", { count: units }) : availableLabel;
   const speciesName =
     locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
   const imageUrl = getAnimalImageUrl(animal.species.category, animal.media);
@@ -49,9 +55,9 @@ export function AnimalCard({
           className="object-cover transition duration-300 group-hover:scale-105"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
-        {availableLabel ? (
+        {badgeLabel ? (
           <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-1 text-xs font-medium text-white">
-            {availableLabel}
+            {badgeLabel}
           </span>
         ) : null}
         {showWishlist ? (

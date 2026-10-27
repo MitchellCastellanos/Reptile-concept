@@ -8,7 +8,7 @@ import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 
 export default function CartPage() {
-  const { items, removeItem, setProductQuantity, totalCAD } = useCart();
+  const { items, removeItem, setLineQuantity, totalCAD } = useCart();
   const t = useTranslations("Cart");
 
   if (items.length === 0) {
@@ -40,17 +40,17 @@ export default function CartPage() {
             <div>
               <p className="font-semibold">{item.name}</p>
               <p className="text-sm text-muted">
-                {item.priceCAD} $ CAD {item.type === "product" ? `× ${item.quantity}` : ""}
+                {item.priceCAD} $ CAD {item.quantity > 1 || item.type === "product" ? `× ${item.quantity}` : ""}
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {item.type === "product" ? (
+              {item.type === "product" || (item.maxQuantity ?? 1) > 1 ? (
                 <input
                   type="number"
                   min={1}
                   max={item.maxQuantity}
                   value={item.quantity}
-                  onChange={(e) => setProductQuantity(item.id, Number(e.target.value))}
+                  onChange={(e) => setLineQuantity(item.type, item.id, Number(e.target.value))}
                   className="w-16 rounded-lg border border-border bg-background px-2 py-1 text-sm"
                 />
               ) : null}

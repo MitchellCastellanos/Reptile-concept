@@ -105,6 +105,7 @@ export async function updateSettingsAction(
       weeklyHours,
       facebookUrl: facebookUrl || null,
       facebookFollowerCount,
+      cloverAnimalStockSync: formData.get("cloverAnimalStockSync") === "on",
     });
     await recordAudit(admin.id, "StoreSettings", "singleton", "update");
 

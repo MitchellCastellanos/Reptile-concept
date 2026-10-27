@@ -36,6 +36,7 @@ export default async function AdminSettingsPage() {
           qstRatePercent: Number(settings.qstRatePercent),
           facebookUrl: settings.facebookUrl,
           facebookFollowerCount: settings.facebookFollowerCount,
+          cloverAnimalStockSync: settings.cloverAnimalStockSync,
         }}
         weeklyHours={weeklyHours}
       />
