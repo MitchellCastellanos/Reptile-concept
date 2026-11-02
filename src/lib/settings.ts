@@ -26,6 +26,7 @@ export async function updateStoreSettings(data: {
   weeklyHours?: WeeklyHours;
   facebookUrl?: string | null;
   facebookFollowerCount?: number | null;
+  cloverAnimalStockSync?: boolean;
 }) {
   return prisma.storeSettings.upsert({
     where: { id: "singleton" },

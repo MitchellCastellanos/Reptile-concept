@@ -14,26 +14,54 @@ export function AddAnimalToCartButton({
   id,
   name,
   priceCAD,
+  quantity: available = 1,
 }: {
   id: string;
   name: string;
   priceCAD: number;
+  quantity?: number;
 }) {
   const { addAnimal } = useCart();
   const router = useRouter();
   const t = useTranslations("Cart");
+  const [quantity, setQuantity] = useState(1);
 
   return (
-    <button
-      type="button"
-      onClick={() => {
-        addAnimal(id, name, priceCAD);
-        router.push("/cart");
-      }}
-      className={btnPrimary}
-    >
-      {t("reserve")}
-    </button>
+    <div className="flex flex-wrap items-center gap-3">
+      {available > 1 ? (
+        <div className="flex items-center rounded-full border border-border">
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+            disabled={quantity <= 1}
+            aria-label="-"
+            className="px-3 py-1.5 text-sm font-medium text-foreground disabled:opacity-30"
+          >
+            −
+          </button>
+          <span className="w-6 text-center text-sm font-medium tabular-nums">{quantity}</span>
+          <button
+            type="button"
+            onClick={() => setQuantity((q) => Math.min(available, q + 1))}
+            disabled={quantity >= available}
+            aria-label="+"
+            className="px-3 py-1.5 text-sm font-medium text-foreground disabled:opacity-30"
+          >
+            +
+          </button>
+        </div>
+      ) : null}
+      <button
+        type="button"
+        onClick={() => {
+          addAnimal(id, name, priceCAD, quantity, available);
+          router.push("/cart");
+        }}
+        className={btnPrimary}
+      >
+        {t("reserve")}
+      </button>
+    </div>
   );
 }
 

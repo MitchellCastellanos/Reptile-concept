@@ -190,6 +190,11 @@ model Animal {
   weightGrams   Float?
   priceCAD      Decimal
   status        AnimalStatus   @default(available)
+  // Units still for sale for this listing (identical animals sold as one
+  // Clover item). Single animals stay at 1. When it reaches 0 the animal is
+  // reserved/sold; Clover's stock count drives it only when
+  // StoreSettings.cloverAnimalStockSync is on.
+  quantity      Int            @default(1)
   descriptionFr String
   descriptionEn String
   dam           Animal?        @relation("Parentage_Dam", fields: [damId], references: [id])
@@ -579,6 +584,10 @@ model StoreSettings {
   // edited in the admin via dropdowns; hoursFr/hoursEn above are generated
   // from it on save and kept as the plain-text summary consumers display.
   weeklyHours                Json?
+  // Off until the Clover inventory is clean: when on, an animal's quantity
+  // (and sold/available state) follows its Clover item's stock count, the
+  // same way products do.
+  cloverAnimalStockSync      Boolean  @default(false)
   updatedAt                  DateTime @updatedAt
 }
 

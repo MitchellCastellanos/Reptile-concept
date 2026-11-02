@@ -23,6 +23,7 @@ export function SettingsForm({
     qstRatePercent: number;
     facebookUrl: string | null;
     facebookFollowerCount: number | null;
+    cloverAnimalStockSync: boolean;
   };
   weeklyHours: WeeklyHours;
 }) {
@@ -73,6 +74,23 @@ export function SettingsForm({
         />
         <span className="text-xs text-zinc-600 dark:text-zinc-400">
           Laissez vide pour utiliser le courriel du premier compte administrateur (propriétaire).
+        </span>
+      </label>
+
+      <label className="flex items-start gap-2 text-sm">
+        <input
+          type="checkbox"
+          name="cloverAnimalStockSync"
+          defaultChecked={settings.cloverAnimalStockSync}
+          className="mt-1"
+        />
+        <span>
+          Synchroniser la quantité des animaux depuis le stock Clover
+          <span className="block text-xs text-zinc-600 dark:text-zinc-400">
+            À activer seulement quand le stock de Clover est à jour : la quantité de chaque animal lié suit
+            alors le stock Clover (comme les produits), et un animal à 0 passe à « sold ». Les statuts
+            reserved / on_hold / not_for_sale ne sont jamais modifiés automatiquement.
+          </span>
         </span>
       </label>
 

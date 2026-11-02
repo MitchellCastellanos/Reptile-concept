@@ -77,8 +77,40 @@ export async function deleteSpeciesAction(formData: FormData) {
   if (!admin) redirect("/admin/login");
 
   const id = String(formData.get("id"));
+  const animalCount = await prisma.animal.count({ where: { speciesId: id } });
+  if (animalCount > 0) {
+    throw new Error(
+      `Cette espèce est utilisée par ${animalCount} animal(aux) — fusionnez-la dans une autre espèce avant de la supprimer.`,
+    );
+  }
   await prisma.species.delete({ where: { id } });
   await recordAudit(admin.id, "Species", id, "delete");
 
   revalidatePath("/admin/species");
+}
+
+// For duplicate species: moves every animal of the duplicate onto the species
+// being kept, then removes the duplicate. Animals keep their own data; only
+// the species link changes.
+export async function mergeSpeciesAction(formData: FormData) {
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect("/admin/login");
+
+  const sourceId = String(formData.get("sourceId"));
+  const targetId = String(formData.get("targetId"));
+  if (!targetId || sourceId === targetId) {
+    throw new Error("Choisissez une autre espèce comme destination de la fusion.");
+  }
+
+  await prisma.$transaction(async (tx) => {
+    const target = await tx.species.findUnique({ where: { id: targetId }, select: { id: true } });
+    if (!target) throw new Error("Espèce de destination introuvable.");
+    await tx.animal.updateMany({ where: { speciesId: sourceId }, data: { speciesId: targetId } });
+    await tx.species.delete({ where: { id: sourceId } });
+  });
+  await recordAudit(admin.id, "Species", sourceId, "delete");
+
+  revalidatePath("/admin/species");
+  revalidatePath("/admin/animals");
+  redirect(withAdminFocus("/admin/species", targetId));
 }

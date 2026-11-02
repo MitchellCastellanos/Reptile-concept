@@ -112,6 +112,23 @@ export function AnimalForm({
       </label>
 
       <label className="flex flex-col gap-1 text-sm">
+        Quantité disponible
+        <input
+          type="number"
+          min={0}
+          step={1}
+          name="quantity"
+          defaultValue={animal?.quantity ?? 1}
+          required
+          className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
+        />
+        <span className="text-xs text-zinc-600 dark:text-zinc-400">
+          Nombre d&apos;individus identiques en vente sous cette fiche (1 pour un animal unique). Si la
+          synchronisation du stock Clover est activée, Clover écrase cette valeur.
+        </span>
+      </label>
+
+      <label className="flex flex-col gap-1 text-sm">
         Statut
         <select
           name="status"

@@ -22,7 +22,7 @@ export type CartNotice = { name: string; quantity: number } | null;
 
 type CartContextValue = {
   items: CartLine[];
-  addAnimal: (id: string, name: string, priceCAD: number) => void;
+  addAnimal: (id: string, name: string, priceCAD: number, quantity?: number, maxQuantity?: number) => void;
   addProduct: (
     id: string,
     name: string,
@@ -30,7 +30,7 @@ type CartContextValue = {
     quantity: number,
     maxQuantity: number,
   ) => void;
-  setProductQuantity: (id: string, quantity: number) => void;
+  setLineQuantity: (type: CartLine["type"], id: string, quantity: number) => void;
   removeItem: (type: CartLine["type"], id: string) => void;
   clear: () => void;
   totalCAD: number;
@@ -61,12 +61,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const addAnimal = useCallback((id: string, name: string, priceCAD: number) => {
-    setItems((prev) => {
-      if (prev.some((item) => item.type === "animal" && item.id === id)) return prev;
-      return [...prev, { type: "animal", id, name, priceCAD, quantity: 1 }];
-    });
-  }, []);
+  const addAnimal = useCallback(
+    (id: string, name: string, priceCAD: number, quantity = 1, maxQuantity = 1) => {
+      setItems((prev) => {
+        const existing = prev.find((item) => item.type === "animal" && item.id === id);
+        if (existing) {
+          return prev.map((item) =>
+            item.type === "animal" && item.id === id
+              ? { ...item, quantity: Math.min(item.quantity + quantity, maxQuantity), maxQuantity }
+              : item,
+          );
+        }
+        return [
+          ...prev,
+          { type: "animal", id, name, priceCAD, quantity: Math.min(quantity, maxQuantity), maxQuantity },
+        ];
+      });
+    },
+    [],
+  );
 
   const addProduct = useCallback(
     (id: string, name: string, priceCAD: number, quantity: number, maxQuantity: number) => {
@@ -91,15 +104,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const dismissNotice = useCallback(() => setNotice(null), []);
 
-  const setProductQuantity = useCallback((id: string, quantity: number) => {
+  const setLineQuantity = useCallback((type: CartLine["type"], id: string, quantity: number) => {
     setItems((prev) =>
-      prev
-        .map((item) =>
-          item.type === "product" && item.id === id
-            ? { ...item, quantity: Math.max(1, quantity) }
-            : item,
-        )
-        .filter((item) => item.quantity > 0),
+      prev.map((item) =>
+        item.type === type && item.id === id
+          ? { ...item, quantity: Math.max(1, Math.min(quantity || 1, item.maxQuantity ?? quantity)) }
+          : item,
+      ),
     );
   }, []);
 
@@ -119,14 +130,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       items,
       addAnimal,
       addProduct,
-      setProductQuantity,
+      setLineQuantity,
       removeItem,
       clear,
       totalCAD,
       notice,
       dismissNotice,
     }),
-    [items, addAnimal, addProduct, setProductQuantity, removeItem, clear, totalCAD, notice, dismissNotice],
+    [items, addAnimal, addProduct, setLineQuantity, removeItem, clear, totalCAD, notice, dismissNotice],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -167,10 +167,16 @@ export default async function AnimalDetailPage({
 
           {animal.status === "available" ? (
             <>
+              {animal.quantity > 1 ? (
+                <p className="text-sm font-medium text-primary">
+                  {home("unitsAvailable", { count: animal.quantity })}
+                </p>
+              ) : null}
               <AddAnimalToCartButton
                 id={animal.id}
                 name={`${speciesName} — ${animal.morph}`}
                 priceCAD={Number(animal.priceCAD)}
+                quantity={animal.quantity}
               />
               <PaymentBadges />
             </>

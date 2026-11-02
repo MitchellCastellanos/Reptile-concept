@@ -119,11 +119,14 @@ export async function processCloverOrder(order: CloverOrder): Promise<ProcessOrd
       // form) — an unlinked item still gets recorded here for the finance
       // mirror, but there's nothing on the site to mark unavailable.
       if (animal) {
-        // An on_hold animal is one staff were holding for a customer — if it
-        // rang up at the register anyway, it is gone either way.
+        // Identical animals share one listing with a unit count, so a sale
+        // takes units off it and only the last one marks it sold. An on_hold
+        // animal is one staff were holding for a customer — if it rang up at
+        // the register anyway, it is gone either way.
+        const remaining = Math.max(0, animal.quantity - quantity);
         await tx.animal.updateMany({
           where: { id: animal.id, status: { in: ["available", "on_hold"] } },
-          data: { status: "sold" },
+          data: remaining > 0 ? { quantity: remaining } : { quantity: 0, status: "sold" },
         });
       } else if (product) {
         const nextStockQty = Math.max(0, product.stockQty - quantity);
@@ -175,18 +178,45 @@ function priceDiffers(sitePriceCAD: unknown, cloverCents: number | null): clover
   return cloverCents != null && Math.round(Number(sitePriceCAD) * 100) !== cloverCents;
 }
 
-type LinkedAnimal = { id: string; priceCAD: unknown };
+type LinkedAnimal = { id: string; priceCAD: unknown; status: string; quantity: number };
 type LinkedProduct = { id: string; priceCAD: unknown; stockQty: number };
 
 type LinkedChange = { priceChanged: boolean; stockChanged: boolean };
 
 // Writes only what actually differs, so a full-catalog reconcile over
 // hundreds of linked records stays a handful of queries.
-async function syncLinkedAnimalFromItem(animal: LinkedAnimal, item: CloverItem): Promise<LinkedChange> {
+async function syncLinkedAnimalFromItem(
+  animal: LinkedAnimal,
+  item: CloverItem,
+  syncStock: boolean,
+): Promise<LinkedChange> {
   const cents = cloverPriceCents(item);
-  if (!priceDiffers(animal.priceCAD, cents)) return { priceChanged: false, stockChanged: false };
-  await prisma.animal.update({ where: { id: animal.id }, data: { priceCAD: cents / 100 } });
-  return { priceChanged: true, stockChanged: false };
+  const priceChanged = priceDiffers(animal.priceCAD, cents);
+
+  // Stock only drives animals once staff have cleaned up the Clover counts
+  // (StoreSettings.cloverAnimalStockSync) — until then a live animal can
+  // sit at 0 while still for sale. Reserved/on_hold/not_for_sale are staff
+  // decisions made on the site and are never flipped from the count.
+  let stockData: { quantity: number; status?: "sold" | "available" } | null = null;
+  if (syncStock && item.stockCount != null) {
+    const nextQty = Math.max(0, item.stockCount);
+    const nextStatus =
+      nextQty === 0 && animal.status === "available"
+        ? "sold"
+        : nextQty > 0 && animal.status === "sold"
+          ? "available"
+          : undefined;
+    if (nextQty !== animal.quantity || nextStatus) {
+      stockData = { quantity: nextQty, ...(nextStatus ? { status: nextStatus } : {}) };
+    }
+  }
+
+  if (!priceChanged && !stockData) return { priceChanged: false, stockChanged: false };
+  await prisma.animal.update({
+    where: { id: animal.id },
+    data: { ...(priceChanged ? { priceCAD: cents! / 100 } : {}), ...(stockData ?? {}) },
+  });
+  return { priceChanged, stockChanged: stockData != null };
 }
 
 async function syncLinkedProductFromItem(product: LinkedProduct, item: CloverItem): Promise<LinkedChange> {
@@ -250,7 +280,7 @@ export async function processCloverItem(item: CloverItem): Promise<ProcessItemRe
   ]);
 
   if (animal) {
-    await syncLinkedAnimalFromItem(animal, item);
+    await syncLinkedAnimalFromItem(animal, item, (await getStoreSettings()).cloverAnimalStockSync);
     return { action: "linked-animal" };
   }
   if (product) {
@@ -572,10 +602,11 @@ const MAX_MISSING_LINKED_CHECKS = 40;
 export async function reconcileLinkedInventory(
   snapshot?: Awaited<ReturnType<typeof fetchCloverCatalogSnapshot>>,
 ): Promise<ReconcileResult> {
+  const { cloverAnimalStockSync } = await getStoreSettings();
   const [animals, products] = await Promise.all([
     prisma.animal.findMany({
       where: { cloverItemId: { not: null } },
-      select: { id: true, cloverItemId: true, priceCAD: true, status: true },
+      select: { id: true, cloverItemId: true, priceCAD: true, status: true, quantity: true },
     }),
     prisma.product.findMany({
       where: { cloverItemId: { not: null } },
@@ -606,8 +637,9 @@ export async function reconcileLinkedInventory(
       continue;
     }
     try {
-      const change = await syncLinkedAnimalFromItem(animal, item);
+      const change = await syncLinkedAnimalFromItem(animal, item, cloverAnimalStockSync);
       if (change.priceChanged) pricesUpdated++;
+      if (change.stockChanged) stockUpdated++;
     } catch (err) {
       console.error(`[clover-sync] failed to sync animal for item ${animal.cloverItemId}:`, err);
     }
@@ -874,8 +906,11 @@ export async function refreshCartFromClover(
         ? prisma.product.findMany({ where: { id: { in: productIds }, cloverItemId: { not: null } } })
         : Promise.resolve([]),
     ]);
+    const { cloverAnimalStockSync } = await getStoreSettings();
     for (const animal of animals) {
-      if (animal.cloverItemId) await syncLinkedAnimalFromItem(animal, await fetchCloverItem(animal.cloverItemId));
+      if (animal.cloverItemId) {
+        await syncLinkedAnimalFromItem(animal, await fetchCloverItem(animal.cloverItemId), cloverAnimalStockSync);
+      }
     }
     for (const product of products) {
       if (product.cloverItemId) await syncLinkedProductFromItem(product, await fetchCloverItem(product.cloverItemId));

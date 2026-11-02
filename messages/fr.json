@@ -9,6 +9,7 @@
     "noAnimals": "Aucun animal disponible pour le moment.",
     "priceLabel": "Prix",
     "available": "Disponible",
+    "unitsAvailable": "{count} disponibles",
     "inStock": "En stock",
     "outOfStock": "Rupture de stock",
     "backInStock": "De retour en stock",

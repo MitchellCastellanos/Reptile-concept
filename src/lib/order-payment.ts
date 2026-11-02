@@ -39,9 +39,12 @@ export async function validateCartLines(cart: CartLineInput[]): Promise<Validate
   const [animals, products] = await Promise.all([loadAnimals(animalIds), loadProducts(productIds)]);
 
   for (const line of cart) {
+    if (!Number.isInteger(line.quantity) || line.quantity < 1) {
+      throw new Error(`Quantité invalide / Invalid quantity: ${line.id}`);
+    }
     if (line.type === "animal") {
       const animal = animals.find((a) => a.id === line.id);
-      if (!animal || animal.status !== "available") {
+      if (!animal || animal.status !== "available" || animal.quantity < line.quantity) {
         throw new Error(`Animal non disponible / Animal not available: ${line.id}`);
       }
     } else {
@@ -55,7 +58,7 @@ export async function validateCartLines(cart: CartLineInput[]): Promise<Validate
   const subtotalCAD = cart.reduce((sum, line) => {
     if (line.type === "animal") {
       const animal = animals.find((a) => a.id === line.id)!;
-      return sum + Number(animal.priceCAD);
+      return sum + Number(animal.priceCAD) * line.quantity;
     }
     const product = products.find((p) => p.id === line.id)!;
     return sum + Number(product.priceCAD) * line.quantity;
@@ -116,21 +119,23 @@ async function writeOrderItems(
         data: {
           orderId,
           animalId: animal.id,
-          quantity: 1,
+          quantity: line.quantity,
           priceAtSaleCAD: animal.priceCAD,
         },
       });
-      if (reserveInventory) {
-        await tx.animal.update({
-          where: { id: animal.id },
-          data: { status: "reserved" },
-        });
-      } else {
-        await tx.animal.update({
-          where: { id: animal.id },
-          data: { status: "sold" },
-        });
+      // Units come off the listing; only the last one takes the animal off
+      // sale (reserved while payment is pending, sold otherwise).
+      const claimed = await tx.animal.updateMany({
+        where: { id: animal.id, quantity: { gte: line.quantity } },
+        data: { quantity: { decrement: line.quantity } },
+      });
+      if (claimed.count === 0) {
+        throw new Error(`Animal non disponible / Animal not available: ${animal.id}`);
       }
+      await tx.animal.updateMany({
+        where: { id: animal.id, quantity: 0, status: "available" },
+        data: { status: reserveInventory ? "reserved" : "sold" },
+      });
     } else {
       const product = validated.products.find((p) => p.id === line.id)!;
       await tx.orderItem.create({
@@ -278,7 +283,7 @@ export async function fulfillPaidOrder(
     for (const item of order.items) {
       if (item.animalId) {
         await tx.animal.updateMany({
-          where: { id: item.animalId, status: { in: ["reserved", "available"] } },
+          where: { id: item.animalId, quantity: 0, status: { in: ["reserved", "available"] } },
           data: { status: "sold" },
         });
       }
@@ -350,7 +355,7 @@ export async function pushCloverStockForOrder(orderId: string) {
   await pushSoldItemsToClover(
     order.items.flatMap((item) => {
       if (item.animal?.cloverItemId) {
-        return [{ cloverItemId: item.animal.cloverItemId, nextStockQty: 0 }];
+        return [{ cloverItemId: item.animal.cloverItemId, nextStockQty: item.animal.quantity }];
       }
       if (item.product?.cloverItemId) {
         return [{ cloverItemId: item.product.cloverItemId, nextStockQty: item.product.stockQty }];
@@ -369,7 +374,7 @@ export function buildStripeLineItems(
       const animal = validated.animals.find((a) => a.id === line.id)!;
       const speciesName =
         locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
-      return { name: `${speciesName} — ${animal.morph}`, unitAmountCAD: Number(animal.priceCAD), quantity: 1 };
+      return { name: `${speciesName} — ${animal.morph}`, unitAmountCAD: Number(animal.priceCAD), quantity: line.quantity };
     }
     const product = validated.products.find((p) => p.id === line.id)!;
     const name = locale === "en" ? product.nameEn : product.nameFr;
