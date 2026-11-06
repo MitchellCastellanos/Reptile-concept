@@ -5,10 +5,12 @@ import type { Product } from "@/generated/prisma/client";
 import { PhotoUploadField } from "@/components/admin/photo-upload-field";
 import { GalleryUrlsField } from "@/components/admin/gallery-urls-field";
 import { PRODUCT_CATEGORIES as CATEGORY_OPTIONS } from "@/lib/product-categories";
+import { VariantsField, type VariantRow } from "./variants-field";
 
 export function ProductForm({
   product,
   extraPhotoUrls = [],
+  variants: initialVariants = [],
   action,
   prefill,
   returnTo,
@@ -17,12 +19,16 @@ export function ProductForm({
   // can't cross the server/client component boundary as props.
   product?: Omit<Product, "priceCAD"> & { priceCAD: number };
   extraPhotoUrls?: string[];
+  variants?: VariantRow[];
   action: (formData: FormData) => void;
   prefill?: { cloverItemId: string; suggestedName?: string; priceCAD?: number };
   // List URL (page/filters) to go back to after saving.
   returnTo?: string;
 }) {
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
+  const [variants, setVariants] = useState<VariantRow[]>(initialVariants);
+  // With size options, price/stock are derived from them (lowest price, summed stock).
+  const hasVariants = variants.length > 0;
 
   return (
     <form action={action} className="flex max-w-lg flex-col gap-4">
@@ -94,7 +100,8 @@ export function ProductForm({
           step="0.01"
           name="priceCAD"
           defaultValue={product ? Number(product.priceCAD) : prefill?.priceCAD}
-          required
+          required={!hasVariants}
+          readOnly={hasVariants}
           className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
         />
       </label>
@@ -105,10 +112,18 @@ export function ProductForm({
           type="number"
           name="stockQty"
           defaultValue={product?.stockQty ?? 0}
-          required
+          required={!hasVariants}
+          readOnly={hasVariants}
           className="rounded border border-black/20 px-3 py-2 dark:border-white/20 dark:bg-black"
         />
       </label>
+
+      <VariantsField rows={variants} onChange={setVariants} />
+      {hasVariants ? (
+        <p className="-mt-2 text-xs text-zinc-500">
+          Le prix et le stock ci-dessus sont calculés automatiquement à partir des options.
+        </p>
+      ) : null}
 
       <label className="flex items-center gap-2 text-sm">
         <input

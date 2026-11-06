@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { TOP_LEVEL_PRODUCT } from "@/lib/product-variants";
 import { isProductCategory, productCategoryFilter } from "@/lib/product-categories";
 import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
 import { isListingSort, isStockFilter, type ListingSort, type StockFilter } from "@/lib/listing";
@@ -81,6 +82,7 @@ export async function getProducts(
   const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "in_stock";
   const search = opts?.q?.trim();
   const where = {
+    ...TOP_LEVEL_PRODUCT,
     ...(opts?.publishedOnly ? { published: true } : {}),
     ...productCategoryWhere(category),
     ...(stock === "in_stock" ? { stockQty: { gt: 0 } } : {}),
@@ -90,6 +92,7 @@ export async function getProducts(
   const [items, total] = await Promise.all([
     prisma.product.findMany({
       where,
+      include: VARIANT_COUNT,
       orderBy: orderByForSort(opts?.sort),
       ...(opts?.pagination
         ? { skip: (opts.pagination.page - 1) * opts.pagination.pageSize, take: opts.pagination.pageSize }
@@ -104,10 +107,12 @@ export async function getProducts(
 export function getFeaturedOutOfStockProducts(category?: string, limit = FEATURED_OUT_OF_STOCK_LIMIT) {
   return prisma.product.findMany({
     where: {
+      ...TOP_LEVEL_PRODUCT,
       published: true,
       stockQty: { lte: 0 },
       ...productCategoryWhere(category),
     },
+    include: VARIANT_COUNT,
     orderBy: { updatedAt: "desc" },
     take: limit,
   });
@@ -120,6 +125,17 @@ export function getProductById(id: string, opts?: { publishedOnly?: boolean }) {
       ...(opts?.publishedOnly ? { published: true } : {}),
     },
     include: { media: { orderBy: { sortOrder: "asc" } } },
+  });
+}
+
+/** Lets listing cards know a product is a size-option container. */
+const VARIANT_COUNT = { _count: { select: { variants: true } } } as const;
+
+/** Size options of a parent product, cheapest/first-listed first. */
+export function getProductVariants(parentId: string, opts?: { publishedOnly?: boolean }) {
+  return prisma.product.findMany({
+    where: { parentId, ...(opts?.publishedOnly ? { published: true } : {}) },
+    orderBy: [{ variantSortOrder: "asc" }, { createdAt: "asc" }],
   });
 }
 
@@ -141,11 +157,13 @@ export function getRelatedAnimals(category: string, excludeId: string, limit = 4
 export function getRelatedProducts(category: string, excludeId: string, limit = 4) {
   return prisma.product.findMany({
     where: {
+      ...TOP_LEVEL_PRODUCT,
       published: true,
       stockQty: { gt: 0 },
       id: { not: excludeId },
       ...(isProductCategory(category) ? { category } : {}),
     },
+    include: VARIANT_COUNT,
     orderBy: { createdAt: "desc" },
     take: limit,
   });

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { getProductById, getRelatedProducts } from "@/lib/queries";
+import { redirect } from "@/i18n/navigation";
+import { getProductById, getProductVariants, getRelatedProducts } from "@/lib/queries";
 import { getProductImageUrl } from "@/lib/images";
 import { getProductRatings } from "@/lib/ratings";
 import { getSiteUrl } from "@/lib/site-url";
@@ -15,6 +16,7 @@ import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
 import { ShareButton } from "@/components/share-button";
 import { NotifyMeForm } from "./notify-me-form";
+import { VariantPicker } from "./variant-picker";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
 
@@ -67,6 +69,8 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const locale = await getLocale();
+  // A size option has no page of its own — send old links/wishlist entries to its parent.
+  if (product.parentId) redirect({ href: `/boutique/${product.parentId}`, locale });
   const t = await getTranslations("Boutique");
   const tCategories = await getTranslations("NavCategories");
   const name = locale === "en" ? product.nameEn : product.nameFr;
@@ -76,7 +80,8 @@ export default async function ProductDetailPage({
       ? product.media.map((m) => m.url)
       : [product.imageUrl || getProductImageUrl(product.category)];
 
-  const [customer, ratings, relatedProducts] = await Promise.all([
+  const [variants, customer, ratings, relatedProducts] = await Promise.all([
+    getProductVariants(product.id, { publishedOnly: true }),
     getCurrentCustomer(),
     getProductRatings([product.id]),
     getRelatedProducts(product.category, product.id),
@@ -98,13 +103,13 @@ export default async function ProductDetailPage({
     description,
     image: galleryImages,
     sku: product.sku,
-    offers: {
+    offers: (variants.length > 0 ? variants : [product]).map((v) => ({
       "@type": "Offer",
+      sku: v.sku,
       priceCurrency: "CAD",
-      price: Number(product.priceCAD),
-      availability:
-        product.stockQty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-    },
+      price: Number(v.priceCAD),
+      availability: v.stockQty > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+    })),
     ...(rating
       ? {
           aggregateRating: {
@@ -141,28 +146,47 @@ export default async function ProductDetailPage({
 
           {rating ? <RatingStars rating={rating.average} count={rating.count} /> : null}
 
-          <div>
-            <p className="text-2xl font-bold text-primary">{Number(product.priceCAD)} $ CAD</p>
-            <KlarnaInstallments priceCAD={Number(product.priceCAD)} className="mt-1" />
-          </div>
-
-          <p className="text-sm font-medium text-muted">
-            {product.stockQty > 0 ? t("inStock") : t("outOfStock")}
-          </p>
-
-          {description ? (
-            <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
-          ) : null}
-
-          {product.stockQty > 0 ? (
-            <AddProductToCartButton
-              id={product.id}
-              name={name}
-              priceCAD={Number(product.priceCAD)}
-              stockQty={product.stockQty}
-            />
+          {variants.length > 0 ? (
+            <>
+              {description ? (
+                <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
+              ) : null}
+              <VariantPicker
+                variants={variants.map((v) => ({
+                  id: v.id,
+                  label: (locale === "en" ? v.variantLabelEn : v.variantLabelFr) || v.sku,
+                  name: locale === "en" ? v.nameEn : v.nameFr,
+                  priceCAD: Number(v.priceCAD),
+                  stockQty: v.stockQty,
+                }))}
+              />
+            </>
           ) : (
-            <NotifyMeForm productId={product.id} />
+            <>
+              <div>
+                <p className="text-2xl font-bold text-primary">{Number(product.priceCAD)} $ CAD</p>
+                <KlarnaInstallments priceCAD={Number(product.priceCAD)} className="mt-1" />
+              </div>
+
+              <p className="text-sm font-medium text-muted">
+                {product.stockQty > 0 ? t("inStock") : t("outOfStock")}
+              </p>
+
+              {description ? (
+                <p className="whitespace-pre-line leading-relaxed text-muted">{description}</p>
+              ) : null}
+
+              {product.stockQty > 0 ? (
+                <AddProductToCartButton
+                  id={product.id}
+                  name={name}
+                  priceCAD={Number(product.priceCAD)}
+                  stockQty={product.stockQty}
+                />
+              ) : (
+                <NotifyMeForm productId={product.id} />
+              )}
+            </>
           )}
 
           <PaymentBadges />

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { TOP_LEVEL_PRODUCT } from "@/lib/product-variants";
 import { prisma } from "@/lib/db";
 import { getSiteUrl } from "@/lib/site-url";
 import { routing } from "@/i18n/routing";
@@ -10,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [animals, products] = await Promise.all([
     prisma.animal.findMany({ where: { status: "available" }, select: { id: true, updatedAt: true } }),
-    prisma.product.findMany({ where: { published: true }, select: { id: true, updatedAt: true } }),
+    prisma.product.findMany({ where: { published: true, ...TOP_LEVEL_PRODUCT }, select: { id: true, updatedAt: true } }),
   ]);
 
   const entries: MetadataRoute.Sitemap = [];

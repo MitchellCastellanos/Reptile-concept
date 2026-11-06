@@ -1,4 +1,5 @@
 import type { Prisma } from "@/generated/prisma/client";
+import { TOP_LEVEL_PRODUCT } from "@/lib/product-variants";
 import { prisma } from "@/lib/db";
 import { animalCategoriesInGroup, isAnimalCategory, isAnimalCategoryGroup } from "@/lib/animal-categories";
 import { productCategoryFilter } from "@/lib/product-categories";
@@ -60,7 +61,8 @@ export async function searchCatalog(query: string) {
       take: SEARCH_RESULT_LIMIT,
     }),
     prisma.product.findMany({
-      where: { published: true, ...productTextSearchWhere(q) },
+      where: { ...TOP_LEVEL_PRODUCT, published: true, ...productTextSearchWhere(q) },
+      include: { _count: { select: { variants: true } } },
       take: SEARCH_RESULT_LIMIT,
     }),
   ]);
@@ -100,6 +102,7 @@ export async function searchListingSuggestions(
   const stock: StockFilter = isStockFilter(opts?.stock) ? opts.stock : "in_stock";
   const products = await prisma.product.findMany({
     where: {
+      ...TOP_LEVEL_PRODUCT,
       published: true,
       ...productCategoryWhere(opts?.category),
       ...productStockWhere(stock),

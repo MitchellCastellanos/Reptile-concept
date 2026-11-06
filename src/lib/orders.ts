@@ -1,4 +1,5 @@
 import { Prisma } from "@/generated/prisma/client";
+import { syncParentOfProduct } from "@/lib/product-variants";
 
 export async function restoreOrderInventory(tx: Prisma.TransactionClient, orderId: string) {
   const items = await tx.orderItem.findMany({ where: { orderId } });
@@ -18,6 +19,7 @@ export async function restoreOrderInventory(tx: Prisma.TransactionClient, orderI
         where: { id: item.productId },
         data: { stockQty: { increment: item.quantity } },
       });
+      await syncParentOfProduct(tx, item.productId);
     }
   }
 }

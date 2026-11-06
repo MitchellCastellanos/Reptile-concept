@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { syncParentOfProduct } from "@/lib/product-variants";
 import { pushSoldItemsToClover } from "@/lib/clover-sync";
 import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
 import { restoreOrderInventory } from "@/lib/orders";
@@ -25,7 +26,10 @@ async function loadAnimals(ids: string[]) {
 
 async function loadProducts(ids: string[]) {
   return ids.length
-    ? prisma.product.findMany({ where: { id: { in: ids } } })
+    ? prisma.product.findMany({
+        where: { id: { in: ids } },
+        include: { _count: { select: { variants: true } } },
+      })
     : Promise.resolve([]);
 }
 
@@ -49,7 +53,8 @@ export async function validateCartLines(cart: CartLineInput[]): Promise<Validate
       }
     } else {
       const product = products.find((p) => p.id === line.id);
-      if (!product || !product.published || product.stockQty < line.quantity) {
+      // A product with size options is only a container — its variants are what get sold.
+      if (!product || !product.published || product._count.variants > 0 || product.stockQty < line.quantity) {
         throw new Error(`Stock insuffisant / Insufficient stock: ${line.id}`);
       }
     }
@@ -150,6 +155,7 @@ async function writeOrderItems(
         where: { id: product.id },
         data: { stockQty: { decrement: line.quantity } },
       });
+      await syncParentOfProduct(tx, product.id);
     }
   }
 }

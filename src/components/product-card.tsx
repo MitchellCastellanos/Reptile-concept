@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getProductImageUrl } from "@/lib/images";
 import { isBackInStock } from "@/lib/product-stock";
@@ -16,6 +17,8 @@ type ProductCardProduct = {
   priceCAD: { toString(): string } | number;
   stockQty: number;
   stockRestockedAt?: Date | null;
+  // Present on listing queries — a product with size options is a container.
+  _count?: { variants: number };
 };
 
 export function ProductCard({
@@ -39,7 +42,9 @@ export function ProductCard({
   isLoggedIn?: boolean;
   rating?: { average: number; count: number };
 }) {
+  const t = useTranslations("Boutique");
   const name = locale === "en" ? product.nameEn : product.nameFr;
+  const hasVariants = (product._count?.variants ?? 0) > 0;
   const imageUrl = product.imageUrl || getProductImageUrl(product.category);
   const showBackInStock = backInStockLabel && isBackInStock(product);
 
@@ -80,17 +85,31 @@ export function ProductCard({
           {name}
         </Link>
         {rating ? <RatingStars rating={rating.average} count={rating.count} /> : null}
-        <p className="text-sm font-medium text-primary">{Number(product.priceCAD)} $ CAD</p>
+        <p className="text-sm font-medium text-primary">
+          {hasVariants ? `${t("fromPrice")} ` : ""}
+          {Number(product.priceCAD)} $ CAD
+        </p>
         <KlarnaInstallments priceCAD={Number(product.priceCAD)} />
         <p className="text-xs text-muted">
           {product.stockQty > 0 ? inStockLabel : outOfStockLabel}
         </p>
-        <AddProductToCartButton
-          id={product.id}
-          name={name}
-          priceCAD={Number(product.priceCAD)}
-          stockQty={product.stockQty}
-        />
+        {hasVariants ? (
+          product.stockQty > 0 ? (
+            <Link
+              href={`/boutique/${product.id}`}
+              className="w-fit rounded-full bg-primary px-4 py-2 text-xs font-medium text-white transition hover:bg-primary-light"
+            >
+              {t("chooseSize")}
+            </Link>
+          ) : null
+        ) : (
+          <AddProductToCartButton
+            id={product.id}
+            name={name}
+            priceCAD={Number(product.priceCAD)}
+            stockQty={product.stockQty}
+          />
+        )}
       </div>
     </div>
   );

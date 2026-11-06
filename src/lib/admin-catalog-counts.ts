@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { TOP_LEVEL_PRODUCT } from "@/lib/product-variants";
 import { isCareSheetIncomplete } from "@/lib/species-utils";
 
 export const CLOVER_PLACEHOLDER_SPECIES_PREFIX = "clover-species-";
@@ -31,7 +32,7 @@ export async function getAdminCatalogCounts() {
   ).length;
 
   const productsUnpublishedInStock = await prisma.product.count({
-    where: { published: false, stockQty: { gt: 0 } },
+    where: { ...TOP_LEVEL_PRODUCT, published: false, stockQty: { gt: 0 } },
   });
 
   return { animalsNeedingAttention, speciesIncomplete, productsUnpublishedInStock };

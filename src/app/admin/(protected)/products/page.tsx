@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { TOP_LEVEL_PRODUCT } from "@/lib/product-variants";
 import { prisma } from "@/lib/db";
 import { isProductCategory, PRODUCT_CATEGORIES } from "@/lib/product-categories";
 import {
@@ -66,6 +67,7 @@ export default async function AdminProductsPage({
   const { q, page, perPage, sort, dir, category, published, stock, attention } = params;
 
   const where = {
+    ...TOP_LEVEL_PRODUCT,
     ...(isProductCategory(category) ? { category } : {}),
     ...(published === "yes" ? { published: true } : {}),
     ...(published === "no" ? { published: false } : {}),

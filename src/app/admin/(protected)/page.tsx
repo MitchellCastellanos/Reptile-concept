@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 export default async function AdminDashboard() {
   const [animalCount, productCount, pendingImport, customerCount] = await Promise.all([
     prisma.animal.count({ where: { status: "available" } }),
-    prisma.product.count({ where: { published: true } }),
+    prisma.product.count({ where: { published: true, parentId: null } }),
     prisma.cloverImportCandidate.count({ where: { status: "pending" } }),
     prisma.customer.count(),
   ]);

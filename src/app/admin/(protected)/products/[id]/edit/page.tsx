@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { safeAdminReturnTo, withAdminFocus } from "@/lib/admin-catalog-listing";
 import { ProductForm } from "../../product-form";
@@ -16,9 +16,14 @@ export default async function EditProductPage({
   const returnTo = safeAdminReturnTo("/admin/products", (await searchParams).returnTo);
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { media: { orderBy: { sortOrder: "asc" } } },
+    include: {
+      media: { orderBy: { sortOrder: "asc" } },
+      variants: { orderBy: [{ variantSortOrder: "asc" }, { createdAt: "asc" }] },
+    },
   });
   if (!product) notFound();
+  // A size option is edited through its parent product.
+  if (product.parentId) redirect(`/admin/products/${product.parentId}/edit`);
 
   const boundAction = updateProductAction.bind(null, id);
 
@@ -34,6 +39,15 @@ export default async function EditProductPage({
       <ProductForm
         product={{ ...product, priceCAD: Number(product.priceCAD) }}
         extraPhotoUrls={product.media.map((m) => m.url)}
+        variants={product.variants.map((v) => ({
+          id: v.id,
+          labelFr: v.variantLabelFr ?? "",
+          labelEn: v.variantLabelEn ?? "",
+          sku: v.sku,
+          priceCAD: String(Number(v.priceCAD)),
+          stockQty: String(v.stockQty),
+          cloverItemId: v.cloverItemId ?? "",
+        }))}
         action={boundAction}
         returnTo={returnTo}
       />

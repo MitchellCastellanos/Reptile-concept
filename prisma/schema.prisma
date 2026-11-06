@@ -249,6 +249,16 @@ model Product {
   published         Boolean         @default(false)
   requiresColdChain Boolean         @default(false)
   weightKg          Float?
+  // Size/variant options ("Pinky", "Fuzzy", "Adult"…). A variant is a full
+  // Product of its own (own SKU, price, stock, Clover link) pointing at a
+  // parent "container" product that the storefront lists. The parent's
+  // stockQty/priceCAD are derived from its variants (see product-variants.ts).
+  parentId          String?
+  parent            Product?        @relation("ProductVariants", fields: [parentId], references: [id], onDelete: Cascade)
+  variants          Product[]       @relation("ProductVariants")
+  variantLabelFr    String?
+  variantLabelEn    String?
+  variantSortOrder  Int             @default(0)
   bundleItems       BundleItem[]
   orderItems        OrderItem[]
   wishlistItems     WishlistItem[]
@@ -260,6 +270,8 @@ model Product {
   cloverSaleItems   CloverSaleItem[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+
+  @@index([parentId])
 }
 
 // Public opt-in: "email me when this is back in stock" for an out-of-stock

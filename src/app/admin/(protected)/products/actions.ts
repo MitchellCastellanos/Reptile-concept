@@ -9,6 +9,7 @@ import { recordAudit } from "@/lib/audit";
 import { releaseUnusedBlobs } from "@/lib/blob-cleanup";
 import { notifyStockSubscribers } from "@/lib/stock-notifications";
 import type { ProductCategoryValue } from "@/lib/product-categories";
+import { parseVariantInputs, syncVariantParent } from "@/lib/product-variants";
 
 function readProductForm(formData: FormData) {
   return {
@@ -42,6 +43,97 @@ async function saveProductGallery(productId: string, formData: FormData) {
   }
 }
 
+/**
+ * Size options ("Pinky", "Adult"…) are stored as child Products, so each keeps
+ * its own SKU, price, stock and Clover link. Fully reconciled on every save:
+ * rows with an id update that child, rows without create one, and children
+ * missing from the form are deleted — or detached (unpublished, no longer a
+ * child) when sales history still points at them.
+ */
+async function saveProductVariants(
+  parent: { id: string; category: ProductCategoryValue; nameFr: string; nameEn: string; imageUrl: string | null; published: boolean; requiresColdChain: boolean },
+  formData: FormData,
+) {
+  const inputs = parseVariantInputs(formData.get("variants"));
+  const existing = await prisma.product.findMany({ where: { parentId: parent.id } });
+  if (inputs.length === 0 && existing.length === 0) return { restockedParent: false };
+
+  for (const v of inputs) {
+    if (!v.labelFr || !v.sku || !Number.isFinite(v.priceCAD) || v.priceCAD < 0) {
+      throw new Error("Chaque taille doit avoir un nom (FR), un SKU et un prix valide.");
+    }
+  }
+
+  const kept = new Set(inputs.map((v) => v.id).filter(Boolean));
+  const removed = existing.filter((e) => !kept.has(e.id));
+  const restockedIds: string[] = [];
+  let restockedParent = false;
+
+  await prisma.$transaction(async (tx) => {
+    for (const child of removed) {
+      const [orders, posSales, cloverSales] = await Promise.all([
+        tx.orderItem.count({ where: { productId: child.id } }),
+        tx.posSaleItem.count({ where: { productId: child.id } }),
+        tx.cloverSaleItem.count({ where: { productId: child.id } }),
+      ]);
+      if (orders + posSales + cloverSales > 0) {
+        await tx.product.update({
+          where: { id: child.id },
+          data: { parentId: null, published: false },
+        });
+      } else {
+        await tx.product.delete({ where: { id: child.id } });
+      }
+    }
+
+    for (const [index, v] of inputs.entries()) {
+      const labelEn = v.labelEn || v.labelFr;
+      const data = {
+        parentId: parent.id,
+        sku: v.sku,
+        category: parent.category,
+        nameFr: `${parent.nameFr} — ${v.labelFr}`,
+        nameEn: `${parent.nameEn} — ${labelEn}`,
+        variantLabelFr: v.labelFr,
+        variantLabelEn: labelEn,
+        variantSortOrder: index,
+        imageUrl: parent.imageUrl,
+        priceCAD: v.priceCAD,
+        stockQty: v.stockQty,
+        published: parent.published,
+        requiresColdChain: parent.requiresColdChain,
+        cloverItemId: v.cloverItemId,
+      };
+      const current = v.id ? existing.find((e) => e.id === v.id) : undefined;
+      if (current) {
+        const restocked = current.stockQty <= 0 && v.stockQty > 0;
+        if (restocked) restockedIds.push(current.id);
+        await tx.product.update({
+          where: { id: current.id },
+          data: {
+            ...data,
+            ...(restocked ? { stockRestockedAt: new Date() } : {}),
+            ...(v.stockQty <= 0 ? { stockRestockedAt: null } : {}),
+          },
+        });
+      } else {
+        await tx.product.create({
+          data: { ...data, stockRestockedAt: v.stockQty > 0 ? new Date() : null },
+        });
+      }
+    }
+
+    restockedParent = (await syncVariantParent(tx, parent.id)).parentRestocked;
+  });
+
+  for (const id of restockedIds) {
+    notifyStockSubscribers(id).catch((err) =>
+      console.error("[admin] failed to notify stock subscribers:", err),
+    );
+  }
+  return { restockedParent };
+}
+
 export async function createProductAction(formData: FormData) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
@@ -49,6 +141,7 @@ export async function createProductAction(formData: FormData) {
   const data = readProductForm(formData);
   const product = await prisma.product.create({ data });
   await saveProductGallery(product.id, formData);
+  await saveProductVariants(product, formData);
   await recordAudit(admin.id, "Product", product.id, "create");
 
   if (data.cloverItemId) {
@@ -84,10 +177,11 @@ export async function updateProductAction(id: string, formData: FormData) {
     },
   });
   await saveProductGallery(id, formData);
+  const variantResult = await saveProductVariants({ id, ...data }, formData);
   await releaseUnusedBlobs([existing.imageUrl, ...oldGallery.map((m) => m.url)]);
   await recordAudit(admin.id, "Product", id, "update");
 
-  if (restocked) {
+  if (restocked || variantResult.restockedParent) {
     notifyStockSubscribers(id).catch((err) =>
       console.error("[admin] failed to notify stock subscribers:", err),
     );

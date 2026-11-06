@@ -11,6 +11,7 @@
 //   exactly-once delivery, and dropped inventory events are how a live
 //   animal ends up sold twice.
 import { prisma } from "@/lib/db";
+import { syncParentOfProduct } from "@/lib/product-variants";
 import { notifyStockSubscribers } from "@/lib/stock-notifications";
 import {
   fetchCloverOrder,
@@ -131,6 +132,7 @@ export async function processCloverOrder(order: CloverOrder): Promise<ProcessOrd
       } else if (product) {
         const nextStockQty = Math.max(0, product.stockQty - quantity);
         await tx.product.update({ where: { id: product.id }, data: { stockQty: nextStockQty } });
+        await syncParentOfProduct(tx, product.id);
       }
     }
 
@@ -243,6 +245,13 @@ async function syncLinkedProductFromItem(product: LinkedProduct, item: CloverIte
 
   if (restocked) {
     notifyStockSubscribers(product.id).catch((err) =>
+      console.error("[clover-sync] failed to notify stock subscribers:", err),
+    );
+  }
+  // A size variant keeps its parent's price/stock summary up to date.
+  const parentSync = await syncParentOfProduct(prisma, product.id);
+  if (parentSync.parentId && parentSync.parentRestocked) {
+    notifyStockSubscribers(parentSync.parentId).catch((err) =>
       console.error("[clover-sync] failed to notify stock subscribers:", err),
     );
   }
