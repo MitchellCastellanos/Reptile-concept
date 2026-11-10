@@ -11,6 +11,45 @@ import { notifyStockSubscribers } from "@/lib/stock-notifications";
 import type { ProductCategoryValue } from "@/lib/product-categories";
 import { parseVariantInputs, syncVariantParent } from "@/lib/product-variants";
 
+export type ProductFormState = { error?: string } | undefined;
+
+/**
+ * SKUs and Clover item ids are unique across the whole catalogue. Checking up
+ * front (before anything is written) gives staff a readable message instead of
+ * a crash, and avoids saving a parent product whose sizes then fail.
+ */
+async function findCatalogConflict(
+  parent: { sku: string; cloverItemId: string | null },
+  variants: { id?: string; sku: string; cloverItemId: string | null }[],
+  parentId?: string,
+): Promise<string | null> {
+  const skus = [parent.sku, ...variants.map((v) => v.sku)].filter(Boolean);
+  const dupInForm = skus.find((sku, i) => skus.indexOf(sku) !== i);
+  if (dupInForm) return `Le SKU « ${dupInForm} » est utilisé plus d'une fois dans ce formulaire.`;
+
+  const cloverIds = [parent.cloverItemId, ...variants.map((v) => v.cloverItemId)].filter(
+    (id): id is string => Boolean(id),
+  );
+  const dupClover = cloverIds.find((id, i) => cloverIds.indexOf(id) !== i);
+  if (dupClover) return `Le Clover Item ID « ${dupClover} » est utilisé plus d'une fois dans ce formulaire.`;
+
+  // This product and its own current sizes may keep the values they already have.
+  const ownIds = [parentId, ...variants.map((v) => v.id)].filter((id): id is string => Boolean(id));
+  const clash = await prisma.product.findFirst({
+    where: {
+      id: { notIn: ownIds },
+      OR: [
+        { sku: { in: skus } },
+        ...(cloverIds.length ? [{ cloverItemId: { in: cloverIds } }] : []),
+      ],
+    },
+    select: { sku: true, nameFr: true, cloverItemId: true },
+  });
+  if (!clash) return null;
+  const what = skus.includes(clash.sku) ? `Le SKU « ${clash.sku} »` : `Le Clover Item ID « ${clash.cloverItemId} »`;
+  return `${what} existe déjà (produit : ${clash.nameFr}). Modifiez-le ou supprimez ce produit existant avant de l'utiliser comme taille.`;
+}
+
 function readProductForm(formData: FormData) {
   return {
     sku: String(formData.get("sku")),
@@ -134,11 +173,16 @@ async function saveProductVariants(
   return { restockedParent };
 }
 
-export async function createProductAction(formData: FormData) {
+export async function createProductAction(
+  _prev: ProductFormState,
+  formData: FormData,
+): Promise<ProductFormState> {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
   const data = readProductForm(formData);
+  const conflict = await findCatalogConflict(data, parseVariantInputs(formData.get("variants")));
+  if (conflict) return { error: conflict };
   const product = await prisma.product.create({ data });
   await saveProductGallery(product.id, formData);
   await saveProductVariants(product, formData);
@@ -159,13 +203,19 @@ export async function createProductAction(formData: FormData) {
   redirect("/admin/products");
 }
 
-export async function updateProductAction(id: string, formData: FormData) {
+export async function updateProductAction(
+  id: string,
+  _prev: ProductFormState,
+  formData: FormData,
+): Promise<ProductFormState> {
   const admin = await getCurrentAdmin();
   if (!admin) redirect("/admin/login");
 
   const existing = await prisma.product.findUniqueOrThrow({ where: { id } });
   const oldGallery = await prisma.media.findMany({ where: { productId: id }, select: { url: true } });
   const data = readProductForm(formData);
+  const conflict = await findCatalogConflict(data, parseVariantInputs(formData.get("variants")), id);
+  if (conflict) return { error: conflict };
   const restocked = existing.stockQty <= 0 && data.stockQty > 0;
 
   await prisma.product.update({

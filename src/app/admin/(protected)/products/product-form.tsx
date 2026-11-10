@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useActionState, useState } from "react";
 import type { Product } from "@/generated/prisma/client";
 import { PhotoUploadField } from "@/components/admin/photo-upload-field";
 import { GalleryUrlsField } from "@/components/admin/gallery-urls-field";
 import { PRODUCT_CATEGORIES as CATEGORY_OPTIONS } from "@/lib/product-categories";
+import type { ProductFormState } from "./actions";
 import { VariantsField, type VariantRow } from "./variants-field";
 
 export function ProductForm({
@@ -20,18 +21,27 @@ export function ProductForm({
   product?: Omit<Product, "priceCAD"> & { priceCAD: number };
   extraPhotoUrls?: string[];
   variants?: VariantRow[];
-  action: (formData: FormData) => void;
+  action: (prev: ProductFormState, formData: FormData) => Promise<ProductFormState>;
   prefill?: { cloverItemId: string; suggestedName?: string; priceCAD?: number };
   // List URL (page/filters) to go back to after saving.
   returnTo?: string;
 }) {
+  const [state, formAction, pending] = useActionState(action, undefined);
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
   const [variants, setVariants] = useState<VariantRow[]>(initialVariants);
   // With size options, price/stock are derived from them (lowest price, summed stock).
   const hasVariants = variants.length > 0;
 
   return (
-    <form action={action} className="flex max-w-lg flex-col gap-4">
+    <form
+      // Submitted as a transition (not the form `action` prop) so React doesn't
+      // reset the fields when the server returns a validation error.
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        startTransition(() => formAction(data));
+      }}
+      className="flex max-w-lg flex-col gap-4">
       {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
       <PhotoUploadField
         name="imageUrl"
@@ -159,11 +169,18 @@ export function ProductForm({
         </span>
       </label>
 
+      {state?.error ? (
+        <p role="alert" className="rounded border border-red-600/40 bg-red-600/10 px-3 py-2 text-sm text-red-700 dark:text-red-400">
+          {state.error}
+        </p>
+      ) : null}
+
       <button
         type="submit"
-        className="w-fit rounded bg-foreground px-4 py-2 text-sm font-medium text-background"
+        disabled={pending}
+        className="w-fit rounded bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-50"
       >
-        Enregistrer
+        {pending ? "Enregistrement…" : "Enregistrer"}
       </button>
     </form>
   );
