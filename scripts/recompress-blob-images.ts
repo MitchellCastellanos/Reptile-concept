@@ -23,7 +23,7 @@ config();
 
 import { put } from "@vercel/blob";
 import sharp from "sharp";
-import { disconnectDb, listAllBlobs, loadReferencedUrls, mb, requireBlobToken } from "./blob-shared";
+import { disconnectDb, isReferenced, listAllBlobs, loadReferencedUrls, mb, requireBlobToken } from "./blob-shared";
 
 const MAX_DIMENSION = 1600;
 const MIN_SAVING = 0.1; // replace only if at least 10% smaller
@@ -66,7 +66,7 @@ async function main() {
 
   const [referenced, blobs] = await Promise.all([loadReferencedUrls(), listAllBlobs()]);
   const candidates = blobs
-    .filter((b) => referenced.has(b.url) && b.size >= minBytes && formatFor(b.pathname))
+    .filter((b) => isReferenced(b, referenced) && b.size >= minBytes && formatFor(b.pathname))
     .sort((a, b) => b.size - a.size)
     .slice(0, limit);
 

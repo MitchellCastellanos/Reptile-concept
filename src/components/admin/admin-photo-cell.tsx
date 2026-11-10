@@ -18,6 +18,9 @@ export function AdminPhotoCell({
   const [open, setOpen] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(currentUrl ?? "");
   const [pending, startTransition] = useTransition();
+  // True only while an upload request is actually in flight (reported by the
+  // upload field), so saving can't race a photo that hasn't landed yet.
+  const [uploading, setUploading] = useState(false);
   const hasOwnPhoto = Boolean(currentUrl);
 
   function openModal() {
@@ -26,6 +29,7 @@ export function AdminPhotoCell({
   }
 
   function handleSave() {
+    if (uploading) return;
     const formData = new FormData();
     formData.set("id", id);
     formData.set("photoUrl", photoUrl);
@@ -102,6 +106,7 @@ export function AdminPhotoCell({
               label="Photo personnalisée"
               value={photoUrl}
               onChange={setPhotoUrl}
+              onUploadingChange={setUploading}
               placeholder="https://…"
             />
 
@@ -115,11 +120,11 @@ export function AdminPhotoCell({
               </button>
               <button
                 type="button"
-                disabled={pending}
+                disabled={pending || uploading}
                 onClick={handleSave}
                 className="rounded bg-foreground px-3 py-1.5 text-sm text-background disabled:opacity-50"
               >
-                {pending ? "Enregistrement..." : "Enregistrer"}
+                {pending ? "Enregistrement..." : uploading ? "Téléversement..." : "Enregistrer"}
               </button>
             </div>
           </div>
