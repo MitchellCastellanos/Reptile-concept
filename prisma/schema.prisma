@@ -300,6 +300,19 @@ model NewsletterSubscriber {
   unsubscribedAt DateTime?
 }
 
+// Checkout promo code: percentage off the pre-tax subtotal. Codes are stored
+// upper-case. expiresAt is an exclusive cutoff. firstPurchaseOnly codes are
+// refused for customers who already have a paid order.
+model PromoCode {
+  id                String    @id @default(uuid())
+  code              String    @unique
+  percentOff        Int
+  expiresAt         DateTime?
+  firstPurchaseOnly Boolean   @default(true)
+  active            Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+}
+
 model Bundle {
   id             String       @id @default(uuid())
   nameFr         String
@@ -394,6 +407,10 @@ model Order {
   gstAmountCAD              Decimal?
   qstAmountCAD              Decimal?
   totalCAD                  Decimal?
+  // Promo code applied at checkout (null = none). discountCAD is the pre-tax
+  // amount taken off subtotalCAD; gst/qst/total were computed after it.
+  promoCode                 String?
+  discountCAD               Decimal?
   healthGuaranteeAcceptedAt DateTime?
   preparingAt               DateTime?
   readyForPickupAt          DateTime?

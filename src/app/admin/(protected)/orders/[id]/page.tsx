@@ -108,6 +108,14 @@ export default async function AdminOrderDetailPage({
             <span>Sous-total</span>
             <span>{amounts.subtotalCAD.toFixed(2)} $</span>
           </p>
+          {amounts.discountCAD > 0 ? (
+            <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
+              <span>
+                Rabais{amounts.promoCode ? ` (${amounts.promoCode})` : ""}
+              </span>
+              <span>-{amounts.discountCAD.toFixed(2)} $</span>
+            </p>
+          ) : null}
           <p className="flex justify-between text-zinc-600 dark:text-zinc-400">
             <span>TPS</span>
             <span>{amounts.gstAmountCAD.toFixed(2)} $</span>

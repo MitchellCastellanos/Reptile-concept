@@ -40,6 +40,8 @@ function toEmailData(order: OrderWithRelations): OrderEmailData {
       priceCAD: Number(item.priceAtSaleCAD),
     })),
     subtotalCAD: amounts.subtotalCAD,
+    discountCAD: amounts.discountCAD,
+    promoCode: amounts.promoCode,
     gstAmountCAD: amounts.gstAmountCAD,
     qstAmountCAD: amounts.qstAmountCAD,
     totalCAD: amounts.totalCAD,

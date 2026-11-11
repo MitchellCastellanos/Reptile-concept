@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { computeTax } from "@/lib/tax";
-import { placeOrderAction } from "./actions";
+import { computeDiscount } from "@/lib/promo-math";
+import { placeOrderAction, previewPromoAction } from "./actions";
 
 type SavedAddress = {
   id: string;
@@ -33,13 +34,46 @@ export function CheckoutForm({
   const locale = useLocale();
   const router = useRouter();
   const [selectedAddressId, setSelectedAddressId] = useState<string>(addresses[0]?.id ?? "new");
+  const emailRef = useRef<HTMLInputElement>(null);
+  const [promoInput, setPromoInput] = useState("");
+  const [promo, setPromo] = useState<{ code: string; percentOff: number } | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [applying, startApplying] = useTransition();
 
   if (items.length === 0) {
     if (typeof window !== "undefined") router.replace("/cart");
     return null;
   }
 
-  const tax = computeTax(totalCAD, { gstRatePercent, qstRatePercent });
+  const discountCAD = promo ? computeDiscount(totalCAD, promo.percentOff) : 0;
+  const tax = computeTax(totalCAD - discountCAD, { gstRatePercent, qstRatePercent });
+
+  function applyPromo() {
+    setPromoError(null);
+    setPromo(null);
+    startApplying(async () => {
+      try {
+        const result = await previewPromoAction(
+          promoInput,
+          emailRef.current?.value ?? "",
+          items.map((i) => ({ type: i.type, id: i.id, quantity: i.quantity })),
+        );
+        if (result.ok) setPromo({ code: result.code, percentOff: result.percentOff });
+        else
+          setPromoError(
+            t(
+              result.error === "expired"
+                ? "promoExpired"
+                : result.error === "alreadyUsed"
+                  ? "promoAlreadyUsed"
+                  : "promoInvalid",
+            ),
+          );
+      } catch {
+        setPromoError(t("promoInvalid"));
+      }
+    });
+  }
   const usingSavedAddress = selectedAddressId !== "new";
 
   return (
@@ -58,8 +92,16 @@ export function CheckoutForm({
         <div className="mt-3 flex flex-col gap-1 border-t border-border pt-3 text-sm text-muted">
           <p className="flex justify-between">
             <span>{t("subtotal")}</span>
-            <span>{tax.subtotalCAD.toFixed(2)} $</span>
+            <span>{(tax.subtotalCAD + discountCAD).toFixed(2)} $</span>
           </p>
+          {promo ? (
+            <p className="flex justify-between">
+              <span>
+                {t("discount")} ({promo.code})
+              </span>
+              <span>-{discountCAD.toFixed(2)} $</span>
+            </p>
+          ) : null}
           <p className="flex justify-between">
             <span>{t("gst")}</span>
             <span>{tax.gstAmountCAD.toFixed(2)} $</span>
@@ -79,6 +121,40 @@ export function CheckoutForm({
 
       <form action={placeOrderAction} className="flex flex-col gap-4">
         <input type="hidden" name="cartJson" value={JSON.stringify(items)} />
+        <input type="hidden" name="promoCode" value={promo?.code ?? ""} />
+
+        <div className="flex flex-col gap-1 text-sm">
+          <label htmlFor="promoInput">{t("promoLabel")}</label>
+          <div className="flex gap-2">
+            <input
+              id="promoInput"
+              value={promoInput}
+              onChange={(e) => setPromoInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  if (promoInput.trim()) applyPromo();
+                }
+              }}
+              autoCapitalize="characters"
+              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 uppercase"
+            />
+            <button
+              type="button"
+              onClick={applyPromo}
+              disabled={applying || !promoInput.trim()}
+              className="rounded-lg border border-border px-4 py-2 text-sm font-medium hover:bg-accent-light disabled:opacity-50"
+            >
+              {t("promoApply")}
+            </button>
+          </div>
+          {promo ? (
+            <p className="text-green-700 dark:text-green-400">
+              {t("promoApplied", { percent: promo.percentOff })}
+            </p>
+          ) : null}
+          {promoError ? <p className="text-red-600 dark:text-red-400">{promoError}</p> : null}
+        </div>
 
         <label className="flex flex-col gap-1 text-sm">
           {t("fullName")}
@@ -92,6 +168,7 @@ export function CheckoutForm({
         <label className="flex flex-col gap-1 text-sm">
           Email
           <input
+            ref={emailRef}
             type="email"
             name="email"
             required

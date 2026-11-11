@@ -86,6 +86,9 @@ type CreateOrderInput = {
   // street/city/province/postalCode fields above.
   addressId?: string;
   validated: ValidatedCart;
+  // Pre-tax promo discount (0 when no code); gst/qst/total are already net of it.
+  promoCode?: string;
+  discountCAD: number;
   gstAmountCAD: number;
   qstAmountCAD: number;
   totalCAD: number;
@@ -187,6 +190,8 @@ export async function createPendingPaymentOrder(input: CreateOrderInput) {
         status: "pending_payment",
         healthGuaranteeAcceptedAt: new Date(),
         subtotalCAD: input.validated.subtotalCAD,
+        promoCode: input.promoCode ?? null,
+        discountCAD: input.promoCode ? input.discountCAD : null,
         gstAmountCAD: input.gstAmountCAD,
         qstAmountCAD: input.qstAmountCAD,
         totalCAD: input.totalCAD,
@@ -235,6 +240,8 @@ export async function createManualPaidOrder(input: CreateOrderInput) {
         status: "paid",
         healthGuaranteeAcceptedAt: new Date(),
         subtotalCAD: input.validated.subtotalCAD,
+        promoCode: input.promoCode ?? null,
+        discountCAD: input.promoCode ? input.discountCAD : null,
         gstAmountCAD: input.gstAmountCAD,
         qstAmountCAD: input.qstAmountCAD,
         totalCAD: input.totalCAD,
@@ -255,7 +262,7 @@ export async function createManualPaidOrder(input: CreateOrderInput) {
 
     await tx.customer.update({
       where: { id: customer.id },
-      data: { loyaltyPoints: { increment: pointsForSubtotal(input.validated.subtotalCAD) } },
+      data: { loyaltyPoints: { increment: pointsForSubtotal(input.validated.subtotalCAD - input.discountCAD) } },
     });
 
     return order.id;
@@ -283,7 +290,7 @@ export async function fulfillPaidOrder(
 
     await tx.customer.update({
       where: { id: order.customerId },
-      data: { loyaltyPoints: { increment: pointsForSubtotal(Number(order.subtotalCAD ?? 0)) } },
+      data: { loyaltyPoints: { increment: pointsForSubtotal(Number(order.subtotalCAD ?? 0) - Number(order.discountCAD ?? 0)) } },
     });
 
     for (const item of order.items) {

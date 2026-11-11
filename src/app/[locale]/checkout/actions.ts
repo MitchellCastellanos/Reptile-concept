@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { sendOrderConfirmationEmail, sendAdminNewSaleEmail } from "@/lib/order-notifications";
 import { getStoreSettings } from "@/lib/settings";
 import { computeTax } from "@/lib/tax";
+import { applyPromoCode, type PromoError } from "@/lib/promo";
 import {
   buildStripeLineItems,
   createManualPaidOrder,
@@ -53,7 +54,20 @@ export async function placeOrderAction(formData: FormData) {
   await refreshCartFromClover(cart);
   const validated = await validateCartLines(cart);
   const settings = await getStoreSettings();
-  const { gstAmountCAD, qstAmountCAD, totalCAD } = computeTax(validated.subtotalCAD, {
+
+  const promoInput = String(formData.get("promoCode") ?? "").trim();
+  let discountCAD = 0;
+  let promoCode: string | undefined;
+  if (promoInput) {
+    const promo = await applyPromoCode(promoInput, email, validated.subtotalCAD);
+    if (!promo.ok) {
+      throw new Error(`Code promo refusé (${promo.error}) / Promo code rejected (${promo.error})`);
+    }
+    discountCAD = promo.discountCAD;
+    promoCode = promo.code;
+  }
+
+  const { gstAmountCAD, qstAmountCAD, totalCAD } = computeTax(validated.subtotalCAD - discountCAD, {
     gstRatePercent: Number(settings.gstRatePercent),
     qstRatePercent: Number(settings.qstRatePercent),
   });
@@ -69,6 +83,8 @@ export async function placeOrderAction(formData: FormData) {
     postalCode,
     addressId,
     validated,
+    promoCode,
+    discountCAD,
     gstAmountCAD,
     qstAmountCAD,
     totalCAD,
@@ -95,6 +111,7 @@ export async function placeOrderAction(formData: FormData) {
     lineItems: buildStripeLineItems(validated, preferredLang),
     gstAmountCAD,
     qstAmountCAD,
+    discountCAD,
   });
 
   await prisma.payment.updateMany({
@@ -107,4 +124,22 @@ export async function placeOrderAction(formData: FormData) {
   }
 
   redirect(session.url);
+}
+
+export type PromoPreview =
+  | { ok: true; code: string; percentOff: number }
+  | { ok: false; error: PromoError };
+
+// Checkout-form "Apply" button: checks the code against this email and the
+// real (server-side) cart subtotal. placeOrderAction re-validates on submit.
+export async function previewPromoAction(
+  code: string,
+  email: string,
+  cart: CartLineInput[],
+): Promise<PromoPreview> {
+  const validated = await validateCartLines(cart);
+  const result = await applyPromoCode(code, email, validated.subtotalCAD);
+  return result.ok
+    ? { ok: true, code: result.code, percentOff: result.percentOff }
+    : { ok: false, error: result.error };
 }

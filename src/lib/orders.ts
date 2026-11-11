@@ -39,10 +39,14 @@ export function resolveOrderAmounts(order: {
   gstAmountCAD?: Prisma.Decimal | number | null;
   qstAmountCAD?: Prisma.Decimal | number | null;
   totalCAD?: Prisma.Decimal | number | null;
+  discountCAD?: Prisma.Decimal | number | null;
+  promoCode?: string | null;
 }) {
   const itemsSubtotal = calcOrderTotalCAD(order.items);
   return {
     subtotalCAD: order.subtotalCAD != null ? Number(order.subtotalCAD) : itemsSubtotal,
+    discountCAD: order.discountCAD != null ? Number(order.discountCAD) : 0,
+    promoCode: order.promoCode ?? null,
     gstAmountCAD: order.gstAmountCAD != null ? Number(order.gstAmountCAD) : 0,
     qstAmountCAD: order.qstAmountCAD != null ? Number(order.qstAmountCAD) : 0,
     totalCAD: order.totalCAD != null ? Number(order.totalCAD) : itemsSubtotal,

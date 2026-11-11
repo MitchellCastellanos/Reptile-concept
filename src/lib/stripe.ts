@@ -36,6 +36,10 @@ export type CreateCheckoutSessionInput = {
   lineItems: CheckoutLineItem[];
   gstAmountCAD: number;
   qstAmountCAD: number;
+  // Pre-tax promo discount. Line items stay at full price and tax lines are
+  // already computed on the discounted subtotal, so a one-time amount_off
+  // coupon of exactly this amount makes the charge equal the order total.
+  discountCAD?: number;
 };
 
 export async function createStripeCheckoutSession(input: CreateCheckoutSessionInput) {
@@ -80,8 +84,21 @@ export async function createStripeCheckoutSession(input: CreateCheckoutSessionIn
     });
   }
 
+  const discountCents = cadToStripeCents(input.discountCAD ?? 0);
+  const coupon =
+    discountCents > 0
+      ? await stripe.coupons.create({
+          amount_off: discountCents,
+          currency: "cad",
+          duration: "once",
+          max_redemptions: 1,
+          name: input.locale === "en" ? "Promo code" : "Code promo",
+        })
+      : null;
+
   return stripe.checkout.sessions.create({
     mode: "payment",
+    ...(coupon ? { discounts: [{ coupon: coupon.id }] } : {}),
     customer_email: input.customerEmail,
     line_items: stripeLineItems,
     payment_method_types: ["card", "klarna"],

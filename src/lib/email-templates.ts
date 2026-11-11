@@ -13,6 +13,8 @@ export type OrderEmailData = {
   customerName: string;
   items: OrderEmailItem[];
   subtotalCAD: number;
+  discountCAD?: number;
+  promoCode?: string | null;
   gstAmountCAD: number;
   qstAmountCAD: number;
   totalCAD: number;
@@ -52,6 +54,14 @@ function taxSummary(order: OrderEmailData, locale: Locale) {
   }
   const rows: [string, number][] = [
     [locale === "en" ? "Subtotal" : "Sous-total", order.subtotalCAD],
+    ...((order.discountCAD ?? 0) > 0
+      ? ([
+          [
+            `${locale === "en" ? "Promo" : "Rabais"}${order.promoCode ? ` (${order.promoCode})` : ""}`,
+            -(order.discountCAD ?? 0),
+          ],
+        ] as [string, number][])
+      : []),
     [locale === "en" ? "GST" : "TPS", order.gstAmountCAD],
     [locale === "en" ? "QST" : "TVQ", order.qstAmountCAD],
   ];
@@ -231,15 +241,22 @@ export function backInStockEmail(
   };
 }
 
-export function newsletterConfirmationEmail(locale: Locale, unsubscribeUrl: string, storeInfo: StoreContactInfo) {
+export function newsletterConfirmationEmail(
+  locale: Locale,
+  unsubscribeUrl: string,
+  storeInfo: StoreContactInfo,
+  promoCode?: string,
+) {
   const title = locale === "en" ? "You're subscribed!" : "Inscription confirmée!";
   const subject =
     locale === "en" ? `You're on the list — ${storeInfo.en.name}` : `Inscription confirmée — ${storeInfo.fr.name}`;
   const body =
     locale === "en"
       ? `<p>Thanks for signing up! You'll be the first to know about new arrivals, restocks, and news from ${storeInfo.en.name}.</p>
+         ${promoCode ? `<p>Here's your welcome gift: <strong>15% off your first purchase</strong> with code <strong>${promoCode}</strong> at checkout. Valid until December 31, 2026.</p>` : ""}
          <p style="color:#6b7280;font-size:12px;margin-top:16px;">Didn't sign up for this? <a href="${unsubscribeUrl}" style="color:#6b7280;">Unsubscribe</a>.</p>`
       : `<p>Merci de votre inscription! Vous serez parmi les premiers informés des nouveautés, réapprovisionnements et actualités de ${storeInfo.fr.name}.</p>
+         ${promoCode ? `<p>Votre cadeau de bienvenue : <strong>15 % de rabais sur votre première commande</strong> avec le code <strong>${promoCode}</strong> à la caisse. Valide jusqu'au 31 décembre 2026.</p>` : ""}
          <p style="color:#6b7280;font-size:12px;margin-top:16px;">Vous n'êtes pas à l'origine de cette inscription? <a href="${unsubscribeUrl}" style="color:#6b7280;">Se désabonner</a>.</p>`;
 
   return { subject, html: shell(locale, title, body, storeInfo) };
