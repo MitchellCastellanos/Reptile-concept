@@ -20,6 +20,7 @@ import { VariantPicker } from "./variant-picker";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
 import { PickupNotice } from "@/components/pickup-notice";
+import { isCricketName } from "@/lib/pickup";
 
 export async function generateMetadata({
   params,
@@ -190,7 +191,7 @@ export default async function ProductDetailPage({
             </>
           )}
 
-          <PickupNotice variant={product.category === "food_live" ? "liveFood" : "standard"} />
+          <PickupNotice variant={isCricketName(product.nameFr, product.nameEn) ? "crickets" : "standard"} />
           <PaymentBadges />
           <div className="flex items-center gap-3">
             <WishlistToggleButton

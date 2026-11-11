@@ -157,21 +157,21 @@ export function orderReadyForPickupEmail(
   deadline: Date,
   cancellationFeePercent: number,
   storeInfo: StoreContactInfo,
-  hasLiveFood = false,
+  hasCrickets = false,
 ) {
   const info = storeInfo[locale];
-  // Live food (crickets…) has a strict 48 h window, so the time of day matters.
+  // Crickets have a strict 48 h window, so the time of day matters.
   const deadlineStr = deadline.toLocaleString(locale === "en" ? "en-CA" : "fr-CA", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
-    ...(hasLiveFood ? { hour: "numeric", minute: "2-digit", timeZone: "America/Montreal" } : {}),
+    ...(hasCrickets ? { hour: "numeric", minute: "2-digit", timeZone: "America/Montreal" } : {}),
   });
-  const liveFoodNote =
+  const cricketsNote =
     locale === "en"
-      ? `<p style="font-size:13px;color:#6b7280;">Your order includes live food (e.g. crickets), which must be picked up within 48 hours.</p>`
-      : `<p style="font-size:13px;color:#6b7280;">Votre commande contient des aliments vivants (ex. grillons), à récupérer dans un délai de 48 heures.</p>`;
+      ? `<p style="font-size:13px;color:#6b7280;">Your order includes crickets, which must be picked up within 48 hours.</p>`
+      : `<p style="font-size:13px;color:#6b7280;">Votre commande contient des grillons, à récupérer dans un délai de 48 heures.</p>`;
 
   const subject =
     locale === "en"
@@ -188,7 +188,7 @@ export function orderReadyForPickupEmail(
            Please pick up your order by <strong>${deadlineStr}</strong>. After this date, the order will be
            automatically cancelled and refunded, minus a ${cancellationFeePercent}% cancellation fee.
          </p>
-         ${hasLiveFood ? liveFoodNote : ""}`
+         ${hasCrickets ? cricketsNote : ""}`
       : `<p>Bonjour ${order.customerName},</p>
          <p>Votre commande ${orderRef(order.orderId)} est prête à être récupérée à notre boutique de Lachine.</p>
          <p><strong>Horaires :</strong> ${info.hours}<br/><strong>Adresse :</strong> ${info.address}</p>
@@ -197,7 +197,7 @@ export function orderReadyForPickupEmail(
            Merci de récupérer votre commande avant le <strong>${deadlineStr}</strong>. Passé ce délai, la commande
            sera automatiquement annulée et remboursée, moins des frais d'annulation de ${cancellationFeePercent}%.
          </p>
-         ${hasLiveFood ? liveFoodNote : ""}`;
+         ${hasCrickets ? cricketsNote : ""}`;
 
   return { subject, html: shell(locale, subject, body, storeInfo) };
 }

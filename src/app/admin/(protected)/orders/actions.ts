@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { getStoreSettings } from "@/lib/settings";
-import { computePickupDeadline } from "@/lib/pickup";
+import { computePickupDeadline, cricketProductWhere } from "@/lib/pickup";
 import { restoreOrderInventory, resolveOrderAmounts } from "@/lib/orders";
 import {
   sendOrderPreparingEmail,
@@ -50,11 +50,11 @@ export async function markReadyForPickupAction(orderId: string) {
   const admin = await requireAdmin();
   const settings = await getStoreSettings();
   const readyAt = new Date();
-  const liveFoodCount = await prisma.orderItem.count({
-    where: { orderId, product: { category: "food_live" } },
+  const cricketCount = await prisma.orderItem.count({
+    where: { orderId, product: cricketProductWhere },
   });
-  const hasLiveFood = liveFoodCount > 0;
-  const deadline = computePickupDeadline(readyAt, settings.pickupDeadlineBusinessDays, hasLiveFood);
+  const hasCrickets = cricketCount > 0;
+  const deadline = computePickupDeadline(readyAt, settings.pickupDeadlineBusinessDays, hasCrickets);
 
   await prisma.$transaction(async (tx) => {
     const order = await tx.order.update({
@@ -81,7 +81,7 @@ export async function markReadyForPickupAction(orderId: string) {
   await recordAudit(admin.id, "Order", orderId, "update");
 
   try {
-    await sendOrderReadyForPickupEmail(orderId, deadline, Number(settings.cancellationFeePercent), hasLiveFood);
+    await sendOrderReadyForPickupEmail(orderId, deadline, Number(settings.cancellationFeePercent), hasCrickets);
   } catch (err) {
     console.error(`[orders] failed to send ready-for-pickup email for ${orderId}:`, err);
   }

@@ -188,7 +188,7 @@
     "title": "📍 In-store pickup only",
     "noDelivery": "We don't deliver at the moment: you pay online, then pick up your order at our Lachine, QC shop.",
     "standardWindow": "Pickup window: 5 business days after the \"ready for pickup\" notice.",
-    "liveFoodWindow": "Live food (e.g. crickets): must be picked up within 48 hours of the notice.",
+    "cricketsWindow": "Crickets: must be picked up within 48 hours of the notice.",
     "addressHelp": "No delivery: this address is for contact purposes only. Your order will be picked up in store."
   },
   "Cart": {
@@ -331,7 +331,7 @@
     "title": "Frequently asked questions",
     "subtitle": "Everything you need to know before visiting or ordering from Reptiles Concept.",
     "pickup_q": "How does pickup work?",
-    "pickup_a": "All orders are prepared for pickup at our Lachine, QC location. Once your order is ready, we'll email you with our hours and a pickup deadline: 5 business days, or 48 hours for live food (e.g. crickets). Please pick up within that window to avoid a cancellation fee.",
+    "pickup_a": "All orders are prepared for pickup at our Lachine, QC location. Once your order is ready, we'll email you with our hours and a pickup deadline: 5 business days, or 48 hours for crickets. Please pick up within that window to avoid a cancellation fee.",
     "shipping_q": "Do you ship orders?",
     "shipping_a": "Not yet — every order, animals and supplies alike, is for in-store pickup only in Lachine, QC.",
     "payment_q": "What payment methods do you accept?",
