@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
+import { PickupNotice } from "@/components/pickup-notice";
 
 export default function CartPage() {
   const { items, removeItem, setLineQuantity, totalCAD } = useCart();
@@ -73,6 +74,8 @@ export default function CartPage() {
           <KlarnaInstallments priceCAD={totalCAD} className="mt-1 justify-end" />
         </div>
       </div>
+
+      <PickupNotice />
 
       <Link
         href="/checkout"

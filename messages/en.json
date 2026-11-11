@@ -184,6 +184,13 @@
     "notifyMeSuccess": "You're on the list — we'll email you as soon as it's back.",
     "notifyMeError": "Please enter a valid email address."
   },
+  "Pickup": {
+    "title": "📍 In-store pickup only",
+    "noDelivery": "We don't deliver at the moment: you pay online, then pick up your order at our Lachine, QC shop.",
+    "standardWindow": "Pickup window: 5 business days after the \"ready for pickup\" notice.",
+    "liveFoodWindow": "Live food (e.g. crickets): must be picked up within 48 hours of the notice.",
+    "addressHelp": "No delivery: this address is for contact purposes only. Your order will be picked up in store."
+  },
   "Cart": {
     "title": "Cart",
     "empty": "Your cart is empty.",
@@ -207,7 +214,7 @@
     "total": "Total",
     "fullName": "Full name",
     "phone": "Phone",
-    "street": "Street address",
+    "street": "Contact address",
     "city": "City",
     "province": "Province",
     "postalCode": "Postal code",
@@ -220,6 +227,8 @@
     "promoApplied": "Code applied: {percent}% off your first purchase.",
     "promoInvalid": "This promo code isn't valid.",
     "promoExpired": "This promo code has expired.",
+    "promoNotSubscribed": "This code is reserved for newsletter subscribers. Subscribe with this same email (at the bottom of the page) to get it as a gift.",
+    "promoEmailRequired": "Please enter your email below first, then apply the code.",
     "promoAlreadyUsed": "This code is only valid on a first purchase.",
     "placeOrder": "Pay now",
     "paymentCancelled": "Payment cancelled. Your cart is unchanged — you can try again whenever you like.",
@@ -322,7 +331,7 @@
     "title": "Frequently asked questions",
     "subtitle": "Everything you need to know before visiting or ordering from Reptiles Concept.",
     "pickup_q": "How does pickup work?",
-    "pickup_a": "All orders are prepared for pickup at our Lachine, QC location. Once your order is ready, we'll email you with our hours and a pickup deadline — please pick up within that window to avoid a cancellation fee.",
+    "pickup_a": "All orders are prepared for pickup at our Lachine, QC location. Once your order is ready, we'll email you with our hours and a pickup deadline: 5 business days, or 48 hours for live food (e.g. crickets). Please pick up within that window to avoid a cancellation fee.",
     "shipping_q": "Do you ship orders?",
     "shipping_a": "Not yet — every order, animals and supplies alike, is for in-store pickup only in Lachine, QC.",
     "payment_q": "What payment methods do you accept?",

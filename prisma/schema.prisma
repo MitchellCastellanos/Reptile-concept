@@ -309,6 +309,8 @@ model PromoCode {
   percentOff        Int
   expiresAt         DateTime?
   firstPurchaseOnly Boolean   @default(true)
+  // Only emails on the (not unsubscribed) newsletter list may use it.
+  subscribersOnly   Boolean   @default(false)
   active            Boolean   @default(true)
   createdAt         DateTime  @default(now())
 }
@@ -585,7 +587,7 @@ model ReviewItemRating {
 // Singleton row (id is always "singleton") holding admin-editable store policy.
 model StoreSettings {
   id                         String   @id @default("singleton")
-  pickupDeadlineBusinessDays Int      @default(4)
+  pickupDeadlineBusinessDays Int      @default(5)
   cancellationFeePercent     Decimal  @default(15)
   adminNotificationEmail     String?
   // Canadian federal (TPS/GST) and Quebec provincial (TVQ/QST) tax

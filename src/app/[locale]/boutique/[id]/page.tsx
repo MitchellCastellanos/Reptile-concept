@@ -19,6 +19,7 @@ import { NotifyMeForm } from "./notify-me-form";
 import { VariantPicker } from "./variant-picker";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { prisma } from "@/lib/db";
+import { PickupNotice } from "@/components/pickup-notice";
 
 export async function generateMetadata({
   params,
@@ -189,6 +190,7 @@ export default async function ProductDetailPage({
             </>
           )}
 
+          <PickupNotice variant={product.category === "food_live" ? "liveFood" : "standard"} />
           <PaymentBadges />
           <div className="flex items-center gap-3">
             <WishlistToggleButton

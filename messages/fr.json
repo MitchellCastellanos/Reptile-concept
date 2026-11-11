@@ -184,6 +184,13 @@
     "notifyMeSuccess": "C'est noté — on vous écrit dès que c'est de retour.",
     "notifyMeError": "Veuillez entrer une adresse courriel valide."
   },
+  "Pickup": {
+    "title": "📍 Retrait en boutique seulement",
+    "noDelivery": "Nous ne faisons pas de livraison pour le moment : votre commande est payée en ligne, puis récupérée à notre boutique de Lachine, QC.",
+    "standardWindow": "Délai de retrait : 5 jours ouvrables après l'avis « prête pour retrait ».",
+    "liveFoodWindow": "Aliments vivants (ex. grillons) : à récupérer dans les 48 heures suivant l'avis.",
+    "addressHelp": "Aucune livraison : cette adresse sert uniquement de contact. Votre commande sera à récupérer en boutique."
+  },
   "Cart": {
     "title": "Panier",
     "empty": "Votre panier est vide.",
@@ -207,7 +214,7 @@
     "total": "Total",
     "fullName": "Nom complet",
     "phone": "Téléphone",
-    "street": "Adresse",
+    "street": "Adresse de contact",
     "city": "Ville",
     "province": "Province",
     "postalCode": "Code postal",
@@ -220,6 +227,8 @@
     "promoApplied": "Code appliqué : {percent} % de rabais sur votre première commande.",
     "promoInvalid": "Ce code promo n'est pas valide.",
     "promoExpired": "Ce code promo est expiré.",
+    "promoNotSubscribed": "Ce code est réservé aux abonnés de l'infolettre. Inscrivez-vous avec ce même courriel (au bas de la page) pour le recevoir en cadeau.",
+    "promoEmailRequired": "Entrez d'abord votre courriel ci-dessous, puis appliquez le code.",
     "promoAlreadyUsed": "Ce code est réservé à une première commande.",
     "placeOrder": "Payer maintenant",
     "paymentCancelled": "Paiement annulé. Votre panier est intact — vous pouvez réessayer quand vous voulez.",
@@ -322,7 +331,7 @@
     "title": "Foire aux questions",
     "subtitle": "Tout ce qu'il faut savoir avant de visiter ou de commander chez Reptiles Concept.",
     "pickup_q": "Comment fonctionne le retrait?",
-    "pickup_a": "Toutes les commandes sont préparées pour être récupérées à notre boutique de Lachine, QC. Une fois votre commande prête, vous recevrez un courriel avec nos horaires et un délai de retrait — merci de récupérer votre commande dans ce délai pour éviter des frais d'annulation.",
+    "pickup_a": "Toutes les commandes sont préparées pour être récupérées à notre boutique de Lachine, QC. Une fois votre commande prête, vous recevrez un courriel avec nos horaires et un délai de retrait : 5 jours ouvrables, ou 48 heures pour les aliments vivants (ex. grillons). Merci de récupérer votre commande dans ce délai pour éviter des frais d'annulation.",
     "shipping_q": "Livrez-vous les commandes?",
     "shipping_a": "Pas encore — toutes les commandes, animaux comme accessoires, sont uniquement pour retrait en boutique à Lachine, QC.",
     "payment_q": "Quels modes de paiement acceptez-vous?",

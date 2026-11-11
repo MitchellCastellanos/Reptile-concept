@@ -4,7 +4,7 @@ import { computeDiscount } from "@/lib/promo-math";
 // Shown in the newsletter confirmation email; must match the seeded PromoCode row.
 export const WELCOME_PROMO_CODE = "BIENVENUE15";
 
-export type PromoError = "invalid" | "expired" | "alreadyUsed";
+export type PromoError = "invalid" | "expired" | "alreadyUsed" | "emailRequired" | "notSubscribed";
 
 export type PromoResult =
   | { ok: true; code: string; percentOff: number; discountCAD: number }
@@ -28,10 +28,23 @@ export async function applyPromoCode(
     return { ok: false, error: "expired" };
   }
 
-  if (promo.firstPurchaseOnly && email) {
+  const normalizedEmail = email.trim().toLowerCase();
+  if ((promo.subscribersOnly || promo.firstPurchaseOnly) && !normalizedEmail) {
+    return { ok: false, error: "emailRequired" };
+  }
+
+  if (promo.subscribersOnly) {
+    const subscriber = await prisma.newsletterSubscriber.findFirst({
+      where: { email: normalizedEmail, unsubscribedAt: null },
+      select: { id: true },
+    });
+    if (!subscriber) return { ok: false, error: "notSubscribed" };
+  }
+
+  if (promo.firstPurchaseOnly) {
     const previous = await prisma.order.count({
       where: {
-        customer: { email: email.trim().toLowerCase() },
+        customer: { email: normalizedEmail },
         status: { in: ["paid", "preparing", "ready_for_pickup", "picked_up"] },
       },
     });

@@ -83,6 +83,7 @@ export async function sendOrderReadyForPickupEmail(
   orderId: string,
   deadline: Date,
   cancellationFeePercent: number,
+  hasLiveFood = false,
 ) {
   const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
   const { subject, html } = orderReadyForPickupEmail(
@@ -91,6 +92,7 @@ export async function sendOrderReadyForPickupEmail(
     deadline,
     cancellationFeePercent,
     storeInfo,
+    hasLiveFood,
   );
   await sendEmail({ to: order.customer.email, subject, html });
 }

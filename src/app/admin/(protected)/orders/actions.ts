@@ -6,7 +6,7 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { getStoreSettings } from "@/lib/settings";
-import { addBusinessDays } from "@/lib/business-days";
+import { computePickupDeadline } from "@/lib/pickup";
 import { restoreOrderInventory, resolveOrderAmounts } from "@/lib/orders";
 import {
   sendOrderPreparingEmail,
@@ -50,7 +50,11 @@ export async function markReadyForPickupAction(orderId: string) {
   const admin = await requireAdmin();
   const settings = await getStoreSettings();
   const readyAt = new Date();
-  const deadline = addBusinessDays(readyAt, settings.pickupDeadlineBusinessDays);
+  const liveFoodCount = await prisma.orderItem.count({
+    where: { orderId, product: { category: "food_live" } },
+  });
+  const hasLiveFood = liveFoodCount > 0;
+  const deadline = computePickupDeadline(readyAt, settings.pickupDeadlineBusinessDays, hasLiveFood);
 
   await prisma.$transaction(async (tx) => {
     const order = await tx.order.update({
@@ -77,7 +81,7 @@ export async function markReadyForPickupAction(orderId: string) {
   await recordAudit(admin.id, "Order", orderId, "update");
 
   try {
-    await sendOrderReadyForPickupEmail(orderId, deadline, Number(settings.cancellationFeePercent));
+    await sendOrderReadyForPickupEmail(orderId, deadline, Number(settings.cancellationFeePercent), hasLiveFood);
   } catch (err) {
     console.error(`[orders] failed to send ready-for-pickup email for ${orderId}:`, err);
   }

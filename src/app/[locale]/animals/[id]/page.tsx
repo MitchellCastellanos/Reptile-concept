@@ -11,6 +11,7 @@ import { RatingStars } from "@/components/rating-stars";
 import { AnimalCard } from "@/components/animal-card";
 import { AddAnimalToCartButton } from "@/components/add-to-cart-button";
 import { PaymentBadges } from "@/components/payment-badges";
+import { PickupNotice } from "@/components/pickup-notice";
 import { KlarnaInstallments } from "@/components/klarna-installments";
 import { WishlistToggleButton } from "@/components/wishlist-toggle-button";
 import { ShareButton } from "@/components/share-button";
@@ -178,6 +179,7 @@ export default async function AnimalDetailPage({
                 priceCAD={Number(animal.priceCAD)}
                 quantity={animal.quantity}
               />
+              <PickupNotice variant="standard" />
               <PaymentBadges />
             </>
           ) : null}

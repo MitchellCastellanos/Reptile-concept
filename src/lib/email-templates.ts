@@ -157,14 +157,21 @@ export function orderReadyForPickupEmail(
   deadline: Date,
   cancellationFeePercent: number,
   storeInfo: StoreContactInfo,
+  hasLiveFood = false,
 ) {
   const info = storeInfo[locale];
-  const deadlineStr = deadline.toLocaleDateString(locale === "en" ? "en-CA" : "fr-CA", {
+  // Live food (crickets…) has a strict 48 h window, so the time of day matters.
+  const deadlineStr = deadline.toLocaleString(locale === "en" ? "en-CA" : "fr-CA", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
+    ...(hasLiveFood ? { hour: "numeric", minute: "2-digit", timeZone: "America/Montreal" } : {}),
   });
+  const liveFoodNote =
+    locale === "en"
+      ? `<p style="font-size:13px;color:#6b7280;">Your order includes live food (e.g. crickets), which must be picked up within 48 hours.</p>`
+      : `<p style="font-size:13px;color:#6b7280;">Votre commande contient des aliments vivants (ex. grillons), à récupérer dans un délai de 48 heures.</p>`;
 
   const subject =
     locale === "en"
@@ -180,7 +187,8 @@ export function orderReadyForPickupEmail(
          <p style="margin-top:16px;padding:12px;background:#f3e8dc;border-radius:8px;">
            Please pick up your order by <strong>${deadlineStr}</strong>. After this date, the order will be
            automatically cancelled and refunded, minus a ${cancellationFeePercent}% cancellation fee.
-         </p>`
+         </p>
+         ${hasLiveFood ? liveFoodNote : ""}`
       : `<p>Bonjour ${order.customerName},</p>
          <p>Votre commande ${orderRef(order.orderId)} est prête à être récupérée à notre boutique de Lachine.</p>
          <p><strong>Horaires :</strong> ${info.hours}<br/><strong>Adresse :</strong> ${info.address}</p>
@@ -188,7 +196,8 @@ export function orderReadyForPickupEmail(
          <p style="margin-top:16px;padding:12px;background:#f3e8dc;border-radius:8px;">
            Merci de récupérer votre commande avant le <strong>${deadlineStr}</strong>. Passé ce délai, la commande
            sera automatiquement annulée et remboursée, moins des frais d'annulation de ${cancellationFeePercent}%.
-         </p>`;
+         </p>
+         ${hasLiveFood ? liveFoodNote : ""}`;
 
   return { subject, html: shell(locale, subject, body, storeInfo) };
 }

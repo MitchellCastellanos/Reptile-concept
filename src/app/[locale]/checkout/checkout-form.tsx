@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useCart } from "@/lib/cart-context";
 import { PaymentBadges } from "@/components/payment-badges";
 import { KlarnaInstallments } from "@/components/klarna-installments";
+import { PickupNotice } from "@/components/pickup-notice";
 import { computeTax } from "@/lib/tax";
 import { computeDiscount } from "@/lib/promo-math";
 import { placeOrderAction, previewPromoAction } from "./actions";
@@ -31,6 +32,7 @@ export function CheckoutForm({
 }) {
   const { items, totalCAD } = useCart();
   const t = useTranslations("Checkout");
+  const tPickup = useTranslations("Pickup");
   const locale = useLocale();
   const router = useRouter();
   const [selectedAddressId, setSelectedAddressId] = useState<string>(addresses[0]?.id ?? "new");
@@ -66,7 +68,11 @@ export function CheckoutForm({
                 ? "promoExpired"
                 : result.error === "alreadyUsed"
                   ? "promoAlreadyUsed"
-                  : "promoInvalid",
+                  : result.error === "notSubscribed"
+                    ? "promoNotSubscribed"
+                    : result.error === "emailRequired"
+                      ? "promoEmailRequired"
+                      : "promoInvalid",
             ),
           );
       } catch {
@@ -116,6 +122,8 @@ export function CheckoutForm({
         </p>
         <KlarnaInstallments priceCAD={tax.totalCAD} className="mt-1" />
       </section>
+
+      <PickupNotice />
 
       <PaymentBadges />
 
@@ -184,6 +192,8 @@ export function CheckoutForm({
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
+
+        <p className="text-xs text-muted">{tPickup("addressHelp")}</p>
 
         {addresses.length > 0 ? (
           <div className="flex flex-col gap-2 rounded-lg border border-border bg-accent-light p-3">
