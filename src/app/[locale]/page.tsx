@@ -3,13 +3,14 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { AnimalCard } from "@/components/animal-card";
 import { ProductCard } from "@/components/product-card";
-import { PaymentBadges } from "@/components/payment-badges";
 import { CategoryButtonGrid } from "@/components/category-button-grid";
 import { getAvailableAnimals, getProducts, getWishlistedIds } from "@/lib/queries";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { getAnimalRatings, getProductRatings } from "@/lib/ratings";
 import { getActiveWelcomePromo } from "@/lib/promo";
-import { LaunchBanner } from "@/components/launch-banner";
+import { LaunchHero } from "@/components/launch-hero";
+import { ClassicHero } from "@/components/home-hero-classic";
+import { HOME_HERO_VARIANT } from "@/lib/home-hero";
 
 const categoryIcons = [
   { key: "animals" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
@@ -54,45 +55,11 @@ export default async function Home() {
 
   return (
     <>
-      <section className="relative flex min-h-[420px] items-center overflow-hidden xl:min-h-[480px] 2xl:min-h-[540px]">
-        <Image
-          src="/images/hero.jpg"
-          alt="Reptiles Concept"
-          fill
-          priority
-          className="object-cover object-center xl:object-[center_42%] 2xl:object-[center_34%]"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/90 via-primary/70 to-primary/30" />
-        <div className="relative mx-auto w-full max-w-6xl px-6 py-20">
-          <p className="mb-2 text-sm font-medium uppercase tracking-widest text-white/80">
-            Lachine, Québec
-          </p>
-          <h1 className="max-w-xl text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            {t("title")}
-          </h1>
-          <p className="mt-4 max-w-lg text-lg text-white/90">{t("tagline")}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/animals"
-              className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-primary transition hover:bg-accent-light"
-            >
-              {t("ctaAnimals")}
-            </Link>
-            <Link
-              href="/boutique"
-              className="rounded-full border-2 border-white px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              {t("ctaShop")}
-            </Link>
-          </div>
-          <PaymentBadges variant="onDark" className="mt-8" />
-        </div>
-      </section>
-
-      {promo ? (
-        <LaunchBanner percentOff={promo.percentOff} code={promo.code} validUntil={validUntil} />
-      ) : null}
+      {promo && HOME_HERO_VARIANT === "launch" ? (
+        <LaunchHero percentOff={promo.percentOff} code={promo.code} validUntil={validUntil} />
+      ) : (
+        <ClassicHero />
+      )}
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
         <section>
