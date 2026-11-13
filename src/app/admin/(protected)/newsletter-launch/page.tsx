@@ -6,11 +6,11 @@ import { sendLaunchAction, sendLaunchTestAction } from "./actions";
 export const maxDuration = 60;
 
 const MESSAGES: Record<string, string> = {
-  "test=ok": "✅ Prueba enviada (FR y EN). Revisa tu bandeja (y spam).",
-  "error=send": "❌ No se pudo enviar la prueba. Revisa RESEND_API_KEY / EMAIL_FROM.",
-  "error=email": "❌ Correo inválido.",
-  "error=confirm": "❌ Escribe ENVOYER para confirmar el envío.",
-  "error=already": "❌ El lanzamiento ya fue enviado antes (o falló). Revisa Campagnes.",
+  "test=ok": "✅ Test envoyé (FR et EN). Vérifiez votre boîte de réception (et les pourriels).",
+  "error=send": "❌ Impossible d'envoyer le test. Vérifiez RESEND_API_KEY / EMAIL_FROM.",
+  "error=email": "❌ Adresse courriel invalide.",
+  "error=confirm": "❌ Tapez ENVOYER pour confirmer l'envoi.",
+  "error=already": "❌ Le lancement a déjà été envoyé (ou a échoué). Consultez Campagnes.",
 };
 
 export default async function NewsletterLaunchPage({
@@ -21,7 +21,7 @@ export default async function NewsletterLaunchPage({
   const sp = await searchParams;
   const [status, admin] = await Promise.all([getLaunchNewsletterStatus(), getCurrentAdmin()]);
   const flash = sp.sent
-    ? `✅ Enviado a ${sp.sent} suscriptores${sp.failed && sp.failed !== "0" ? ` (${sp.failed} fallaron)` : ""}.`
+    ? `✅ Envoyé à ${sp.sent} abonnés${sp.failed && sp.failed !== "0" ? ` (${sp.failed} échecs)` : ""}.`
     : sp.test
       ? MESSAGES[`test=${sp.test}`]
       : sp.error
@@ -31,16 +31,16 @@ export default async function NewsletterLaunchPage({
 
   return (
     <div className="flex max-w-2xl flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Newsletter de lancement</h1>
+      <h1 className="text-2xl font-semibold">Infolettre de lancement</h1>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Anuncio de apertura + código BIENVENUE15 para los suscriptores activos del newsletter. Cada
-        persona lo recibe en su idioma, con su propio enlace para darse de baja.
+        Annonce d&apos;ouverture + code BIENVENUE15 pour les abonnés actifs de l&apos;infolettre.
+        Chaque personne le reçoit dans sa langue, avec son propre lien de désabonnement.
       </p>
 
       {flash ? <p className="rounded border border-black/10 p-3 text-sm dark:border-white/10">{flash}</p> : null}
 
       <section className="flex flex-col gap-3 rounded border border-black/10 p-4 dark:border-white/10">
-        <h2 className="font-medium">1. Enviar prueba</h2>
+        <h2 className="font-medium">1. Envoyer un test</h2>
         <form action={sendLaunchTestAction} className="flex flex-wrap gap-2">
           <input
             type="email"
@@ -50,25 +50,25 @@ export default async function NewsletterLaunchPage({
             className="min-w-64 flex-1 rounded border border-black/20 px-3 py-2 text-sm dark:border-white/20"
           />
           <button type="submit" className="rounded bg-foreground px-4 py-2 text-sm font-medium text-background">
-            Enviar prueba (FR + EN)
+            Envoyer le test (FR + EN)
           </button>
         </form>
       </section>
 
       <section className="flex flex-col gap-3 rounded border border-black/10 p-4 dark:border-white/10">
-        <h2 className="font-medium">2. Enviar a los suscriptores</h2>
+        <h2 className="font-medium">2. Envoyer aux abonnés</h2>
         <p className="text-sm">
-          Suscriptores activos: <strong>{total}</strong> ({status.fr} FR · {status.en} EN)
+          Abonnés actifs : <strong>{total}</strong> ({status.fr} FR · {status.en} EN)
         </p>
         {status.alreadySentAt ? (
           <p className="text-sm font-medium">
-            Ya enviado el {status.alreadySentAt.toLocaleString("fr-CA")}. No se puede enviar de nuevo.
+            Déjà envoyé le {status.alreadySentAt.toLocaleString("fr-CA")}. Il n&apos;est pas possible de l&apos;envoyer à nouveau.
           </p>
         ) : (
           <form action={sendLaunchAction} className="flex flex-wrap gap-2">
             <input
               name="confirm"
-              placeholder="Escribe ENVOYER"
+              placeholder="Tapez ENVOYER"
               autoComplete="off"
               className="rounded border border-black/20 px-3 py-2 text-sm dark:border-white/20"
             />
@@ -77,7 +77,7 @@ export default async function NewsletterLaunchPage({
               disabled={total === 0}
               className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              Enviar a {total} suscriptores
+              Envoyer à {total} abonnés
             </button>
           </form>
         )}
