@@ -192,10 +192,10 @@
     "addressHelp": "Aucune livraison : cette adresse sert uniquement de contact. Votre commande sera à récupérer en boutique."
   },
   "LaunchBanner": {
-    "badge": "1re commande",
-    "kicker": "Nouveau · Ouverture officielle",
-    "title": "Notre boutique en ligne est officiellement ouverte!",
-    "offer": "Inscrivez-vous à l'infolettre et recevez {percent} % de rabais sur votre première commande, en cadeau.",
+    "kicker": "Ouverture officielle",
+    "title": "Notre boutique en ligne est ouverte!",
+    "offerLine": "sur votre première commande",
+    "subscribe": "Inscrivez-vous à l'infolettre et recevez votre code en cadeau.",
     "validUntil": "Valide jusqu'au {date}.",
     "fineprint": "Réservé aux abonnés de l'infolettre. Retrait en boutique seulement, à Lachine.",
     "placeholder": "Votre courriel",

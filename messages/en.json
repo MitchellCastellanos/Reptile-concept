@@ -192,10 +192,10 @@
     "addressHelp": "No delivery: this address is for contact purposes only. Your order will be picked up in store."
   },
   "LaunchBanner": {
-    "badge": "1st order",
-    "kicker": "New · Grand opening",
-    "title": "Our online shop is officially open!",
-    "offer": "Subscribe to our newsletter and get {percent}% off your first order as a welcome gift.",
+    "kicker": "Grand opening",
+    "title": "Our online shop is open!",
+    "offerLine": "off your first order",
+    "subscribe": "Subscribe to our newsletter and get your code as a welcome gift.",
     "validUntil": "Valid until {date}.",
     "fineprint": "Reserved for newsletter subscribers. In-store pickup only, in Lachine.",
     "placeholder": "Your email",
