@@ -68,7 +68,7 @@ export function LaunchBanner({
               </p>
             ) : (
               <form action={formAction} className="flex flex-col gap-2">
-                <div className="flex flex-col gap-2 sm:flex-row">
+                <div className="flex flex-col gap-3">
                   <input
                     type="email"
                     name="email"
@@ -80,7 +80,7 @@ export function LaunchBanner({
                   <button
                     type="submit"
                     disabled={pending}
-                    className="shrink-0 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:brightness-110 disabled:opacity-50"
+                    className="w-full rounded-full bg-accent px-6 py-3.5 text-base font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-50"
                   >
                     {t("submit")}
                   </button>

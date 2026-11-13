@@ -195,11 +195,11 @@
     "kicker": "Grand opening",
     "title": "Our online shop is open!",
     "offerLine": "off your first order",
-    "subscribe": "Subscribe to our newsletter and get your code as a welcome gift.",
+    "subscribe": "Subscribe to our newsletter: your code is emailed to you as soon as you sign up.",
     "validUntil": "Valid until {date}.",
     "fineprint": "Reserved for newsletter subscribers. In-store pickup only, in Lachine.",
     "placeholder": "Your email",
-    "submit": "Get my discount",
+    "submit": "Subscribe & get my 15% off",
     "error": "Please enter a valid email address.",
     "success": "Thank you! Your code {code} is on its way to your inbox. Enter it at checkout with this same email."
   },

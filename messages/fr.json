@@ -195,11 +195,11 @@
     "kicker": "Ouverture officielle",
     "title": "Notre boutique en ligne est ouverte!",
     "offerLine": "sur votre première commande",
-    "subscribe": "Inscrivez-vous à l'infolettre et recevez votre code en cadeau.",
+    "subscribe": "Abonnez-vous à l'infolettre : votre code vous est envoyé par courriel dès l'inscription.",
     "validUntil": "Valide jusqu'au {date}.",
     "fineprint": "Réservé aux abonnés de l'infolettre. Retrait en boutique seulement, à Lachine.",
     "placeholder": "Votre courriel",
-    "submit": "Je veux mon rabais",
+    "submit": "S'abonner et obtenir mon 15 %",
     "error": "Veuillez entrer une adresse courriel valide.",
     "success": "Merci! Votre code {code} est en route dans votre boîte courriel. Entrez-le à la caisse avec ce même courriel."
   },
