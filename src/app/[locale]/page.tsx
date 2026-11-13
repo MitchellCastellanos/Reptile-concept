@@ -8,6 +8,8 @@ import { CategoryButtonGrid } from "@/components/category-button-grid";
 import { getAvailableAnimals, getProducts, getWishlistedIds } from "@/lib/queries";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { getAnimalRatings, getProductRatings } from "@/lib/ratings";
+import { getActiveWelcomePromo } from "@/lib/promo";
+import { LaunchBanner } from "@/components/launch-banner";
 
 const categoryIcons = [
   { key: "animals" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
@@ -35,6 +37,15 @@ export default async function Home() {
   const featured = animals.slice(0, 6);
   const popular = products.slice(0, 4);
   const customer = await getCurrentCustomer();
+  const promo = await getActiveWelcomePromo();
+  const validUntil = promo?.lastValidDay
+    ? promo.lastValidDay.toLocaleDateString(locale === "en" ? "en-CA" : "fr-CA", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "America/Montreal",
+      })
+    : null;
   const { animalIds, productIds } = await getWishlistedIds(customer?.id);
   const [animalRatings, productRatings] = await Promise.all([
     getAnimalRatings(featured.map((a) => a.id)),
@@ -78,6 +89,10 @@ export default async function Home() {
           <PaymentBadges variant="onDark" className="mt-8" />
         </div>
       </section>
+
+      {promo ? (
+        <LaunchBanner percentOff={promo.percentOff} code={promo.code} validUntil={validUntil} />
+      ) : null}
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-6 py-16">
         <section>

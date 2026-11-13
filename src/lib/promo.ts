@@ -58,3 +58,17 @@ export async function applyPromoCode(
     discountCAD: computeDiscount(subtotalCAD, promo.percentOff),
   };
 }
+
+// The launch offer for the home-page banner: present only while the code is
+// active and not expired, so the banner disappears by itself after the offer.
+export async function getActiveWelcomePromo() {
+  const promo = await prisma.promoCode.findUnique({ where: { code: WELCOME_PROMO_CODE } });
+  if (!promo || !promo.active) return null;
+  if (promo.expiresAt && promo.expiresAt.getTime() <= Date.now()) return null;
+  return {
+    code: promo.code,
+    percentOff: promo.percentOff,
+    // expiresAt is an exclusive cutoff; show the last valid day.
+    lastValidDay: promo.expiresAt ? new Date(promo.expiresAt.getTime() - 60_000) : null,
+  };
+}

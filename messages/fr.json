@@ -191,6 +191,18 @@
     "cricketsWindow": "Grillons : à récupérer dans les 48 heures suivant l'avis.",
     "addressHelp": "Aucune livraison : cette adresse sert uniquement de contact. Votre commande sera à récupérer en boutique."
   },
+  "LaunchBanner": {
+    "badge": "1re commande",
+    "kicker": "Nouveau · Ouverture officielle",
+    "title": "Notre boutique en ligne est officiellement ouverte!",
+    "offer": "Inscrivez-vous à l'infolettre et recevez {percent} % de rabais sur votre première commande, en cadeau.",
+    "validUntil": "Valide jusqu'au {date}.",
+    "fineprint": "Réservé aux abonnés de l'infolettre. Retrait en boutique seulement, à Lachine.",
+    "placeholder": "Votre courriel",
+    "submit": "Je veux mon rabais",
+    "error": "Veuillez entrer une adresse courriel valide.",
+    "success": "Merci! Votre code {code} est en route dans votre boîte courriel. Entrez-le à la caisse avec ce même courriel."
+  },
   "Cart": {
     "title": "Panier",
     "empty": "Votre panier est vide.",
