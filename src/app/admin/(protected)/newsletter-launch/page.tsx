@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getLaunchNewsletterStatus } from "@/lib/newsletter";
 import { getCurrentAdmin } from "@/lib/auth";
 import { sendLaunchAction, sendLaunchTestAction } from "./actions";
@@ -58,7 +59,10 @@ export default async function NewsletterLaunchPage({
       <section className="flex flex-col gap-3 rounded border border-black/10 p-4 dark:border-white/10">
         <h2 className="font-medium">2. Envoyer aux abonnés</h2>
         <p className="text-sm">
-          Abonnés actifs : <strong>{total}</strong> ({status.fr} FR · {status.en} EN)
+          Abonnés actifs : <strong>{total}</strong> ({status.fr} FR · {status.en} EN) —{" "}
+          <Link href="/admin/subscribers" className="underline">
+            voir la liste complète
+          </Link>
         </p>
         {status.alreadySentAt ? (
           <p className="text-sm font-medium">

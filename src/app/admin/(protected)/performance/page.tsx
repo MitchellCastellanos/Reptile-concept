@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 
 function startOfDayUTC(date: Date) {
@@ -121,7 +122,12 @@ export default async function AdminPerformancePage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-medium">Inscriptions à l&apos;infolettre</h2>
+        <div className="mb-3 flex items-baseline justify-between gap-4">
+          <h2 className="text-lg font-medium">Inscriptions à l&apos;infolettre</h2>
+          <Link href="/admin/subscribers" className="text-sm underline">
+            Voir tous les abonnés →
+          </Link>
+        </div>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
             <p className="text-2xl font-semibold">{newsletterActiveCount}</p>
@@ -133,7 +139,10 @@ export default async function AdminPerformancePage() {
           </div>
         </div>
 
-        <div className="mt-4 overflow-x-auto">
+        <p className="mt-4 text-xs text-zinc-500">
+          Les 20 dernières inscriptions seulement — la liste complète, avec recherche et pages, est dans « Abonnés infolettre ».
+        </p>
+        <div className="mt-2 overflow-x-auto">
           <table className="w-full max-w-2xl border-collapse text-sm">
             <thead>
               <tr className="border-b border-black/10 text-left text-zinc-500 dark:border-white/10">

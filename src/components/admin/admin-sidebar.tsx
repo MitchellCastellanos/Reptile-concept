@@ -39,6 +39,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/customers", label: "Clients" },
       { href: "/admin/wishlists", label: "Listes de souhaits" },
       { href: "/admin/campaigns", label: "Campagnes" },
+      { href: "/admin/subscribers", label: "Abonnés infolettre" },
       { href: "/admin/newsletter-launch", label: "Infolettre — lancement" },
       { href: "/admin/reviews", label: "Avis" },
     ],
