@@ -118,13 +118,9 @@ export async function SiteFooter() {
           rel="noopener noreferrer"
           className="group mx-auto flex w-fit flex-col items-center gap-3 text-center transition-opacity hover:opacity-90"
         >
-          <Image
-            src="/images/apple-touch-icon.png"
-            alt="GABAN Solutions"
-            width={32}
-            height={32}
-            className="rounded-lg shadow-lg ring-1 ring-white/25"
-          />
+          <span className="rounded-xl bg-white p-1.5 shadow-lg ring-1 ring-white/25">
+            <Image src="/images/gaban-logo.png" alt="GABAN Solutions" width={36} height={36} />
+          </span>
           <span className="max-w-xs text-sm leading-snug text-white/55 group-hover:text-white/75">
             {t("craftedInMontreal")}{" "}
             <span className="font-semibold tracking-wide text-white/90 group-hover:text-white">
