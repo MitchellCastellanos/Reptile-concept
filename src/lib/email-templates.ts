@@ -250,32 +250,11 @@ export function backInStockEmail(
   };
 }
 
+// Welcome email sent on newsletter signup. It carries the welcome-gift promo
+// code, so it follows the look of the original launch announcement.
 export function newsletterConfirmationEmail(
   locale: Locale,
-  unsubscribeUrl: string,
-  storeInfo: StoreContactInfo,
-  promoCode?: string,
-) {
-  const title = locale === "en" ? "You're subscribed!" : "Inscription confirmée!";
-  const subject =
-    locale === "en" ? `You're on the list — ${storeInfo.en.name}` : `Inscription confirmée — ${storeInfo.fr.name}`;
-  const body =
-    locale === "en"
-      ? `<p>Thanks for signing up! You'll be the first to know about new arrivals, restocks, and news from ${storeInfo.en.name}.</p>
-         ${promoCode ? `<p>Here's your welcome gift: <strong>15% off your first purchase</strong> with code <strong>${promoCode}</strong> at checkout. Valid until December 31, 2026.</p>` : ""}
-         <p style="color:#6b7280;font-size:12px;margin-top:16px;">Didn't sign up for this? <a href="${unsubscribeUrl}" style="color:#6b7280;">Unsubscribe</a>.</p>`
-      : `<p>Merci de votre inscription! Vous serez parmi les premiers informés des nouveautés, réapprovisionnements et actualités de ${storeInfo.fr.name}.</p>
-         ${promoCode ? `<p>Votre cadeau de bienvenue : <strong>15 % de rabais sur votre première commande</strong> avec le code <strong>${promoCode}</strong> à la caisse. Valide jusqu'au 31 décembre 2026.</p>` : ""}
-         <p style="color:#6b7280;font-size:12px;margin-top:16px;">Vous n'êtes pas à l'origine de cette inscription? <a href="${unsubscribeUrl}" style="color:#6b7280;">Se désabonner</a>.</p>`;
-
-  return { subject, html: shell(locale, title, body, storeInfo) };
-}
-
-// One-off launch announcement sent to the newsletter list (one copy per
-// subscriber, in their language, with their own unsubscribe link).
-export function launchNewsletterEmail(
-  locale: Locale,
-  opts: { unsubscribeUrl: string; shopUrl: string; promoCode: string },
+  opts: { unsubscribeUrl: string; shopUrl: string; promoCode?: string },
   storeInfo: StoreContactInfo,
 ) {
   const name = storeInfo[locale].name;
@@ -286,28 +265,40 @@ export function launchNewsletterEmail(
     `<div style="margin:20px 0;padding:16px;background:#f3e8dc;border-radius:12px;text-align:center;">${html}</div>`;
 
   if (locale === "en") {
-    const subject = `${name} is now online — a 15% welcome gift for you`;
+    const subject = promoCode
+      ? `You're on the list — a 15% welcome gift from ${name}`
+      : `You're on the list — ${name}`;
     const body = `
-      <p>Thank you for following us! The ${name} online shop is officially open: available animals, terrariums, food and supplies, with secure online payment.</p>
-      ${codeBox(`<p style="margin:0 0 6px;">🎁 <strong>Your welcome gift: 15% off your first purchase</strong></p>
+      <p>Thanks for signing up! You'll be the first to know about new arrivals, restocks, and news from ${name}.</p>
+      ${
+        promoCode
+          ? codeBox(`<p style="margin:0 0 6px;">🎁 <strong>Your welcome gift: 15% off your first purchase</strong></p>
         <p style="margin:0;font-size:22px;letter-spacing:2px;font-weight:700;color:#2d5a3d;">${promoCode}</p>
-        <p style="margin:8px 0 0;font-size:13px;color:#6b7280;">Valid until December 31, 2026. Enter it at checkout using the same email you subscribed with — this gift is reserved for our newsletter subscribers.</p>`)}
+        <p style="margin:8px 0 0;font-size:13px;color:#6b7280;">Valid until December 31, 2026. Enter it at checkout using the same email you subscribed with — this gift is reserved for our newsletter subscribers.</p>`)
+          : ""
+      }
       ${button("Visit the shop")}
       <p><strong>📍 In-store pickup only.</strong> We don't deliver at the moment: you pay online, then pick up your order at our Lachine, QC shop. Orders must be picked up within 5 business days of the "ready for pickup" email — crickets within 48 hours.</p>
-      <p style="color:#6b7280;font-size:12px;margin-top:24px;">You're receiving this because you subscribed to our newsletter. <a href="${unsubscribeUrl}" style="color:#6b7280;">Unsubscribe</a>.</p>`;
-    return { subject, html: shell(locale, "We're officially online!", body, storeInfo) };
+      <p style="color:#6b7280;font-size:12px;margin-top:24px;">Didn't sign up for this? <a href="${unsubscribeUrl}" style="color:#6b7280;">Unsubscribe</a>.</p>`;
+    return { subject, html: shell(locale, "You're subscribed!", body, storeInfo) };
   }
 
-  const subject = `${name} est maintenant en ligne — un cadeau de 15 % pour vous`;
+  const subject = promoCode
+    ? `Inscription confirmée — un cadeau de 15 % de ${name} pour vous`
+    : `Inscription confirmée — ${name}`;
   const body = `
-      <p>Merci de nous suivre! La boutique en ligne de ${name} est officiellement ouverte : animaux disponibles, terrariums, nourriture et accessoires, avec paiement sécurisé en ligne.</p>
-      ${codeBox(`<p style="margin:0 0 6px;">🎁 <strong>Votre cadeau de bienvenue : 15 % de rabais sur votre première commande</strong></p>
+      <p>Merci de votre inscription! Vous serez parmi les premiers informés des nouveautés, réapprovisionnements et actualités de ${name}.</p>
+      ${
+        promoCode
+          ? codeBox(`<p style="margin:0 0 6px;">🎁 <strong>Votre cadeau de bienvenue : 15 % de rabais sur votre première commande</strong></p>
         <p style="margin:0;font-size:22px;letter-spacing:2px;font-weight:700;color:#2d5a3d;">${promoCode}</p>
-        <p style="margin:8px 0 0;font-size:13px;color:#6b7280;">Valide jusqu'au 31 décembre 2026. Entrez-le à la caisse avec le même courriel que votre inscription à l'infolettre — ce cadeau est réservé à nos abonnés.</p>`)}
+        <p style="margin:8px 0 0;font-size:13px;color:#6b7280;">Valide jusqu'au 31 décembre 2026. Entrez-le à la caisse avec le même courriel que votre inscription à l'infolettre — ce cadeau est réservé à nos abonnés.</p>`)
+          : ""
+      }
       ${button("Visiter la boutique")}
       <p><strong>📍 Retrait en boutique seulement.</strong> Nous ne livrons pas pour le moment : vous payez en ligne, puis vous récupérez votre commande à notre boutique de Lachine, QC. Votre commande est à récupérer dans les 5 jours ouvrables suivant le courriel « prête pour retrait » — les grillons, dans les 48 heures.</p>
-      <p style="color:#6b7280;font-size:12px;margin-top:24px;">Vous recevez ce courriel parce que vous êtes abonné à notre infolettre. <a href="${unsubscribeUrl}" style="color:#6b7280;">Se désabonner</a>.</p>`;
-  return { subject, html: shell(locale, "On est officiellement en ligne!", body, storeInfo) };
+      <p style="color:#6b7280;font-size:12px;margin-top:24px;">Vous n'êtes pas à l'origine de cette inscription? <a href="${unsubscribeUrl}" style="color:#6b7280;">Se désabonner</a>.</p>`;
+  return { subject, html: shell(locale, "Inscription confirmée!", body, storeInfo) };
 }
 
 type PosReceiptData = {
