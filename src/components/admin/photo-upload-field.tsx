@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ImageCropperModal } from "./image-cropper-modal";
 
 const CLIENT_MAX_BYTES = 3 * 1024 * 1024;
@@ -34,6 +34,7 @@ export function PhotoUploadField({
   onChange,
   placeholder,
   aspect = 1,
+  onUploadingChange,
 }: {
   name: string;
   label: string;
@@ -42,13 +43,21 @@ export function PhotoUploadField({
   placeholder?: string;
   /** Default crop aspect ratio (width / height) offered in the cropper. */
   aspect?: number;
+  /** Fires true when a real upload request starts and false when it settles (success or failure). */
+  onUploadingChange?: (uploading: boolean) => void;
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
+  // Synchronous guard: `uploading` state only updates on the next render, so
+  // two calls in the same tick would both pass a state check and create two blobs.
+  const inFlightRef = useRef(false);
 
   async function uploadFile(original: File) {
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
     setUploading(true);
+    onUploadingChange?.(true);
     setError(null);
     try {
       const file = await downscaleIfLarge(original);
@@ -64,7 +73,9 @@ export function PhotoUploadField({
     } catch {
       setError("Échec du téléversement.");
     } finally {
+      inFlightRef.current = false;
       setUploading(false);
+      onUploadingChange?.(false);
     }
   }
 
