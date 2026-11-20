@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
@@ -82,7 +83,7 @@ export default async function AdminCustomerDetailPage({
                     <span className="text-zinc-500">({Number(price).toFixed(2)} $)</span>
                   ) : null}
                   <span className="text-zinc-500">
-                    — ajouté le {item.createdAt.toLocaleDateString("fr-CA")}
+                    — ajouté le <LocalTime value={item.createdAt} preset="date" />
                   </span>
                   {adminHref ? (
                     <Link href={adminHref} className="underline">
@@ -107,7 +108,7 @@ export default async function AdminCustomerDetailPage({
                 <Link href={`/admin/orders/${order.id}`} className="underline">
                   #{order.id.slice(0, 8)}
                 </Link>{" "}
-                — {order.status} — {order.createdAt.toLocaleDateString("fr-CA")}
+                — {order.status} — <LocalTime value={order.createdAt} preset="date" />
               </li>
             ))}
           </ul>

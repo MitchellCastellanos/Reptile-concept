@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
@@ -183,7 +184,7 @@ export default async function AdminFinancePage({
         <tbody>
           {records.map((record) => (
             <tr key={record.id} className="border-b border-black/5 dark:border-white/5">
-              <td className="py-2">{record.createdAt.toLocaleDateString("fr-CA")}</td>
+              <td className="py-2"><LocalTime value={record.createdAt} preset="date" /></td>
               <td className="py-2">{TYPE_LABELS[record.type] ?? record.type}</td>
               <td className="py-2">{CHANNEL_LABELS[record.channel] ?? record.channel}</td>
               <td className="py-2">

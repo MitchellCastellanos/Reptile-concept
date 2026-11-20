@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import { getLocale, getTranslations } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -42,7 +43,7 @@ export default async function OrderDetailPage({
           {t("orderNumber")} #{order.id.slice(0, 8)}
         </h1>
         <p className="text-sm text-muted">
-          {order.createdAt.toLocaleDateString(dateLocale, { dateStyle: "long" })}
+          <LocalTime value={order.createdAt} preset="dateLong" locale={dateLocale} />
         </p>
       </div>
 
@@ -75,7 +76,7 @@ export default async function OrderDetailPage({
                     {t(`timeline_${step.key}`)}
                   </p>
                   {date ? (
-                    <p className="text-xs text-muted">{date.toLocaleString(dateLocale, { dateStyle: "medium", timeStyle: "short" })}</p>
+                    <p className="text-xs text-muted"><LocalTime value={date} preset="dateTimeMedium" locale={dateLocale} /></p>
                   ) : null}
                 </div>
               </li>

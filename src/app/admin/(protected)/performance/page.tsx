@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentAdmin } from "@/lib/auth";
@@ -254,7 +255,7 @@ export default async function AdminPerformancePage({
               {newsletter.recent.map((sub) => (
                 <tr key={sub.email} className="border-b border-border/60">
                   <td className="py-2">{sub.email}</td>
-                  <td className="py-2 text-muted">{sub.subscribedAt.toLocaleDateString("fr-CA", { timeZone: "America/Toronto" })}</td>
+                  <td className="py-2 text-muted"><LocalTime value={sub.subscribedAt} preset="date" /></td>
                   <td className="py-2">
                     {sub.unsubscribedAt ? (
                       <span className="text-muted">Désabonné</span>

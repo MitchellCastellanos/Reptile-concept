@@ -166,7 +166,8 @@ export function orderReadyForPickupEmail(
     year: "numeric",
     month: "long",
     day: "numeric",
-    ...(hasCrickets ? { hour: "numeric", minute: "2-digit", timeZone: "America/Montreal" } : {}),
+    timeZone: "America/Toronto",
+    ...(hasCrickets ? { hour: "numeric", minute: "2-digit", timeZoneName: "short" } : {}),
   });
   const cricketsNote =
     locale === "en"
@@ -316,7 +317,7 @@ type PosReceiptData = {
 
 export function posReceiptEmail(sale: PosReceiptData, storeInfo: StoreContactInfo) {
   const ref = `#${sale.saleId.slice(0, 8)}`;
-  const dateStr = sale.createdAt.toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" });
+  const dateStr = sale.createdAt.toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short", timeZone: "America/Toronto" });
   const methodLabel = sale.paymentMethod === "card" ? "Carte" : "Comptant";
   const subject = `Reçu ${ref} — ${sale.totalCAD.toFixed(2)} $ CAD — ${storeInfo.fr.name}`;
 
