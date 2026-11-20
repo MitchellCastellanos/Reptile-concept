@@ -30,16 +30,6 @@ export default function AccountRegisterPage() {
             className="rounded-lg border border-border bg-background px-3 py-2"
           />
         </label>
-        <label className="flex flex-col gap-1 text-sm">
-          {t("password")}
-          <input
-            name="password"
-            type="password"
-            minLength={8}
-            required
-            className="rounded-lg border border-border bg-background px-3 py-2"
-          />
-        </label>
         {state?.error ? <p className="text-sm text-red-600">{state.error}</p> : null}
         {state?.success ? <p className="text-sm text-green-700">{state.success}</p> : null}
         <button
