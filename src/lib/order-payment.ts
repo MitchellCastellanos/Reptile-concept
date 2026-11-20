@@ -167,11 +167,9 @@ export async function createPendingPaymentOrder(input: CreateOrderInput) {
   return prisma.$transaction(async (tx) => {
     const customer = await tx.customer.upsert({
       where: { email: input.email },
-      update: {
-        fullName: input.fullName,
-        phone: input.phone,
-        preferredLang: input.preferredLang,
-      },
+      // Anonymous checkout must never rewrite an existing customer's profile:
+      // anyone can type someone else's email here.
+      update: {},
       create: {
         fullName: input.fullName,
         email: input.email,
@@ -217,11 +215,9 @@ export async function createManualPaidOrder(input: CreateOrderInput) {
   return prisma.$transaction(async (tx) => {
     const customer = await tx.customer.upsert({
       where: { email: input.email },
-      update: {
-        fullName: input.fullName,
-        phone: input.phone,
-        preferredLang: input.preferredLang,
-      },
+      // Anonymous checkout must never rewrite an existing customer's profile:
+      // anyone can type someone else's email here.
+      update: {},
       create: {
         fullName: input.fullName,
         email: input.email,

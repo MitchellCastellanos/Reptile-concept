@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { safeEqual } from "@/lib/request-auth";
 import { syncCloverOrderById, syncCloverItemById, handleCloverItemRemoved } from "@/lib/clover-sync";
 
 // Receives near-real-time notifications from Clover (Developer Dashboard →
@@ -16,9 +17,11 @@ import { syncCloverOrderById, syncCloverItemById, handleCloverItemRemoved } from
 // https://.../api/clover/webhook?secret=<that value>.
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CLOVER_WEBHOOK_SECRET;
-  if (!secret) return true; // not configured yet — allow through during initial setup
-  const url = new URL(request.url);
-  return url.searchParams.get("secret") === secret;
+  // Fail closed in production: an unset secret must not leave the endpoint
+  // open. Outside production it is allowed to ease initial setup.
+  if (!secret) return process.env.NODE_ENV !== "production";
+  const provided = new URL(request.url).searchParams.get("secret") ?? "";
+  return safeEqual(provided, secret);
 }
 
 type CloverWebhookPayload = {

@@ -91,6 +91,12 @@ export async function placeOrderAction(formData: FormData) {
   };
 
   if (!isStripeConfigured()) {
+    // The "manual" flow marks the order paid without charging anyone. It is a
+    // dev placeholder only: in production a missing STRIPE_SECRET_KEY must
+    // stop checkout instead of giving away free orders.
+    if (process.env.NODE_ENV === "production" && process.env.ALLOW_MANUAL_PAYMENTS !== "true") {
+      throw new Error("Le paiement en ligne est temporairement indisponible / Online payment is temporarily unavailable");
+    }
     const orderId = await createManualPaidOrder(orderInput);
 
     try {

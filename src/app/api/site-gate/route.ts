@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { safeEqual } from "@/lib/request-auth";
 import {
   createGateToken,
   gateCookieOptions,
@@ -21,7 +22,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  if (password !== getStaffGatePassword()) {
+  const expected = getStaffGatePassword();
+  if (!expected || !safeEqual(password, expected)) {
     return NextResponse.json({ error: "Mot de passe incorrect / Incorrect password" }, { status: 401 });
   }
 

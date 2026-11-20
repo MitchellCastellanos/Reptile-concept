@@ -20,6 +20,17 @@ export type OrderEmailData = {
   totalCAD: number;
 };
 
+// Customer-controlled strings (name, item names, promo code) must never reach the
+// HTML body raw: the mail is sent from the store domain.
+function esc(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function orderRef(orderId: string) {
   return `#${orderId.slice(0, 8)}`;
 }
@@ -29,7 +40,7 @@ function itemsTable(items: OrderEmailItem[], locale: Locale) {
     .map(
       (item) => `
         <tr>
-          <td style="padding:6px 0;">${item.name}</td>
+          <td style="padding:6px 0;">${esc(item.name)}</td>
           <td style="padding:6px 0;text-align:center;">${item.quantity}</td>
           <td style="padding:6px 0;text-align:right;">${(item.priceCAD * item.quantity).toFixed(2)} $</td>
         </tr>`,
@@ -57,7 +68,7 @@ function taxSummary(order: OrderEmailData, locale: Locale) {
     ...((order.discountCAD ?? 0) > 0
       ? ([
           [
-            `${locale === "en" ? "Promo" : "Rabais"}${order.promoCode ? ` (${order.promoCode})` : ""}`,
+            `${locale === "en" ? "Promo" : "Rabais"}${order.promoCode ? ` (${esc(order.promoCode)})` : ""}`,
             -(order.discountCAD ?? 0),
           ],
         ] as [string, number][])
@@ -110,12 +121,12 @@ export function orderConfirmationEmail(locale: Locale, order: OrderEmailData, st
 
   const body =
     locale === "en"
-      ? `<p>Hi ${order.customerName},</p>
+      ? `<p>Hi ${esc(order.customerName)},</p>
          <p>Thanks for your purchase! We've received your payment for order ${orderRef(order.orderId)}.</p>
          ${itemsTable(order.items, locale)}
          ${taxSummary(order, locale)}
          <p>Our team will start preparing your order shortly — you'll get an email as soon as it's ready for pickup.</p>`
-      : `<p>Bonjour ${order.customerName},</p>
+      : `<p>Bonjour ${esc(order.customerName)},</p>
          <p>Merci pour votre achat! Nous avons bien reçu votre paiement pour la commande ${orderRef(order.orderId)}.</p>
          ${itemsTable(order.items, locale)}
          ${taxSummary(order, locale)}
@@ -127,7 +138,7 @@ export function orderConfirmationEmail(locale: Locale, order: OrderEmailData, st
 export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string, storeInfo: StoreContactInfo) {
   const subject = `Nouvelle vente ${orderRef(order.orderId)} — ${order.totalCAD.toFixed(2)} $ CAD`;
   const body = `
-    <p>Nouvelle commande payée de ${order.customerName}.</p>
+    <p>Nouvelle commande payée de ${esc(order.customerName)}.</p>
     ${itemsTable(order.items, "fr")}
     ${taxSummary(order, "fr")}
     <p>Cliquez sur « Préparation » dans le panel admin pour commencer.</p>
@@ -143,9 +154,9 @@ export function orderPreparingEmail(locale: Locale, order: OrderEmailData, store
 
   const body =
     locale === "en"
-      ? `<p>Hi ${order.customerName},</p>
+      ? `<p>Hi ${esc(order.customerName)},</p>
          <p>Good news — we've started preparing your order ${orderRef(order.orderId)}. Keep an eye on your inbox: we'll let you know as soon as it's ready for pickup.</p>`
-      : `<p>Bonjour ${order.customerName},</p>
+      : `<p>Bonjour ${esc(order.customerName)},</p>
          <p>Bonne nouvelle — nous avons commencé à préparer votre commande ${orderRef(order.orderId)}. Restez à l'affût : nous vous avisons dès qu'elle sera prête à être récupérée.</p>`;
 
   return { subject, html: shell(locale, subject, body, storeInfo) };
@@ -180,7 +191,7 @@ export function orderReadyForPickupEmail(
 
   const body =
     locale === "en"
-      ? `<p>Hi ${order.customerName},</p>
+      ? `<p>Hi ${esc(order.customerName)},</p>
          <p>Your order ${orderRef(order.orderId)} is ready for pickup at our Lachine location.</p>
          <p><strong>Hours:</strong> ${info.hours}<br/><strong>Address:</strong> ${info.address}</p>
          ${itemsTable(order.items, locale)}
@@ -189,7 +200,7 @@ export function orderReadyForPickupEmail(
            automatically cancelled and refunded, minus a ${cancellationFeePercent}% cancellation fee.
          </p>
          ${hasCrickets ? cricketsNote : ""}`
-      : `<p>Bonjour ${order.customerName},</p>
+      : `<p>Bonjour ${esc(order.customerName)},</p>
          <p>Votre commande ${orderRef(order.orderId)} est prête à être récupérée à notre boutique de Lachine.</p>
          <p><strong>Horaires :</strong> ${info.hours}<br/><strong>Adresse :</strong> ${info.address}</p>
          ${itemsTable(order.items, locale)}
@@ -215,11 +226,11 @@ export function orderPickedUpEmail(
 
   const body =
     locale === "en"
-      ? `<p>Hi ${order.customerName},</p>
+      ? `<p>Hi ${esc(order.customerName)},</p>
          <p>We hope you enjoyed picking up your order and that everything is to your satisfaction!</p>
          <p>If you have a minute, we'd love to hear about your experience:</p>
          <p><a href="${reviewUrl}" style="display:inline-block;background:#2d5a3d;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:600;">Leave a review</a></p>`
-      : `<p>Bonjour ${order.customerName},</p>
+      : `<p>Bonjour ${esc(order.customerName)},</p>
          <p>Nous espérons que tout s'est bien passé et que vous êtes satisfait de votre commande!</p>
          <p>Si vous avez un instant, nous aimerions connaître votre expérience :</p>
          <p><a href="${reviewUrl}" style="display:inline-block;background:#2d5a3d;color:#fff;padding:10px 20px;border-radius:999px;text-decoration:none;font-weight:600;">Laisser un avis</a></p>`;
@@ -350,11 +361,11 @@ export function orderExpiredEmail(
 
   const body =
     locale === "en"
-      ? `<p>Hi ${order.customerName},</p>
+      ? `<p>Hi ${esc(order.customerName)},</p>
          <p>Your order ${orderRef(order.orderId)} wasn't picked up within the allowed window, so it has been cancelled.</p>
          <p>You'll be refunded <strong>${refundAmountCAD.toFixed(2)} $ CAD</strong> (a cancellation fee of
          ${feeAmountCAD.toFixed(2)} $ CAD was withheld). If you still want these items, feel free to place a new order.</p>`
-      : `<p>Bonjour ${order.customerName},</p>
+      : `<p>Bonjour ${esc(order.customerName)},</p>
          <p>Votre commande ${orderRef(order.orderId)} n'a pas été récupérée dans le délai prévu et a donc été annulée.</p>
          <p>Vous serez remboursé de <strong>${refundAmountCAD.toFixed(2)} $ CAD</strong> (des frais d'annulation de
          ${feeAmountCAD.toFixed(2)} $ CAD ont été retenus). Si les articles vous intéressent toujours, n'hésitez pas à

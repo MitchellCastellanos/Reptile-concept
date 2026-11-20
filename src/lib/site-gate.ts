@@ -1,12 +1,21 @@
 const GATE_COOKIE = "site_gate_access";
 const GATE_PAYLOAD = "reptile-concept-staff";
 
+const isProd = () => process.env.NODE_ENV === "production";
+
 function getGateSecret(): string {
-  return process.env.SESSION_SECRET ?? "dev-gate-secret";
+  const secret = process.env.SESSION_SECRET;
+  if (secret) return secret;
+  // No guessable fallback in production (the gate token would be forgeable).
+  if (isProd()) throw new Error("SESSION_SECRET environment variable is not set");
+  return "dev-gate-secret";
 }
 
-export function getStaffGatePassword(): string {
-  return process.env.STAFF_GATE_PASSWORD ?? "changeme123";
+/** Returns null when no password is configured in production (gate login disabled). */
+export function getStaffGatePassword(): string | null {
+  const password = process.env.STAFF_GATE_PASSWORD;
+  if (password) return password;
+  return isProd() ? null : "changeme123";
 }
 
 export function isSiteGateEnabled(): boolean {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkCronAuth } from "@/lib/request-auth";
 import { pollClover } from "@/lib/clover-sync";
 
 // Safety net for the Clover webhook (/api/clover/webhook) — Clover doesn't
@@ -16,13 +17,8 @@ import { pollClover } from "@/lib/clover-sync";
 // a paid Vercel plan, .github/workflows/clover-sync.yml calls this route every
 // 10 minutes. Protect this route with CRON_SECRET if it's publicly reachable.
 export async function GET(request: Request) {
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
+  const denied = checkCronAuth(request);
+  if (denied) return denied;
 
   const result = await pollClover();
   return NextResponse.json(result);

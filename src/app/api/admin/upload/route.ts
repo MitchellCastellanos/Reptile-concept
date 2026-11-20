@@ -39,11 +39,11 @@ export async function POST(request: Request) {
   try {
     // Always recompress server-side so phone photos (3-8 MB) don't eat the
     // storage quota, even when the admin skips the cropper. GIFs are left
-    // alone to keep animation.
+    // alone to keep animation. SVGs are rasterized (never stored raw: scripts).
     let body: File | Buffer = file;
     let name = file.name;
     let contentType = file.type;
-    if (file.type !== "image/gif" && file.type !== "image/svg+xml") {
+    if (file.type !== "image/gif") {
       body = await sharp(Buffer.from(await file.arrayBuffer()))
         .rotate()
         .resize({ width: MAX_DIMENSION, height: MAX_DIMENSION, fit: "inside", withoutEnlargement: true })

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkCronAuth } from "@/lib/request-auth";
 import { expireStalePendingPaymentOrders } from "@/lib/pending-order-expiration";
 import { expireOverduePickups } from "@/lib/order-expiration";
 
@@ -10,13 +11,8 @@ import { expireOverduePickups } from "@/lib/order-expiration";
 // on this combined run for both expirations. /admin/orders also runs
 // expireOverduePickups() on every load as a secondary safety net.
 export async function GET(request: Request) {
-  const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-  }
+  const denied = checkCronAuth(request);
+  if (denied) return denied;
 
   const [expiredPendingCount, expiredPickupCount] = await Promise.all([
     expireStalePendingPaymentOrders(),
