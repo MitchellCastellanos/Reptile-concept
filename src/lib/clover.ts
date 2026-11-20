@@ -114,7 +114,7 @@ export type CloverItemStock = {
 // stockCount, which is why every imported product landed at stockQty=0.
 export async function fetchCloverItemStock(itemId: string): Promise<number | null> {
   try {
-    const data = await cloverApiFetch<CloverItemStock>(`/item_stocks/${itemId}`);
+    const data = await cloverApiFetch<CloverItemStock>(`/item_stocks/${encodeURIComponent(itemId)}`);
     return data.quantity ?? null;
   } catch (err) {
     // Was previously swallowed with no trace at all — if this endpoint/path
@@ -189,13 +189,13 @@ export type CloverOrder = {
 
 // Reference: Clover Inventory API (GET /v3/merchants/{mId}/items/{itemId}).
 export async function fetchCloverItem(itemId: string): Promise<CloverItem> {
-  const item = await cloverApiFetch<CloverItem>(`/items/${itemId}?expand=categories`);
+  const item = await cloverApiFetch<CloverItem>(`/items/${encodeURIComponent(itemId)}?expand=categories`);
   return enrichCloverItemWithStock(item);
 }
 
 // Reference: Clover Orders API (GET /v3/merchants/{mId}/orders/{orderId}).
 export async function fetchCloverOrder(orderId: string): Promise<CloverOrder> {
-  return cloverApiFetch<CloverOrder>(`/orders/${orderId}?expand=lineItems,payments`);
+  return cloverApiFetch<CloverOrder>(`/orders/${encodeURIComponent(orderId)}?expand=lineItems,payments`);
 }
 
 // Walks a Clover collection page by page. The order/item polls used to read

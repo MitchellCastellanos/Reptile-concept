@@ -17,7 +17,7 @@ export default async function CheckoutConfirmationPage({
   const { session_id: sessionId } = await searchParams;
 
   if (sessionId) {
-    await syncOrderFromCheckoutSessionId(sessionId);
+    await syncOrderFromCheckoutSessionId(sessionId, id);
   }
 
   const order = await prisma.order.findUnique({

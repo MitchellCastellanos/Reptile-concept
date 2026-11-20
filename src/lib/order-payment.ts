@@ -33,10 +33,34 @@ async function loadProducts(ids: string[]) {
     : Promise.resolve([]);
 }
 
-export async function validateCartLines(cart: CartLineInput[]): Promise<ValidatedCart> {
-  if (cart.length === 0) {
+export const MAX_CART_LINES = 50;
+const MAX_LINE_QUANTITY = 999;
+
+export async function validateCartLines(rawCart: CartLineInput[]): Promise<ValidatedCart> {
+  if (!Array.isArray(rawCart) || rawCart.length === 0) {
     throw new Error("Le panier est vide / Cart is empty");
   }
+  if (rawCart.length > MAX_CART_LINES) {
+    throw new Error("Panier trop volumineux / Cart too large");
+  }
+
+  // Merge repeated lines (same item twice) so stock checks see the real total.
+  const merged = new Map<string, CartLineInput>();
+  for (const line of rawCart) {
+    if (
+      (line?.type !== "animal" && line?.type !== "product") ||
+      typeof line.id !== "string" ||
+      !Number.isInteger(line.quantity) ||
+      line.quantity < 1 ||
+      line.quantity > MAX_LINE_QUANTITY
+    ) {
+      throw new Error(`Ligne de panier invalide / Invalid cart line`);
+    }
+    const key = `${line.type}:${line.id}`;
+    const prev = merged.get(key);
+    merged.set(key, prev ? { ...prev, quantity: prev.quantity + line.quantity } : { type: line.type, id: line.id, quantity: line.quantity });
+  }
+  const cart = [...merged.values()];
 
   const animalIds = cart.filter((l) => l.type === "animal").map((l) => l.id);
   const productIds = cart.filter((l) => l.type === "product").map((l) => l.id);
@@ -154,10 +178,13 @@ async function writeOrderItems(
           priceAtSaleCAD: product.priceCAD,
         },
       });
-      await tx.product.update({
-        where: { id: product.id },
+      const claimedStock = await tx.product.updateMany({
+        where: { id: product.id, stockQty: { gte: line.quantity } },
         data: { stockQty: { decrement: line.quantity } },
       });
+      if (claimedStock.count === 0) {
+        throw new Error(`Stock insuffisant / Insufficient stock: ${product.id}`);
+      }
       await syncParentOfProduct(tx, product.id);
     }
   }

@@ -125,6 +125,7 @@ export async function retrieveCheckoutSession(sessionId: string) {
 export async function refundStripePaymentIntent(
   paymentIntentId: string,
   amountCAD: number,
+  idempotencyKey?: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   if (!isStripeConfigured()) {
     return { ok: false, error: "Stripe is not configured" };
@@ -132,10 +133,15 @@ export async function refundStripePaymentIntent(
 
   try {
     const stripe = getStripe();
-    await stripe.refunds.create({
-      payment_intent: paymentIntentId,
-      amount: cadToStripeCents(amountCAD),
-    });
+    // A stable idempotency key makes a retried/duplicated call return the
+    // original refund instead of paying the customer twice.
+    await stripe.refunds.create(
+      {
+        payment_intent: paymentIntentId,
+        amount: cadToStripeCents(amountCAD),
+      },
+      idempotencyKey ? { idempotencyKey } : undefined,
+    );
     return { ok: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

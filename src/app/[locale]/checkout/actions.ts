@@ -24,7 +24,16 @@ type CartLineInput = {
 
 export async function placeOrderAction(formData: FormData) {
   const cartJson = String(formData.get("cartJson") ?? "[]");
-  const cart: CartLineInput[] = JSON.parse(cartJson);
+  let cart: CartLineInput[];
+  try {
+    cart = JSON.parse(cartJson);
+  } catch {
+    throw new Error("Panier invalide / Invalid cart");
+  }
+  // Cap before any outbound Clover calls (refreshCartFromClover does one per line).
+  if (!Array.isArray(cart) || cart.length === 0 || cart.length > 50) {
+    throw new Error("Panier invalide / Invalid cart");
+  }
 
   const fullName = String(formData.get("fullName") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();

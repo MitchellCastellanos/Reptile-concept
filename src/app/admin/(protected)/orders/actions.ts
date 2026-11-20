@@ -129,16 +129,16 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
       throw new Error("Cette commande ne peut plus être annulée.");
     }
 
-    await restoreOrderInventory(tx, orderId);
-
     const { totalCAD } = resolveOrderAmounts(order);
     const settings = await getStoreSettings();
     const feePercent = applyFee ? Number(settings.cancellationFeePercent) : 0;
     const feeAmount = Number(((totalCAD * feePercent) / 100).toFixed(2));
     const amount = Number((totalCAD - feeAmount).toFixed(2));
 
-    await tx.order.update({
-      where: { id: orderId },
+    // Atomic claim first: a double click / concurrent cron loses the race here
+    // (count 0) instead of restoring inventory and refunding twice.
+    const claimed = await tx.order.updateMany({
+      where: { id: orderId, status: { in: ["paid", "preparing", "ready_for_pickup", "pending_payment"] } },
       data: {
         status: "refunded",
         cancelledAt: new Date(),
@@ -146,6 +146,8 @@ export async function cancelOrderAction(orderId: string, formData: FormData) {
         refundAmountCAD: amount,
       },
     });
+    if (claimed.count === 0) throw new Error("Cette commande ne peut plus être annulée.");
+    await restoreOrderInventory(tx, orderId);
     await tx.payment.updateMany({
       where: { orderId, status: "succeeded" },
       data: { status: "refunded" },

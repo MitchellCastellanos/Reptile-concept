@@ -72,7 +72,9 @@ export async function POST(request: Request) {
     // account. The polling cron (pollClover -> reconcileLinkedInventory)
     // is the real safety net if this guess is wrong: it re-pulls price and stock
     // for every linked animal/product unconditionally instead of relying on any event.
-    const [prefix, id] = event.objectId.split(":");
+    const [prefix, id] = String(event.objectId ?? "").split(":");
+    // Clover ids are short alphanumerics; anything else is malformed/hostile.
+    if (id !== undefined && !/^[A-Za-z0-9]{1,32}$/.test(id)) continue;
     try {
       if (prefix === "O" && id) {
         await syncCloverOrderById(id);

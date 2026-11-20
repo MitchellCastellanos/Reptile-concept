@@ -29,14 +29,14 @@ export async function expireOrder(orderId: string) {
     const order = await tx.order.findUnique({ where: { id: orderId }, include: { items: true } });
     if (!order || order.status !== "ready_for_pickup") return null;
 
-    await restoreOrderInventory(tx, orderId);
-
     const { totalCAD } = resolveOrderAmounts(order);
     const feeAmount = Number(((totalCAD * feePercent) / 100).toFixed(2));
     const refundAmount = Number((totalCAD - feeAmount).toFixed(2));
 
-    await tx.order.update({
-      where: { id: orderId },
+    // Claim the order atomically BEFORE touching inventory: a concurrent
+    // cancel/expire that lost the race gets count 0 and must do nothing.
+    const claimed = await tx.order.updateMany({
+      where: { id: orderId, status: "ready_for_pickup" },
       data: {
         status: "refunded",
         cancelledAt: new Date(),
@@ -44,6 +44,8 @@ export async function expireOrder(orderId: string) {
         refundAmountCAD: refundAmount,
       },
     });
+    if (claimed.count === 0) return null;
+    await restoreOrderInventory(tx, orderId);
     await tx.payment.updateMany({
       where: { orderId, status: "succeeded" },
       data: { status: "refunded" },

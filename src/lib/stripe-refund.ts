@@ -15,7 +15,9 @@ export async function issueStripeRefundForOrder(
   }
 
   const payment = await prisma.payment.findFirst({
-    where: { orderId, provider: "stripe", status: "succeeded" },
+    // The calling transaction has already flipped the payment to "refunded",
+    // so match both states or the refund is silently skipped.
+    where: { orderId, provider: "stripe", status: { in: ["succeeded", "refunded"] } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -24,7 +26,7 @@ export async function issueStripeRefundForOrder(
     return { ok: false, skipped: true };
   }
 
-  const result = await refundStripePaymentIntent(payment.providerRef, refundAmountCAD);
+  const result = await refundStripePaymentIntent(payment.providerRef, refundAmountCAD, `refund-${orderId}`);
   if (result.ok) return { ok: true };
   return { ok: false, skipped: false, error: result.error };
 }

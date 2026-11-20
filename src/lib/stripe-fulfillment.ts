@@ -29,10 +29,11 @@ export async function fulfillOrderFromCheckoutSession(session: Stripe.Checkout.S
   });
 }
 
-export async function syncOrderFromCheckoutSessionId(sessionId: string) {
+export async function syncOrderFromCheckoutSessionId(sessionId: string, expectedOrderId?: string) {
   if (!isStripeConfigured()) return null;
 
   const session = await retrieveCheckoutSession(sessionId);
+  if (expectedOrderId && session.metadata?.orderId !== expectedOrderId) return null;
   if (session.payment_status === "paid") {
     await fulfillOrderFromCheckoutSession(session);
   }
