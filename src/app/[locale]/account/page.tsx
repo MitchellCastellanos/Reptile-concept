@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { Link } from "@/i18n/navigation";
@@ -95,7 +96,7 @@ export default async function AccountPage() {
                         {t("orderNumber")} #{order.id.slice(0, 8)}
                       </p>
                       <p className="text-sm text-muted">
-                        {order.createdAt.toLocaleDateString(locale === "en" ? "en-CA" : "fr-CA")} &middot;{" "}
+                        <LocalTime value={order.createdAt} preset="date" locale={locale === "en" ? "en-CA" : "fr-CA"} /> &middot;{" "}
                         {total.toFixed(2)} $ CAD
                       </p>
                     </div>

@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { toggleAnnouncementAction } from "./actions";
@@ -39,7 +40,7 @@ export default async function AdminAnnouncementsPage() {
               <td className="py-2">{announcement.messageFr}</td>
               <td className="py-2">
                 {announcement.endsAt
-                  ? announcement.endsAt.toLocaleString("fr-CA")
+                  ? <LocalTime value={announcement.endsAt} preset="dateTime" />
                   : "sans date de fin"}
               </td>
               <td className="py-2">{announcement.active ? "Oui" : "Non"}</td>

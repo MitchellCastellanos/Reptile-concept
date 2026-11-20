@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { expireOverduePickups } from "@/lib/order-expiration";
@@ -48,10 +49,10 @@ export default async function AdminOrdersPage() {
                 <td className="py-2">{STATUS_LABELS[order.status] ?? order.status}</td>
                 <td className={`py-2 ${isOverdue ? "font-medium text-red-600" : ""}`}>
                   {order.pickupDeadlineAt
-                    ? order.pickupDeadlineAt.toLocaleDateString("fr-CA")
+                    ? <LocalTime value={order.pickupDeadlineAt} preset="date" />
                     : "—"}
                 </td>
-                <td className="py-2">{order.createdAt.toLocaleDateString("fr-CA")}</td>
+                <td className="py-2"><LocalTime value={order.createdAt} preset="date" /></td>
                 <td className="py-2">
                   <Link href={`/admin/orders/${order.id}`} className="underline">
                     Détails

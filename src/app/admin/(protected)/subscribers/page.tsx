@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@/generated/prisma/client";
@@ -147,11 +148,11 @@ export default async function AdminSubscribersPage({
               <tr key={sub.id} className="border-b border-black/5 dark:border-white/5">
                 <td className="py-2 pr-4">{sub.email}</td>
                 <td className="py-2 pr-4 uppercase text-zinc-500">{sub.locale}</td>
-                <td className="py-2 pr-4 text-zinc-500">{sub.subscribedAt.toLocaleDateString("fr-CA")}</td>
+                <td className="py-2 pr-4 text-zinc-500"><LocalTime value={sub.subscribedAt} preset="date" /></td>
                 <td className="py-2">
                   {sub.unsubscribedAt ? (
                     <span className="text-zinc-500">
-                      Désabonné le {sub.unsubscribedAt.toLocaleDateString("fr-CA")}
+                      Désabonné le <LocalTime value={sub.unsubscribedAt} preset="date" />
                     </span>
                   ) : (
                     <span className="text-emerald-600 dark:text-emerald-400">Actif</span>

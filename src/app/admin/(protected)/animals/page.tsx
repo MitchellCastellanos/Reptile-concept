@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { isAnimalCategory } from "@/lib/animal-categories";
@@ -251,7 +252,7 @@ export default async function AdminAnimalsPage({
                   <td className="py-2 pr-3">{Number(animal.priceCAD)} $</td>
                   <td className="py-2 pr-3">{animal.status}</td>
                   <td className="py-2 pr-3 text-xs text-black/50">
-                    {animal.createdAt.toLocaleDateString("fr-CA")}
+                    <LocalTime value={animal.createdAt} preset="date" />
                   </td>
                   <td className="flex gap-3 py-2">
                     <Link href={editHref(animal.id)} className="underline">

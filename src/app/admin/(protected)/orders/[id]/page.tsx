@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { resolveOrderAmounts } from "@/lib/orders";
@@ -25,8 +26,7 @@ const FINANCIAL_TYPE_LABELS: Record<string, string> = {
 };
 
 function formatDate(date: Date | null) {
-  if (!date) return "—";
-  return date.toLocaleString("fr-CA", { dateStyle: "medium", timeStyle: "short" });
+  return <LocalTime value={date} preset="dateTimeMedium" />;
 }
 
 export default async function AdminOrderDetailPage({

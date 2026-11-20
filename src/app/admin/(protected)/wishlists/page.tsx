@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 
@@ -65,7 +66,7 @@ export default async function AdminWishlistsPage() {
                       {price != null ? `${Number(price).toFixed(2)} $` : "—"}
                     </td>
                     <td className="py-2 pr-4 whitespace-nowrap">
-                      {item.createdAt.toLocaleDateString("fr-CA")}
+                      <LocalTime value={item.createdAt} preset="date" />
                     </td>
                     <td className="py-2 whitespace-nowrap">
                       {adminHref ? (

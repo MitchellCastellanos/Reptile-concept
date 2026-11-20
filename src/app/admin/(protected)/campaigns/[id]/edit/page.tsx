@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { CampaignForm } from "../../campaign-form";
@@ -17,7 +18,7 @@ export default async function EditCampaignPage({
       <div className="flex flex-col gap-6">
         <h1 className="text-2xl font-semibold">Campagne envoyée</h1>
         <p className="text-sm text-zinc-500">
-          Envoyée le {campaign.sentAt?.toLocaleString("fr-CA")} à {campaign.recipientCount}{" "}
+          Envoyée le <LocalTime value={campaign.sentAt} preset="dateTime" /> à {campaign.recipientCount}{" "}
           client(s). Ceci est en lecture seule — utilisez « Renvoyer » depuis la liste pour
           la réutiliser.
         </p>

@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { sendExistingCampaignAction, resendCampaignAction, deleteCampaignAction } from "./actions";
@@ -35,8 +36,7 @@ export default async function AdminCampaignsPage() {
               <td className="py-2">{campaign.status === "sent" ? "Envoyée" : "Brouillon"}</td>
               <td className="py-2">{campaign.recipientCount ?? "—"}</td>
               <td className="py-2">
-                {campaign.sentAt?.toLocaleDateString("fr-CA") ??
-                  campaign.createdAt.toLocaleDateString("fr-CA")}
+                <LocalTime value={campaign.sentAt ?? campaign.createdAt} preset="date" />
               </td>
               <td className="flex flex-wrap gap-3 py-2">
                 <Link href={`/admin/campaigns/${campaign.id}/edit`} className="underline">

@@ -1,5 +1,6 @@
 "use client";
 
+import { LocalTime } from "@/components/local-time";
 import { useActionState } from "react";
 import { syncCloverAction, previewMissingAction } from "./actions";
 
@@ -26,7 +27,7 @@ export function CloverSyncPanel({
           pas encore de fiche sur le site (ils s&apos;ajoutent à la file ci-dessous).
         </p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Dernière synchronisation : {lastSyncedAt ?? "jamais"} — identifiants Clover :{" "}
+          Dernière synchronisation : {lastSyncedAt ? <LocalTime value={lastSyncedAt} preset="dateTimeMedium" /> : "jamais"} — identifiants Clover :{" "}
           <span className={credentialsConfigured ? "text-green-700 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
             {credentialsConfigured ? "configurés" : "non configurés"}
           </span>

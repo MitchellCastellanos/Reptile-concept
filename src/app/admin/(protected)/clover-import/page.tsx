@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { ignoreCloverImportCandidateAction, deleteCategoryRuleAction } from "./actions";
@@ -61,7 +62,7 @@ export default async function CloverImportPage({
 
       <div className="rounded-lg border border-black/10 p-4 dark:border-white/10">
         <CloverSyncPanel
-          lastSyncedAt={syncState?.lastPolledAt ? syncState.lastPolledAt.toLocaleString("fr-CA") : null}
+          lastSyncedAt={syncState?.lastPolledAt ? syncState.lastPolledAt.toISOString() : null}
           credentialsConfigured={isCloverConfigured()}
           verificationCode={syncState?.lastVerificationCode ?? null}
         />
@@ -148,7 +149,7 @@ export default async function CloverImportPage({
                     <td className="py-2">{candidate.cloverCategoryName ?? "—"}</td>
                     <td className="py-2 text-right">{Number(candidate.priceCAD).toFixed(2)} $</td>
                     <td className="py-2 text-right">{candidate.stockCount ?? "—"}</td>
-                    <td className="py-2">{candidate.firstSeenAt.toLocaleDateString("fr-CA")}</td>
+                    <td className="py-2"><LocalTime value={candidate.firstSeenAt} preset="date" /></td>
                     <td className="flex flex-wrap gap-3 py-2">
                       <Link href={`/admin/animals/new?${linkParams.toString()}`} className="underline">
                         Créer un animal

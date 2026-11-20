@@ -1,3 +1,4 @@
+import { LocalTime } from "@/components/local-time";
 import Link from "next/link";
 import { TOP_LEVEL_PRODUCT } from "@/lib/product-variants";
 import { prisma } from "@/lib/db";
@@ -232,7 +233,7 @@ export default async function AdminProductsPage({
                     )}
                   </td>
                   <td className="py-2 pr-3 text-xs text-black/50">
-                    {product.createdAt.toLocaleDateString("fr-CA")}
+                    <LocalTime value={product.createdAt} preset="date" />
                   </td>
                   <td className="flex gap-3 py-2">
                     <Link href={editHref(product.id)} className="underline">
