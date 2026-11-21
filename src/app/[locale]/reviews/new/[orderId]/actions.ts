@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { verifyReviewToken } from "@/lib/review-token";
+import { sendAdminNewReviewEmail } from "@/lib/order-notifications";
 
 type ItemRatingInput = { type?: string; id?: string; rating?: number };
 
@@ -51,7 +52,7 @@ export async function submitReviewAction(orderId: string, formData: FormData) {
       productId: entry.type === "product" ? entry.id : undefined,
     }));
 
-  await prisma.review.create({
+  const review = await prisma.review.create({
     data: {
       orderId,
       customerId: order.customerId,
@@ -60,6 +61,13 @@ export async function submitReviewAction(orderId: string, formData: FormData) {
       itemRatings: itemRatings.length > 0 ? { create: itemRatings } : undefined,
     },
   });
+
+  // Never let a mail failure block the customer's review from being saved.
+  try {
+    await sendAdminNewReviewEmail(review.id);
+  } catch (err) {
+    console.error("[reviews] failed to send admin notification email:", err);
+  }
 
   redirect(`/${locale}/reviews/new/${orderId}?token=${token}&submitted=1`);
 }

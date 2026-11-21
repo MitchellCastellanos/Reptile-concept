@@ -135,6 +135,48 @@ export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string, 
   return { subject, html: shell("fr", subject, body, storeInfo) };
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export type ReviewEmailData = {
+  orderId: string;
+  customerName: string;
+  rating: number;
+  comment: string | null;
+  itemRatings: { name: string; rating: number }[];
+};
+
+function stars(rating: number) {
+  return `${"★".repeat(rating)}${"☆".repeat(Math.max(0, 5 - rating))} (${rating}/5)`;
+}
+
+export function adminNewReviewEmail(review: ReviewEmailData, adminReviewsUrl: string, storeInfo: StoreContactInfo) {
+  const subject = `Nouvel avis ${review.rating}/5 — commande ${orderRef(review.orderId)}`;
+  const itemsHtml =
+    review.itemRatings.length > 0
+      ? `<ul style="padding-left:18px;font-size:14px;">${review.itemRatings
+          .map((item) => `<li>${escapeHtml(item.name)} : ${stars(item.rating)}</li>`)
+          .join("")}</ul>`
+      : "";
+  const commentHtml = review.comment
+    ? `<blockquote style="margin:12px 0;padding:8px 12px;border-left:3px solid #2d5a3d;background:#faf8f5;white-space:pre-wrap;">${escapeHtml(review.comment)}</blockquote>`
+    : `<p style="color:#6b7280;">(Aucun commentaire)</p>`;
+  const body = `
+    <p>${escapeHtml(review.customerName)} a laissé un avis sur la commande ${orderRef(review.orderId)}.</p>
+    <p style="font-size:18px;color:#2d5a3d;margin:8px 0;">${stars(review.rating)}</p>
+    ${itemsHtml}
+    ${commentHtml}
+    <p>L'avis n'est pas publié tant que vous ne l'approuvez pas.</p>
+    <p><a href="${adminReviewsUrl}" style="color:#2d5a3d;font-weight:600;">Modérer les avis</a></p>`;
+  return { subject, html: shell("fr", subject, body, storeInfo) };
+}
+
 export function orderPreparingEmail(locale: Locale, order: OrderEmailData, storeInfo: StoreContactInfo) {
   const subject =
     locale === "en"

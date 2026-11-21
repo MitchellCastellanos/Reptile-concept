@@ -3,6 +3,7 @@ import { sendEmail } from "@/lib/email";
 import {
   orderConfirmationEmail,
   adminNewSaleEmail,
+  adminNewReviewEmail,
   orderPreparingEmail,
   orderReadyForPickupEmail,
   orderPickedUpEmail,
@@ -70,6 +71,39 @@ export async function sendAdminNewSaleEmail(orderId: string) {
   const [order, storeInfo] = await Promise.all([loadOrder(orderId), getStoreContactInfo()]);
   const url = `${getSiteUrl()}/admin/orders/${orderId}`;
   const { subject, html } = adminNewSaleEmail(toEmailData(order), url, storeInfo);
+  await sendEmail({ to: adminEmail, subject, html });
+}
+
+export async function sendAdminNewReviewEmail(reviewId: string) {
+  const adminEmail = await resolveAdminEmail();
+  if (!adminEmail) return;
+  const [review, storeInfo] = await Promise.all([
+    prisma.review.findUniqueOrThrow({
+      where: { id: reviewId },
+      include: {
+        customer: true,
+        itemRatings: { include: { animal: { include: { species: true } }, product: true } },
+      },
+    }),
+    getStoreContactInfo(),
+  ]);
+  const url = `${getSiteUrl()}/admin/reviews`;
+  const { subject, html } = adminNewReviewEmail(
+    {
+      orderId: review.orderId,
+      customerName: review.customer.fullName,
+      rating: review.rating,
+      comment: review.comment,
+      itemRatings: review.itemRatings.map((r) => ({
+        name: r.animal
+          ? `${r.animal.species.commonNameFr} — ${r.animal.morph}`
+          : (r.product?.nameFr ?? "Article supprimé"),
+        rating: r.rating,
+      })),
+    },
+    url,
+    storeInfo,
+  );
   await sendEmail({ to: adminEmail, subject, html });
 }
 
