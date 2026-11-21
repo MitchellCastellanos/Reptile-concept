@@ -6,6 +6,8 @@ import { prisma } from "@/lib/db";
 import { getCurrentAdmin } from "@/lib/auth";
 import { recordAudit } from "@/lib/audit";
 import { sendEmail } from "@/lib/email";
+import { campaignEmail } from "@/lib/email-templates";
+import { getStoreContactInfo } from "@/lib/store-info";
 
 function readCampaignForm(formData: FormData) {
   return {
@@ -16,13 +18,6 @@ function readCampaignForm(formData: FormData) {
   };
 }
 
-function toHtml(body: string) {
-  return body
-    .split("\n")
-    .map((line) => `<p>${line}</p>`)
-    .join("");
-}
-
 async function dispatchCampaign(campaignId: string) {
   const campaign = await prisma.emailCampaign.findUniqueOrThrow({ where: { id: campaignId } });
   const recipients = await prisma.customer.findMany({
@@ -30,14 +25,19 @@ async function dispatchCampaign(campaignId: string) {
     select: { email: true, preferredLang: true },
   });
 
+  const storeInfo = await getStoreContactInfo();
+
   await Promise.all(
-    recipients.map((recipient) =>
-      sendEmail({
-        to: recipient.email,
-        subject: recipient.preferredLang === "en" ? campaign.subjectEn : campaign.subjectFr,
-        html: toHtml(recipient.preferredLang === "en" ? campaign.bodyEn : campaign.bodyFr),
-      }),
-    ),
+    recipients.map((recipient) => {
+      const en = recipient.preferredLang === "en";
+      const { subject, html } = campaignEmail(
+        en ? "en" : "fr",
+        en ? campaign.subjectEn : campaign.subjectFr,
+        en ? campaign.bodyEn : campaign.bodyFr,
+        storeInfo,
+      );
+      return sendEmail({ to: recipient.email, subject, html });
+    }),
   );
 
   await prisma.emailCampaign.update({
