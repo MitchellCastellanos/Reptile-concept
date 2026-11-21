@@ -15,6 +15,7 @@ import { createReviewToken } from "@/lib/review-token";
 import { getSiteUrl } from "@/lib/site-url";
 import { resolveOrderAmounts } from "@/lib/orders";
 import { getStoreContactInfo } from "@/lib/store-info";
+import { formatReviewerName } from "@/lib/review-display";
 
 async function loadOrder(orderId: string) {
   return prisma.order.findUniqueOrThrow({
@@ -92,6 +93,7 @@ export async function sendAdminNewReviewEmail(reviewId: string) {
     {
       orderId: review.orderId,
       customerName: review.customer.fullName,
+      publicName: formatReviewerName(review.customer.fullName, review.nameDisplay, "fr"),
       rating: review.rating,
       comment: review.comment,
       itemRatings: review.itemRatings.map((r) => ({

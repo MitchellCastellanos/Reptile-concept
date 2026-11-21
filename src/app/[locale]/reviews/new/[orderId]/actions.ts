@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { verifyReviewToken } from "@/lib/review-token";
 import { sendAdminNewReviewEmail } from "@/lib/order-notifications";
+import { parseReviewNameDisplay } from "@/lib/review-display";
 
 type ItemRatingInput = { type?: string; id?: string; rating?: number };
 
@@ -28,6 +29,7 @@ export async function submitReviewAction(orderId: string, formData: FormData) {
 
   const rating = Math.min(5, Math.max(1, Number(formData.get("rating")) || 5));
   const comment = String(formData.get("comment") ?? "").trim() || null;
+  const nameDisplay = parseReviewNameDisplay(formData.get("nameDisplay"));
   const locale = String(formData.get("locale") ?? "fr");
 
   // Trust nothing from the client beyond "which items got which stars" —
@@ -58,6 +60,7 @@ export async function submitReviewAction(orderId: string, formData: FormData) {
       customerId: order.customerId,
       rating,
       comment,
+      nameDisplay,
       itemRatings: itemRatings.length > 0 ? { create: itemRatings } : undefined,
     },
   });

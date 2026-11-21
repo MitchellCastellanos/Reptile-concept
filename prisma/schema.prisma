@@ -15,6 +15,14 @@ enum Locale {
   en
 }
 
+// How the reviewer's name is shown on the public reviews page. The customer
+// picks this when submitting the review (admin always sees the real name).
+enum ReviewNameDisplay {
+  full
+  first_initial
+  anonymous
+}
+
 enum AnimalSex {
   male
   female
@@ -567,6 +575,8 @@ model Review {
   // across them) — see src/lib/ratings.ts.
   itemRatings ReviewItemRating[]
   published   Boolean            @default(false)
+  // Privacy-friendly default for reviews that predate the choice.
+  nameDisplay ReviewNameDisplay  @default(first_initial)
   createdAt   DateTime           @default(now())
 }
 

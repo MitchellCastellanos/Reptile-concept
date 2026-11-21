@@ -270,7 +270,13 @@
     "itemRatingsPrompt": "Notez chaque article (optionnel)",
     "showMoreItems": "Afficher {count, plural, one {# autre article} other {# autres articles}}",
     "submit": "Envoyer",
-    "thankYou": "Merci pour votre avis!"
+    "thankYou": "Merci pour votre avis!",
+    "verifiedPurchase": "Achat vérifié",
+    "nameDisplayLabel": "Comment voulez-vous apparaître sur votre avis?",
+    "nameDisplayHint": "Votre avis sera affiché publiquement après approbation.",
+    "nameDisplay_full": "Nom complet",
+    "nameDisplay_first_initial": "Prénom et initiale du nom",
+    "nameDisplay_anonymous": "Client anonyme"
   },
   "Account": {
     "title": "Mon compte",

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { formatReviewerName } from "@/lib/review-display";
 import { togglePublishReviewAction, deleteReviewAction } from "./actions";
 
 export default async function AdminReviewsPage() {
@@ -23,7 +24,7 @@ export default async function AdminReviewsPage() {
                 {review.customer.fullName} — {review.rating}/5
               </p>
               <span className="text-xs text-zinc-600 dark:text-zinc-400">
-                Commande #{review.orderId.slice(0, 8)}
+                Affiché : {formatReviewerName(review.customer.fullName, review.nameDisplay, "fr")} · Commande #{review.orderId.slice(0, 8)}
               </span>
             </div>
             {review.itemRatings.length > 0 ? (

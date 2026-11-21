@@ -577,6 +577,8 @@ export function adminNewSaleEmail(order: OrderEmailData, adminOrderUrl: string, 
 export type ReviewEmailData = {
   orderId: string;
   customerName: string;
+  /** How the name will appear publicly, per the customer's choice. */
+  publicName?: string;
   rating: number;
   comment: string | null;
   itemRatings: { name: string; rating: number }[];
@@ -599,6 +601,7 @@ export function adminNewReviewEmail(review: ReviewEmailData, adminReviewsUrl: st
     : p("(Aucun commentaire)", `color:${BRAND.muted};`);
   const body = `
     ${p(`<strong>${escapeHtml(review.customerName)}</strong> a laissé un avis sur la commande ${orderRef(review.orderId)}.`)}
+    ${review.publicName ? p(`Nom affiché publiquement : <strong>${escapeHtml(review.publicName)}</strong>`, `font-size:13px;color:${BRAND.muted};`) : ""}
     <p style="margin:0 0 16px;font-size:22px;color:${BRAND.accent};">${stars(review.rating)}</p>
     ${itemsHtml}
     ${commentHtml}
