@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/db";
 import { verifyReviewToken } from "@/lib/review-token";
+import { formatReviewerName, REVIEW_NAME_DISPLAYS } from "@/lib/review-display";
 import { submitReviewAction } from "./actions";
 import { ReviewRatingSection, type ReviewableItem } from "./review-rating-section";
 
@@ -29,6 +30,7 @@ export default async function NewReviewPage({
     where: { id: orderId },
     include: {
       review: true,
+      customer: true,
       items: { include: { animal: { include: { species: true } }, product: true } },
     },
   });
@@ -52,6 +54,7 @@ export default async function NewReviewPage({
     return { type: "product", id: item.product!.id, label: name };
   });
 
+  const lang = locale === "en" ? "en" : "fr";
   const boundAction = submitReviewAction.bind(null, orderId);
 
   return (
@@ -64,6 +67,30 @@ export default async function NewReviewPage({
           {t("ratingLabel")}
           <ReviewRatingSection items={reviewableItems} />
         </div>
+        <fieldset className="flex flex-col gap-2 text-sm">
+          <legend className="mb-1">{t("nameDisplayLabel")}</legend>
+          {REVIEW_NAME_DISPLAYS.map((mode) => (
+            <label
+              key={mode}
+              className="flex cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+            >
+              <input
+                type="radio"
+                name="nameDisplay"
+                value={mode}
+                defaultChecked={mode === "first_initial"}
+                className="accent-primary"
+              />
+              <span className="flex flex-col">
+                <span>{t(`nameDisplay_${mode}`)}</span>
+                <span className="text-xs text-muted">
+                  {formatReviewerName(order.customer.fullName, mode, lang)}
+                </span>
+              </span>
+            </label>
+          ))}
+          <p className="text-xs text-muted">{t("nameDisplayHint")}</p>
+        </fieldset>
         <label className="flex flex-col gap-1 text-sm">
           {t("commentLabel")}
           <textarea

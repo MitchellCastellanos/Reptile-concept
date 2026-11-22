@@ -270,7 +270,13 @@
     "itemRatingsPrompt": "Rate each item (optional)",
     "showMoreItems": "Show {count, plural, one {# more item} other {# more items}}",
     "submit": "Submit",
-    "thankYou": "Thanks for your review!"
+    "thankYou": "Thanks for your review!",
+    "verifiedPurchase": "Verified purchase",
+    "nameDisplayLabel": "How would you like your name to appear on your review?",
+    "nameDisplayHint": "Your review will be shown publicly once approved.",
+    "nameDisplay_full": "Full name",
+    "nameDisplay_first_initial": "First name and last initial",
+    "nameDisplay_anonymous": "Anonymous customer"
   },
   "Account": {
     "title": "My account",
