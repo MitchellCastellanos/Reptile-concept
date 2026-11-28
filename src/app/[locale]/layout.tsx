@@ -13,6 +13,9 @@ import { BackToTopButton } from "@/components/back-to-top-button";
 import { PageViewTracker } from "@/components/page-view-tracker";
 import { MiniCartPopover } from "@/components/mini-cart-popover";
 import { CartProvider } from "@/lib/cart-context";
+import { getSiteUrl } from "@/lib/site-url";
+import { SITE_NAME, OG_LOCALE, jsonLdString } from "@/lib/seo";
+import { getSiteJsonLd } from "@/lib/seo-local-business";
 import "../globals.css";
 
 const geistSans = Geist({
@@ -31,23 +34,36 @@ const fraunces = Fraunces({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://reptiles-concept.ca"),
-  title: "Reptiles Concept",
-  description: "Reptiles, terrariums et accessoires — Lachine, QC",
-  openGraph: {
-    title: "Reptiles Concept",
-    description: "Reptiles, terrariums et accessoires — Lachine, QC",
-    siteName: "Reptiles Concept",
-    images: ["/og-image.jpg"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Reptiles Concept",
-    description: "Reptiles, terrariums et accessoires — Lachine, QC",
-    images: ["/og-image.jpg"],
-  },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const description =
+    locale === "en"
+      ? "Reptiles, terrariums and supplies — responsible breeding in Lachine, Montreal, QC."
+      : "Reptiles, terrariums et accessoires — élevage responsable à Lachine (Montréal), QC.";
+  return {
+    metadataBase: new URL(getSiteUrl()),
+    title: { default: `${SITE_NAME} — ${locale === "en" ? "Reptile shop in Lachine, Montreal" : "Boutique de reptiles à Lachine, Montréal"}`, template: `%s | ${SITE_NAME}` },
+    description,
+    openGraph: {
+      title: SITE_NAME,
+      description,
+      siteName: SITE_NAME,
+      locale: OG_LOCALE[locale] ?? locale,
+      type: "website",
+      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: SITE_NAME }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: SITE_NAME,
+      description,
+      images: ["/og-image.jpg"],
+    },
+  };
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -65,6 +81,8 @@ export default async function RootLayout({
     notFound();
   }
   setRequestLocale(locale);
+  // Structured data must never take the whole site down if settings can't load.
+  const siteJsonLd = await getSiteJsonLd(locale).catch(() => null);
 
   return (
     <html
@@ -72,6 +90,9 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
+        {siteJsonLd ? (
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(siteJsonLd) }} />
+        ) : null}
         <NextIntlClientProvider>
           <CartProvider>
             <PageViewTracker />

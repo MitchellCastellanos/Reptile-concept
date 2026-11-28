@@ -1,6 +1,15 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import type { Metadata } from "next";
+import { getTranslations as getMetaTranslations } from "next-intl/server";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getMetaTranslations({ locale, namespace: "About" });
+  return buildPageMetadata({ locale, path: "/about", title: t("title"), description: t("subtitle") });
+}
 
 export default async function AboutPage() {
   const t = await getTranslations("About");
@@ -13,7 +22,7 @@ export default async function AboutPage() {
       </div>
 
       <div className="relative aspect-[16/9] overflow-hidden rounded-2xl border border-border bg-accent-light shadow-sm">
-        <Image src="/images/hero.jpg" alt="" fill className="object-cover" sizes="100vw" />
+        <Image src="/images/hero.jpg" alt={t("title")} fill className="object-cover" sizes="100vw" priority />
       </div>
 
       <div className="flex flex-col gap-4 text-sm leading-relaxed text-foreground/90">

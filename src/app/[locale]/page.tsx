@@ -11,6 +11,8 @@ import { getActiveWelcomePromo } from "@/lib/promo";
 import { LaunchHero } from "@/components/launch-hero";
 import { ClassicHero } from "@/components/home-hero-classic";
 import { HOME_HERO_VARIANT } from "@/lib/home-hero";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
 
 const categoryIcons = [
   { key: "animals" as const, href: "/animals", image: "/images/icons/category-reptiles.png" },
@@ -29,6 +31,18 @@ const whyUsItems = [
   { key: "advice" as const, image: "/images/icons/why-advice.png" },
   { key: "shipping" as const, image: "/images/icons/why-shipping.png" },
 ];
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Home" });
+  const meta = buildPageMetadata({
+    locale,
+    title: locale === "en" ? "Reptile shop in Lachine, Montreal" : "Boutique de reptiles à Lachine, Montréal",
+    description: t("tagline"),
+  });
+  // Home keeps the site name as its whole title instead of "X | Reptiles Concept".
+  return { ...meta, title: { absolute: `Reptiles Concept — ${locale === "en" ? "Reptile shop in Lachine, Montreal" : "Boutique de reptiles à Lachine, Montréal"}` } };
+}
 
 export default async function Home() {
   const t = await getTranslations("Home");

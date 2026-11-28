@@ -19,6 +19,39 @@ import {
 import { parsePageNumber, parsePageSize } from "@/lib/listing";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { getAnimalRatings } from "@/lib/ratings";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const t = await getTranslations({ locale, namespace: "Home" });
+  const tCategories = await getTranslations({ locale, namespace: "NavCategories" });
+  const category = sp.category && tCategories.has(sp.category) ? sp.category : undefined;
+  const pageNumber = Number(sp.page) > 1 ? Math.floor(Number(sp.page)) : 1;
+  // Category and pagination are crawlable; search/sort/filter/page-size
+  // variants duplicate the same items, so keep them out of the index.
+  const noindex = Boolean(sp.q || sp.sort || sp.stock || sp.perPage);
+  const qs = new URLSearchParams();
+  if (category) qs.set("category", category);
+  if (pageNumber > 1) qs.set("page", String(pageNumber));
+  const query = qs.toString();
+  const base = t("availableAnimals");
+  const title = category ? `${tCategories(category)} — ${base}` : base;
+  return buildPageMetadata({
+    locale,
+    path: `/animals${query ? `?${query}` : ""}`,
+    title: pageNumber > 1 ? `${title} (${pageNumber})` : title,
+    description: t("animalsSubtitle"),
+    noindex,
+  });
+}
 
 export default async function AnimalsPage({
   searchParams,

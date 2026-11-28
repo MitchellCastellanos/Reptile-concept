@@ -6,6 +6,7 @@ import { getProductById, getProductVariants, getRelatedProducts } from "@/lib/qu
 import { getProductImageUrl } from "@/lib/images";
 import { getProductRatings } from "@/lib/ratings";
 import { getSiteUrl } from "@/lib/site-url";
+import { absoluteImage, absoluteUrl, breadcrumbJsonLd, jsonLdString, localizedAlternates, localizedUrl, OG_LOCALE } from "@/lib/seo";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { MediaGallery } from "@/components/media-gallery";
 import { RatingStars } from "@/components/rating-stars";
@@ -41,9 +42,9 @@ export async function generateMetadata({
   const url = `${getSiteUrl()}/${locale}/boutique/${product.id}`;
 
   return {
-    title: `${name} | Reptiles Concept`,
+    title: name,
     description: description?.slice(0, 160),
-    alternates: { canonical: url },
+    alternates: localizedAlternates(locale, `/boutique/${product.id}`),
     openGraph: {
       title: ogTitle,
       description: ogDescription,
@@ -51,6 +52,7 @@ export async function generateMetadata({
       siteName: "Reptiles Concept",
       images: [{ url: imageUrl, alt: name }],
       type: "website",
+      locale: OG_LOCALE[locale] ?? locale,
     },
     twitter: {
       card: "summary_large_image",
@@ -103,10 +105,16 @@ export default async function ProductDetailPage({
     "@type": "Product",
     name,
     description,
-    image: galleryImages,
+    image: galleryImages.map(absoluteImage),
+    url: localizedUrl(locale, `/boutique/${product.id}`),
+    category: tCategories(product.category),
     sku: product.sku,
+    brand: { "@type": "Brand", name: "Reptiles Concept" },
     offers: (variants.length > 0 ? variants : [product]).map((v) => ({
       "@type": "Offer",
+      url: localizedUrl(locale, `/boutique/${product.id}`),
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "Reptiles Concept", url: absoluteUrl(`/${locale}`) },
       sku: v.sku,
       priceCurrency: "CAD",
       price: Number(v.priceCAD),
@@ -123,9 +131,15 @@ export default async function ProductDetailPage({
       : {}),
   };
 
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: "Reptiles Concept", url: localizedUrl(locale) },
+    { name: t("title"), url: localizedUrl(locale, "/boutique") },
+    { name: name, url: localizedUrl(locale, `/boutique/${product.id}`) },
+  ]);
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString([jsonLd, breadcrumbLd]) }} />
 
       <Breadcrumb
         items={[

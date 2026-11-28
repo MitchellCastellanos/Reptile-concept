@@ -5,6 +5,7 @@ import { getAnimalById, getRelatedAnimals } from "@/lib/queries";
 import { getAnimalImageUrl } from "@/lib/images";
 import { getAnimalRatings } from "@/lib/ratings";
 import { getSiteUrl } from "@/lib/site-url";
+import { absoluteImage, absoluteUrl, breadcrumbJsonLd, jsonLdString, localizedAlternates, localizedUrl, OG_LOCALE } from "@/lib/seo";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { MediaGallery } from "@/components/media-gallery";
 import { RatingStars } from "@/components/rating-stars";
@@ -30,7 +31,7 @@ export async function generateMetadata({
 
   const speciesName = locale === "en" ? animal.species.commonNameEn : animal.species.commonNameFr;
   const name = `${speciesName} — ${animal.morph}`;
-  const title = `${name} | Reptiles Concept`;
+  const title = name;
   const description = locale === "en" ? animal.descriptionEn : animal.descriptionFr;
   const priceLabel = `${Number(animal.priceCAD)} $ CAD`;
   const ogTitle = `${name} — ${priceLabel}`;
@@ -41,7 +42,7 @@ export async function generateMetadata({
   return {
     title,
     description: description?.slice(0, 160),
-    alternates: { canonical: url },
+    alternates: localizedAlternates(locale, `/animals/${animal.id}`),
     openGraph: {
       title: ogTitle,
       description: ogDescription,
@@ -49,6 +50,7 @@ export async function generateMetadata({
       siteName: "Reptiles Concept",
       images: [{ url: imageUrl, alt: name }],
       type: "website",
+      locale: OG_LOCALE[locale] ?? locale,
     },
     twitter: {
       card: "summary_large_image",
@@ -100,9 +102,15 @@ export default async function AnimalDetailPage({
     "@type": "Product",
     name: `${speciesName} — ${animal.morph}`,
     description,
-    image: galleryImages,
+    image: galleryImages.map(absoluteImage),
+    url: localizedUrl(locale, `/animals/${animal.id}`),
+    category: tCategories(animal.species.category),
+    brand: { "@type": "Brand", name: "Reptiles Concept" },
     offers: {
       "@type": "Offer",
+      url: localizedUrl(locale, `/animals/${animal.id}`),
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "Reptiles Concept", url: absoluteUrl(`/${locale}`) },
       priceCurrency: "CAD",
       price: Number(animal.priceCAD),
       availability:
@@ -121,9 +129,15 @@ export default async function AnimalDetailPage({
       : {}),
   };
 
+  const breadcrumbLd = breadcrumbJsonLd([
+    { name: "Reptiles Concept", url: localizedUrl(locale) },
+    { name: home("availableAnimals"), url: localizedUrl(locale, "/animals") },
+    { name: `${speciesName} — ${animal.morph}`, url: localizedUrl(locale, `/animals/${animal.id}`) },
+  ]);
+
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString([jsonLd, breadcrumbLd]) }} />
 
       <Breadcrumb
         items={[

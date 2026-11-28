@@ -3,6 +3,15 @@ import { prisma } from "@/lib/db";
 import { RatingStars } from "@/components/rating-stars";
 import { VerifiedPurchaseBadge } from "@/components/verified-purchase-badge";
 import { formatReviewerName } from "@/lib/review-display";
+import type { Metadata } from "next";
+import { getTranslations as getMetaTranslations } from "next-intl/server";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getMetaTranslations({ locale, namespace: "Reviews" });
+  return buildPageMetadata({ locale, path: "/reviews", title: t("title"), description: t("subtitle") });
+}
 
 export default async function ReviewsPage() {
   const t = await getTranslations("Reviews");
